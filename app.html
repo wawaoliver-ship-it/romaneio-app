@@ -6,14 +6,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#0d1117" />
   <style>
-    :root{--bg:#0b0f19;--panel:#0f172a;--muted:#8a94a6;--text:#e6edf3;--primary:#2563eb;--primary-hover:#1d4ed8;--border:#1f2a44}
+    :root{
+      --bg:#0b0f19; --panel:#0f172a; --muted:#8a94a6; --text:#e6edf3;
+      --primary:#2563eb; --primary-hover:#1d4ed8; --border:#1f2a44
+    }
     *{box-sizing:border-box}
-    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif}
-    .topbar{position:sticky;top:0;background:#0d1117;border-bottom:1px solid var(--border);padding:10px 14px;display:flex;gap:10px;align-items:center;z-index:2}
+    body{margin:0;background:var(--bg);color:var(--text);
+         font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif}
+    .topbar{position:sticky;top:0;background:#0d1117;border-bottom:1px solid var(--border);
+            padding:10px 14px;display:flex;gap:10px;align-items:center;z-index:5}
     .brand{font-weight:700;letter-spacing:.3px;color:#9abaff}
     .grow{flex:1}
-    .chip{border:1px solid var(--border);padding:.35rem .6rem;border-radius:999px;background:#0b0f1a;color:#9abaff}
-    .btn{border:1px solid var(--border);background:#0b0f1a;color:var(--text);padding:.55rem .8rem;border-radius:10px;cursor:pointer}
+    .chip{border:1px solid var(--border);padding:.35rem .6rem;border-radius:999px;
+          background:#0b0f1a;color:#9abaff}
+    .btn{border:1px solid var(--border);background:#0b0f1a;color:var(--text);
+         padding:.55rem .8rem;border-radius:10px;cursor:pointer}
     .btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}
     .btn:hover{opacity:.95}
     main{max-width:1100px;margin:0 auto;padding:14px}
@@ -21,30 +28,46 @@
     .cols-3{grid-template-columns:repeat(3,1fr)}
     .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px}
     .muted{color:var(--muted)}
+    .table-wrap{overflow:auto}
     table{width:100%;border-collapse:collapse}
-    th,td{padding:8px;border-bottom:1px solid var(--border);text-align:left}
-    .right{text-align:right}
+    th,td{border-bottom:1px solid var(--border);padding:.7rem .5rem}
+    td.right{text-align:right}
+    h1{margin:.2rem 0 1rem 0;font-size:1.35rem}
+    h3{margin:.2rem 0 1rem 0}
+    h4{margin:.2rem 0 .6rem 0}
+    .kpi{display:flex;gap:10px;align-items:center}
+    .pill{display:inline-block;border:1px solid var(--border);border-radius:999px;
+          padding:.15rem .5rem;margin-left:.5rem;background:#0b0f1a}
     @media (max-width:900px){.cols-3{grid-template-columns:1fr}}
+    /* modal simples */
+    .modal{position:fixed;inset:auto 16px 16px auto;max-width:440px;display:none;z-index:30}
+    .modal.users{left:50%;top:8%;right:auto;bottom:auto;transform:translateX(-50%);max-width:900px;width:92%}
+    .stack{display:flex;gap:.5rem;flex-wrap:wrap}
+    pre{white-space:pre-wrap;word-break:break-word;background:#0b1020;border:1px solid var(--border);
+        padding:8px;border-radius:10px;margin:0}
   </style>
 </head>
 <body>
+  <!-- TOPBAR -->
   <header class="topbar">
     <div class="brand">🚚 Romaneio</div>
     <div class="grow"></div>
+    <button id="btnUsers" class="btn" style="display:none">Usuários</button>
+    <button id="btnMinhaSenha" class="btn">Minha senha</button>
     <span id="userChip" class="chip"></span>
     <button id="btnLogout" class="btn">Sair</button>
   </header>
 
   <main>
-    <!-- atalhos -->
-    <div class="grid cols-3">
+    <!-- ATALHOS -->
+    <section class="grid cols-3">
       <div class="card">
-        <h3>📦 Novo Romaneio</h3>
+        <h3>🧱 Novo Romaneio</h3>
         <p class="muted">Em breve: formulário completo para registrar romaneios com foto, volumes e impressão A4.</p>
-        <button class="btn primary" disabled>Em breve</button>
+        <button class="btn" disabled>Em breve</button>
       </div>
       <div class="card">
-        <h3>🧾 Meus Romaneios</h3>
+        <h3>📑 Meus Romaneios</h3>
         <p class="muted">Filtro por cidade/romaneio e impressão. Integração chega no próximo passo.</p>
         <button class="btn" disabled>Em breve</button>
       </div>
@@ -53,88 +76,246 @@
         <p class="muted">Consulta/cadastro automático por telefone na próxima etapa.</p>
         <button class="btn" disabled>Em breve</button>
       </div>
-    </div>
+    </section>
 
-    <!-- sessão -->
-    <div class="card" style="margin-top:14px">
+    <!-- SESSÃO -->
+    <section class="card" style="margin-top:14px">
       <h3>Sessão</h3>
-      <div id="whoamiBox" class="muted">Carregando...</div>
-    </div>
+      <div id="whoamiBox" class="muted">Carregando…</div>
+    </section>
 
-    <!-- tabela de preços (ITENS) -->
-    <div class="card" style="margin-top:14px">
-      <h3>Tabela de Preços (Planilha → ITENS)</h3>
-      <div class="muted" id="itensInfo">Carregando itens...</div>
-      <div class="table-wrap" style="overflow:auto;margin-top:8px">
+    <!-- ITENS -->
+    <section class="card" style="margin-top:14px">
+      <div class="kpi">
+        <h3 style="margin:0">Tabela de Preços (Planilha → ITENS)</h3>
+        <span id="itensInfo" class="pill muted">…</span>
+      </div>
+      <div class="table-wrap">
         <table id="tblItens">
           <thead><tr><th>Embalagem</th><th class="right">Valor</th></tr></thead>
           <tbody></tbody>
         </table>
       </div>
-    </div>
-
+    </section>
   </main>
 
+  <!-- MODAL: MINHA SENHA -->
+  <div id="dlgSenha" class="card modal">
+    <h3>Alterar senha</h3>
+    <div class="stack">
+      <div style="flex:1;min-width:180px">
+        <label class="muted">Senha atual</label>
+        <input id="senhaAtual" type="password" class="btn" style="width:100%" placeholder="••••••"/>
+      </div>
+      <div style="flex:1;min-width:180px">
+        <label class="muted">Nova senha</label>
+        <input id="novaSenha" type="password" class="btn" style="width:100%" placeholder="••••••"/>
+      </div>
+      <div style="flex:1;min-width:180px">
+        <label class="muted">Confirmar nova senha</label>
+        <input id="novaSenha2" type="password" class="btn" style="width:100%" placeholder="••••••"/>
+      </div>
+    </div>
+    <div class="stack" style="margin-top:.6rem">
+      <button id="btnSalvarSenha" class="btn primary">Salvar</button>
+      <button id="btnFecharSenha" class="btn">Fechar</button>
+    </div>
+    <pre id="outSenha" class="muted" style="margin-top:8px"></pre>
+  </div>
+
+  <!-- MODAL: USUÁRIOS (ADMIN) -->
+  <div id="dlgUsers" class="card modal users">
+    <h3>Usuários</h3>
+    <div class="grid" style="grid-template-columns:2fr 1fr;gap:12px">
+      <div>
+        <div class="table-wrap" style="max-height:360px">
+          <table id="tblUsers">
+            <thead><tr><th>Usuário</th><th>Nome</th><th>Perfil</th><th>Ativo</th><th>Ações</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card" style="background:#0b1020">
+        <h4>Novo usuário</h4>
+        <div class="stack">
+          <input id="novoU" class="btn" placeholder="usuario" style="flex:1" />
+          <input id="novoNome" class="btn" placeholder="Nome completo" style="flex:1" />
+        </div>
+        <div class="stack" style="margin-top:.5rem">
+          <input id="novoSenha" type="password" class="btn" placeholder="senha" style="flex:1" />
+          <select id="novoRole" class="btn" style="flex:1">
+            <option value="operador">operador</option>
+            <option value="admin">admin</option>
+          </select>
+        </div>
+        <div class="stack" style="margin-top:.6rem">
+          <button id="btnCriarUser" class="btn primary">Criar</button>
+          <button id="btnFecharUsers" class="btn">Fechar</button>
+        </div>
+        <pre id="outUsers" class="muted" style="margin-top:8px"></pre>
+      </div>
+    </div>
+  </div>
+
   <script>
+    // ====== CONFIG ======
+    // >> use exatamente a URL da sua implantação Apps Script (versão publicada):
     const API_BASE = "https://script.google.com/macros/s/AKfycbxM4FUC7kD5PuP_DhoX1Yph6F-2n0-o88QSsAYUmsfNWHItmo3_D8O7PJ9OZwwkB0hW/exec";
+
+    // ====== SESSÃO LOCAL ======
     const saveSession = (s) => localStorage.setItem("romaneio.session", JSON.stringify(s));
     const loadSession = () => { try { return JSON.parse(localStorage.getItem("romaneio.session")||"null"); } catch { return null; } };
-
     const session = loadSession();
-    if (!session || !session.token) {
-      // não logado → volta
-      window.location.href = "index.html";
-    }
+    if (!session || !session.token) location.href = "index.html";
 
-    document.getElementById("btnLogout").addEventListener("click", () => {
-      localStorage.removeItem("romaneio.session");
-      window.location.href = "index.html";
-    });
+    // UI básicos
+    const userChip = document.getElementById("userChip");
+    const btnUsers = document.getElementById("btnUsers");
+    document.getElementById("btnLogout").onclick = () => { localStorage.removeItem("romaneio.session"); location.href = "index.html"; };
 
-    // ajuda: fetch com token
+    // ====== HTTP HELPERS ======
     async function apiGet(path){
       const url = `${API_BASE}?path=${encodeURIComponent(path)}&token=${encodeURIComponent(session.token)}`;
-      const r = await fetch(url); const t = await r.text();
-      let data; try { data = JSON.parse(t); } catch { throw new Error("Resposta não-JSON: " + t); }
-      if (!r.ok || data.error) throw new Error(data.error||("HTTP "+r.status));
+      const r = await fetch(url);
+      const t = await r.text();
+      let data; try{ data = JSON.parse(t); } catch { throw new Error(`Resposta não-JSON (${r.status}): ${t}`); }
+      if (!r.ok || data.error) throw new Error(data.error || `HTTP ${r.status}`);
+      return data;
+    }
+    async function apiPost(path, payload){
+      const url = `${API_BASE}?path=${encodeURIComponent(path)}&token=${encodeURIComponent(session.token)}`;
+      const r = await fetch(url, { method:"POST", headers:{"Content-Type":"text/plain"}, body: JSON.stringify(payload||{}) });
+      const t = await r.text();
+      let data; try{ data = JSON.parse(t); } catch { throw new Error(`Resposta não-JSON: ${t}`); }
+      if (!r.ok || data.error) throw new Error(data.error || `HTTP ${r.status}`);
       return data;
     }
 
-    async function boot(){
-      // pinta chip
-      document.getElementById("userChip").textContent = (session.name||session.usuario) + (session.role ? " • "+session.role : "");
-
-      // whoami
-      try {
+    // ====== WHOAMI / ITENS ======
+    async function safeWhoAmI(){
+      const box = document.getElementById("whoamiBox");
+      try{
         const w = await apiGet("/whoami");
-        document.getElementById("whoamiBox").textContent =
-          `Usuário: ${w.session.usuario} • Nome: ${w.session.name||"-"} • Perfil: ${w.session.role||"-"} • expira: ${w.session.expira_em}`;
-      } catch(e){
-        document.getElementById("whoamiBox").textContent = "Falha ao carregar sessão: " + e.message;
-      }
-
-      // itens (preços)
-      try {
-        const r = await apiGet("/itens/list");
-        const tb = document.querySelector("#tblItens tbody");
-        tb.innerHTML = "";
-        (r.itens||[]).forEach(i => {
-          const tr = document.createElement("tr");
-          tr.innerHTML = `<td>${i.embalagem||""}</td><td class="right">${formatBRL(i.valor)}</td>`;
-          tb.appendChild(tr);
-        });
-        document.getElementById("itensInfo").textContent = r.itens?.length ? `${r.itens.length} itens` : "Sem itens definidos";
-      } catch(e){
-        document.getElementById("itensInfo").textContent = "Falha ao carregar itens: " + e.message;
+        const s = w.session ?? w; // tolera ambos formatos
+        const u = s.usuario ?? s.user ?? "(?)";
+        const nm = s.name ?? session.name ?? u;
+        const rl = s.role ?? session.role ?? "-";
+        const ex = s.expira_em ?? "-";
+        // pinta chip/topbar
+        userChip.textContent = `${nm || u}${rl ? " • "+rl : ""}`;
+        if ((rl||"") === "admin") btnUsers.style.display = "inline-block";
+        box.textContent = `Usuário: ${u} • Nome: ${nm} • Perfil: ${rl} • expira: ${ex}`;
+      }catch(e){
+        if (/401|unauth|expir/i.test(e.message)){ localStorage.removeItem("romaneio.session"); location.href="index.html"; return; }
+        box.textContent = "Falha ao carregar sessão: " + e.message;
       }
     }
 
     function formatBRL(v){
-      const n = Number(String(v).replace(",","."));
-      if (isNaN(n)) return v??"";
-      return n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+      const n = Number(String(v ?? "").replace(",", "."));
+      return isNaN(n) ? (v ?? "") : n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
     }
 
+    async function loadItens(){
+      const badge = document.getElementById("itensInfo");
+      try{
+        const r = await apiGet("/itens/list");
+        const tb = document.querySelector("#tblItens tbody"); tb.innerHTML="";
+        (r.itens || []).forEach(i => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `<td>${i.embalagem||""}</td><td class="right">${formatBRL(i.valor)}</td>`;
+          tb.appendChild(tr);
+        });
+        badge.textContent = r.itens?.length ? `${r.itens.length} itens` : "Sem itens definidos";
+      }catch(e){
+        badge.textContent = "Falha: " + e.message;
+      }
+    }
+
+    // ====== MODAL: MINHA SENHA ======
+    const dlgSenha = document.getElementById("dlgSenha");
+    document.getElementById("btnMinhaSenha").onclick = () => { dlgSenha.style.display="block"; };
+    document.getElementById("btnFecharSenha").onclick = () => { dlgSenha.style.display="none"; };
+    document.getElementById("btnSalvarSenha").onclick = async () => {
+      const out = document.getElementById("outSenha");
+      const senhaAtual = document.getElementById("senhaAtual").value;
+      const novaSenha  = document.getElementById("novaSenha").value;
+      const novaSenha2 = document.getElementById("novaSenha2").value;
+      if (!senhaAtual || !novaSenha){ out.textContent="Preencha as senhas."; return; }
+      if (novaSenha!==novaSenha2){ out.textContent="Confirmação não confere."; return; }
+      try{
+        await apiPost("/user/changePassword",{senhaAtual,novaSenha});
+        out.textContent = "✅ Senha alterada.";
+        document.getElementById("senhaAtual").value = "";
+        document.getElementById("novaSenha").value = "";
+        document.getElementById("novaSenha2").value = "";
+      }catch(e){ out.textContent = "❌ " + e.message; }
+    };
+
+    // ====== MODAL: USUÁRIOS (ADMIN) ======
+    const dlgUsers = document.getElementById("dlgUsers");
+    btnUsers.onclick = async () => { dlgUsers.style.display="block"; await loadUsers(); };
+    document.getElementById("btnFecharUsers").onclick = () => { dlgUsers.style.display="none"; };
+
+    async function loadUsers(){
+      const out = document.getElementById("outUsers");
+      try{
+        const r = await apiGet("/users/list");
+        const tb = document.querySelector("#tblUsers tbody"); tb.innerHTML="";
+        (r.users||[]).forEach(u => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${u.usuario||""}</td>
+            <td>${u.nome||""}</td>
+            <td>${u.role||""}</td>
+            <td>${u.ativo? "Sim":"Não"}</td>
+            <td class="stack">
+              <button data-u="${u.usuario}" class="btn" data-act="${u.ativo?'0':'1'}">${u.ativo?'Desativar':'Ativar'}</button>
+              <button data-reset="${u.usuario}" class="btn">Resetar senha</button>
+            </td>`;
+          tb.appendChild(tr);
+        });
+
+        tb.onclick = async (ev) => {
+          const el = ev.target;
+          if (el.dataset.u){
+            try{ await apiPost("/users/setActive",{usuario:el.dataset.u, ativo: el.dataset.act==="1"}); await loadUsers(); }
+            catch(e){ out.textContent = "❌ " + e.message; }
+          } else if (el.dataset.reset){
+            const nova = prompt("Nova senha para "+el.dataset.reset);
+            if (!nova) return;
+            try{ await apiPost("/users/resetPassword",{usuario:el.dataset.reset, novaSenha:nova}); await loadUsers(); }
+            catch(e){ out.textContent = "❌ " + e.message; }
+          }
+        };
+        out.textContent = "";
+      }catch(e){ out.textContent = "❌ " + e.message; }
+    }
+
+    document.getElementById("btnCriarUser").onclick = async () => {
+      const out = document.getElementById("outUsers");
+      const usuario = document.getElementById("novoU").value.trim();
+      const nome    = document.getElementById("novoNome").value.trim();
+      const senha   = document.getElementById("novoSenha").value;
+      const role    = document.getElementById("novoRole").value;
+      if (!usuario || !senha){ out.textContent="Informe usuário e senha."; return; }
+      try{
+        await apiPost("/users/create",{usuario,nome,senha,role,ativo:true});
+        document.getElementById("novoU").value="";
+        document.getElementById("novoNome").value="";
+        document.getElementById("novoSenha").value="";
+        out.textContent = "✅ Usuário criado.";
+        await loadUsers();
+      }catch(e){ out.textContent = "❌ " + e.message; }
+    };
+
+    // ====== BOOT ======
+    async function boot(){
+      userChip.textContent = (session.name || session.usuario || "—") + (session.role ? " • " + session.role : "");
+      if ((session.role||"") === "admin") btnUsers.style.display = "inline-block";
+      await safeWhoAmI();
+      await loadItens();
+    }
     boot();
   </script>
 </body>
