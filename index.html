@@ -1,64 +1,118 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Romaneio • Login</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta name="theme-color" content="#0d1117" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icon-192.png" />
+  <style>
+    :root{
+      --bg:#0d1117;--panel:#0f172a;--muted:#8a94a6;--text:#e6edf3;
+      --primary:#2563eb;--primary-hover:#1d4ed8;--border:#1f2a44;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui, -apple-system,Segoe UI, Roboto,Ubuntu,sans-serif}
+    header{padding:.75rem;background:#0b0f1a;border-bottom:1px solid var(--border)}
+    .wrap{max-width:1100px;margin:0 auto;padding:16px}
+    .card{max-width:480px;margin:48px auto;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:24px;box-shadow:0 10px 40px rgba(0,0,0,.2)}
+    h1{margin:0 0 8px;font-size:22px}
+    label{display:block;margin:.5rem 0 .25rem;color:var(--muted)}
+    input{
+      width:100%;padding:.9rem .95rem;border-radius:10px;background:#0b0f1a;
+      border:1px solid var(--border);color:var(--text);outline:none
+    }
+    input:focus{border-color:var(--primary)}
+    .btn{
+      display:inline-flex;gap:8px;align-items:center;justify-content:center;
+      padding:.9rem 1rem;border-radius:10px;background:#2563eb;color:#fff;border:0;
+      font-weight:600;cursor:pointer;width:100%
+    }
+    .btn:hover{background:#1d4ed8}
+    pre{white-space:pre-wrap;background:#0b0f1a;padding:12px;border-radius:10px;border:1px solid var(--border);color:#9fb0ff}
+    .msg{margin-top:12px;padding:.6rem .8rem;border-radius:8px;border:1px solid var(--border)}
+    .ok{color:#22c55e;border-color:#164e2e;background:#052e1a}
+    .err{color:#fca5a5;border-color:#4c1d1d;background:#1b0a0a}
+    footer{color:#7f8ea3;text-align:center;margin:32px 0}
+  </style>
 </head>
 <body>
-  <div class="login-container">
-    <h2>Acesso</h2>
-    <form id="loginForm">
-      <label for="usuario">Usuário</label>
-      <input type="text" id="usuario" required />
+  <header><div class="wrap">🚚 Romaneio</div></header>
 
-      <label for="senha">Senha</label>
-      <input type="password" id="senha" required />
+  <main class="wrap">
+    <div class="card">
+      <h1>Acesso</h1>
 
-      <button type="submit">Entrar</button>
-    </form>
-    <p id="msg" style="color:red;margin-top:10px;"></p>
-    <p style="margin-top:15px;font-size:0.85em;color:#aaa">
-      Admin cria/gerencia usuários via planilha. Precisa de acesso? Fale com o responsável.
-    </p>
-  </div>
+      <label>Usuário</label>
+      <input id="usuario" value="admin" autocomplete="username" />
 
-  <script>
-  // Use a SUA URL com /exec aqui:
+      <label>Senha</label>
+      <input id="senha" type="password" autocomplete="current-password" />
+
+      <div style="height:12px"></div>
+      <button class="btn" id="btnEntrar">Entrar</button>
+
+      <div id="out" class="msg err" style="display:none"></div>
+
+      <p style="color:#8aa; margin-top:14px">
+        Admin cria/gerencia usuários via planilha. Precisa de acesso? Fale com o responsável.
+      </p>
+    </div>
+  </main>
+
+  <footer>v1 • PWA (instalável)</footer>
+
+<script>
+  // === TROQUE AQUI PELO SEU /exec (ex.: https://script.google.com/macros/s/AKfyc.../exec) ===
   const API_BASE = "https://script.google.com/macros/s/AKfycbwJwVO5VR138hBjVH07DkVqpmpz0-V7wh3FMTEjh7ey-tYaWWITKR37SJUvYxKSaEAB/exec";
-</script>
-    async function api(path, body = {}, token = null) {
-      try {
-        const res = await fetch(API_BASE + "?path=" + encodeURIComponent(path), {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body)
-        });
-        return await res.json();
-      } catch (err) {
-        return { error: "fetch:" + err };
-      }
-    }
 
-    document.getElementById("loginForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const usuario = document.getElementById("usuario").value.trim();
-      const senha = document.getElementById("senha").value.trim();
-      document.getElementById("msg").textContent = "Carregando...";
+  function setMsg(el, text, ok=false){
+    el.style.display = 'block';
+    el.className = 'msg ' + (ok?'ok':'err');
+    el.textContent = text;
+  }
 
-      const r = await api("/login", { usuario, senha });
-      if (r.error) {
-        document.getElementById("msg").textContent = "Erro: " + r.error;
-      } else if (r.session) {
-        localStorage.setItem("session", JSON.stringify(r.session));
-        document.getElementById("msg").style.color = "green";
-        document.getElementById("msg").textContent = "Login OK! Redirecionando...";
-        setTimeout(() => (window.location.href = "app.html"), 800);
-      } else {
-        document.getElementById("msg").textContent = "Erro inesperado.";
-      }
+  async function api(path, body = {}, token = null) {
+    // sem application/json para evitar preflight/OPTIONS
+    const url = API_BASE + "?path=" + encodeURIComponent(path) + (token ? "&token=" + encodeURIComponent(token) : "");
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {"Content-Type": "text/plain;charset=utf-8"},
+      body: JSON.stringify(body),
+      cache: "no-store",
     });
-  </script>
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    return res.json();
+  }
+
+  async function login(){
+    const out = document.getElementById('out');
+    out.style.display='none';
+
+    try{
+      const usuario = document.getElementById('usuario').value.trim();
+      const senha   = document.getElementById('senha').value.trim();
+      if(!usuario || !senha){ setMsg(out,"Informe usuário e senha"); return; }
+
+      const data = await api("/login", {usuario, senha});
+      if (data.error){ setMsg(out,"Erro: "+data.error); return; }
+
+      localStorage.setItem("session", JSON.stringify(data.session));
+      location.href = "app.html";
+    }catch(e){
+      setMsg(out, "Erro: "+e.message);
+      console.error(e);
+    }
+  }
+
+  document.getElementById('btnEntrar').addEventListener('click', login);
+  document.getElementById('senha').addEventListener('keydown', (ev)=>{ if(ev.key==='Enter') login(); });
+
+  // PWA opcional
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  }
+</script>
 </body>
 </html>
