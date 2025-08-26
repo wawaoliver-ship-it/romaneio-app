@@ -1,90 +1,319 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Romaneio • Painel</title>
-  <meta name="theme-color" content="#0d1117" />
+  <meta name="theme-color" content="#0d1117">
   <style>
-    body {margin:0;font-family:system-ui, sans-serif;background:#0d1117;color:#e6edf3;}
-    .topbar {
-      background:#161b22;
-      padding:10px 14px;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      border-bottom:1px solid #30363d;
+    :root{
+      --bg:#0d1117;--panel:#161b22;--border:#30363d;--text:#e6edf3;
+      --muted:#9aa4b2;--primary:#2563eb;--primary-h:#1d4ed8;--danger:#ef4444;
     }
-    .btn {background:#2563eb;color:#fff;border:none;padding:8px 12px;border-radius:6px;cursor:pointer;}
-    .btn:hover {background:#1d4ed8;}
-    main {padding:20px;}
-    .card {
-      background:#161b22;
-      padding:16px;
-      border-radius:8px;
-      margin-bottom:16px;
-      border:1px solid #30363d;
-    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif;background:var(--bg);color:var(--text)}
+    .top{display:flex;justify-content:space-between;align-items:center;background:var(--panel);border-bottom:1px solid var(--border);padding:10px 14px;position:sticky;top:0;z-index:10}
+    main{max-width:1100px;margin:0 auto;padding:16px}
+    .card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px}
+    .btn{background:var(--primary);color:#fff;border:none;border-radius:8px;padding:8px 12px;cursor:pointer}
+    .btn:hover{background:var(--primary-h)}
+    .btn.ghost{background:#0b0f1a;border:1px solid var(--border)}
+    .btn.danger{background:var(--danger)}
+    .muted{color:var(--muted)}
+    pre{white-space:pre-wrap;background:#0b0f1a;border:1px solid var(--border);border-radius:8px;padding:10px}
+    .toolbar{display:flex;gap:8px;align-items:center}
+    .chip{display:inline-block;border:1px solid var(--border);padding:6px 10px;border-radius:20px;margin-right:8px;background:#0b0f1a}
+
+    /* MODAL */
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;padding:16px}
+    .modal .box{background:var(--panel);border:1px solid var(--border);border-radius:12px;max-width:860px;width:100%;padding:16px}
+    .grid{display:grid;gap:10px}
+    .grid.two{grid-template-columns:1fr 1fr}
+    input,select{width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:#0b0f1a;color:var(--text)}
+    table{width:100%;border-collapse:collapse}
+    th,td{border-bottom:1px solid var(--border);padding:8px;text-align:left}
+    .right{text-align:right}
+    .err{color:#f87171;font-size:.9em;margin-top:6px}
+    .ok{color:#34d399;font-size:.9em;margin-top:6px}
+    @media (max-width:800px){.grid.two{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
-  <div class="topbar">
-    <div><b>Romaneio</b></div>
-    <div>
-      <span id="usuarioInfo"></span>
+  <header class="top">
+    <div><b>🚚 Romaneio</b></div>
+    <div class="toolbar">
+      <span id="chip" class="chip"></span>
+      <button id="btnUsers" class="btn ghost" onclick="openUsers()" style="display:none">Usuários</button>
+      <button class="btn ghost" onclick="openChangePass()">Minha senha</button>
       <button class="btn" onclick="logout()">Sair</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="card">
+      <h3>Novo Romaneio</h3>
+      <div class="muted">Em breve: formulário completo com foto, volumes e impressão A4.</div>
+    </section>
+
+    <section class="card">
+      <h3>Meus Romaneios</h3>
+      <div class="muted">Filtros por cidade/romaneio e impressão — próximo passo.</div>
+    </section>
+
+    <section class="card">
+      <h3>Sessão</h3>
+      <div id="sess"></div>
+    </section>
+
+    <section class="card">
+      <h3>Tabela de Itens (planilha → ITENS)</h3>
+      <div id="itensBox" class="muted">carregando…</div>
+    </section>
+  </main>
+
+  <!-- MODAL: Usuários (admin) -->
+  <div id="modalUsers" class="modal" onclick="closeOnBackdrop(event,'modalUsers')">
+    <div class="box" onclick="event.stopPropagation()">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <h3 style="margin:0">Usuários</h3>
+        <button class="btn ghost" onclick="hide('modalUsers')">Fechar</button>
+      </div>
+
+      <div class="grid two" style="margin-bottom:12px">
+        <div>
+          <label>Usuário</label>
+          <input id="uUsuario" placeholder="ex.: operador1">
+        </div>
+        <div>
+          <label>Nome</label>
+          <input id="uNome" placeholder="Nome completo">
+        </div>
+        <div>
+          <label>Senha inicial</label>
+          <input id="uSenha" placeholder="senha" type="text">
+        </div>
+        <div>
+          <label>Perfil</label>
+          <select id="uRole">
+            <option value="operador">operador</option>
+            <option value="admin">admin</option>
+          </select>
+        </div>
+      </div>
+      <div class="toolbar" style="margin-bottom:12px">
+        <button class="btn" onclick="createUser()">Criar</button>
+        <span id="uMsg" class="muted"></span>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Usuário</th><th>Nome</th><th>Perfil</th><th>Ativo</th><th class="right">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="usersTbody"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 
-  <main>
-    <div class="card">
-      <h3>Novo Romaneio</h3>
-      <p>Em breve: formulário completo para registrar romaneios com foto, volumes e impressão A4.</p>
+  <!-- MODAL: Minha senha -->
+  <div id="modalPass" class="modal" onclick="closeOnBackdrop(event,'modalPass')">
+    <div class="box" onclick="event.stopPropagation()">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <h3 style="margin:0">Alterar minha senha</h3>
+        <button class="btn ghost" onclick="hide('modalPass')">Fechar</button>
+      </div>
+      <div class="grid two">
+        <div>
+          <label>Senha atual</label>
+          <input id="pAtual" type="password" placeholder="••••••">
+        </div>
+        <div>
+          <label>Nova senha</label>
+          <input id="pNova" type="password" placeholder="••••••">
+        </div>
+      </div>
+      <div class="toolbar" style="margin-top:12px">
+        <button class="btn" onclick="changePass()">Salvar</button>
+        <span id="pMsg" class="muted"></span>
+      </div>
     </div>
-    <div class="card">
-      <h3>Meus Romaneios</h3>
-      <p>Filtro por cidade/romaneio e impressão. Integração chega no próximo passo.</p>
-    </div>
-    <div class="card">
-      <h3>Clientes</h3>
-      <p>Consulta/cadastro automático por telefone na próxima etapa.</p>
-    </div>
-    <div id="sessao" class="card"></div>
-  </main>
+  </div>
 
 <script>
+/* ======= CONFIG ======= */
 const API_BASE = "https://script.google.com/macros/s/AKfycbxQjxpt1hA1KnQ2p9-LOWTCWtUaf--Zr1-02juFuHe5lXR1Ait7t_QsLOJf0yCYteQ/exec";
 
-async function checkSession(){
-  const s = localStorage.getItem("session");
-  if(!s){ window.location.href="index.html"; return; }
-  const session = JSON.parse(s);
-  document.getElementById("usuarioInfo").innerText = 
-    session.name+" • "+session.role;
+/* ======= SESSÃO ======= */
+function getSession(){
+  const raw = localStorage.getItem("rom.session");
+  if(!raw) return null;
+  try{ return JSON.parse(raw); }catch{ return null; }
+}
+function setChip(sess){
+  document.getElementById('chip').textContent = `${sess.nome || sess.usuario} • ${sess.role}`;
+  // mostra botão Usuários só para admin
+  document.getElementById('btnUsers').style.display = (sess.role === 'admin' ? 'inline-block' : 'none');
+}
+async function ensureSession(){
+  const sess = getSession();
+  if(!sess){ location.href="index.html"; return; }
+  setChip(sess);
 
-  try {
-    const r = await fetch(API_BASE+"?op=session", {
-      method:"POST",
-      body: JSON.stringify({token: session.token})
-    });
-    const data = await r.json();
-    if(!data.ok){
-      logout();
-    } else {
-      document.getElementById("sessao").innerText = 
-        "Sessão ativa até: "+session.expira_em;
+  try{
+    const r = await fetch(`${API_BASE}?path=/whoami&token=${encodeURIComponent(sess.token)}`, { method:"POST", body:"{}" });
+    const j = await r.json();
+    if(!j.session){ logout(); return; }
+    document.getElementById('sess').innerHTML =
+      `<div>Usuário: <b>${j.session.usuario}</b> (${j.session.role})</div>
+       <div>Ativo: ${j.session.ativo ? 'sim' : 'não'}</div>
+       <div class="muted">token: ${sess.token}</div>`;
+  }catch(e){
+    document.getElementById('sess').textContent = "Falha ao checar sessão";
+  }
+
+  // Carrega ITENS
+  try{
+    const r2 = await fetch(`${API_BASE}?path=/itens/list&token=${encodeURIComponent(sess.token)}`, { method:"POST", body:"{}" });
+    const j2 = await r2.json();
+    if(j2.itens && j2.itens.length){
+      document.getElementById('itensBox').innerHTML =
+        `<pre>${j2.itens.map(x=>`${x.embalagem} — R$ ${x.valor}`).join('\n')}</pre>`;
+    }else{
+      document.getElementById('itensBox').textContent = "Sem itens definidos.";
     }
-  } catch(e){
-    document.getElementById("sessao").innerText = "Falha ao carregar sessão";
+  }catch(e){
+    document.getElementById('itensBox').textContent = "Falha ao carregar ITENS.";
+  }
+}
+function logout(){
+  const sess = getSession();
+  if(sess){
+    fetch(`${API_BASE}?path=/logout&token=${encodeURIComponent(sess.token)}`, { method:"POST", body:"{}" })
+      .finally(()=>{});
+  }
+  localStorage.removeItem("rom.session");
+  location.href = "index.html";
+}
+
+/* ======= MODAL helpers ======= */
+function show(id){ document.getElementById(id).style.display='flex'; }
+function hide(id){ document.getElementById(id).style.display='none'; }
+function closeOnBackdrop(e,id){ if(e.target.id===id) hide(id); }
+
+/* ======= USUÁRIOS (ADMIN) ======= */
+async function openUsers(){
+  show('modalUsers');
+  await loadUsers();
+}
+async function loadUsers(){
+  const sess = getSession(); if(!sess) return;
+  const tbody = document.getElementById('usersTbody');
+  tbody.innerHTML = `<tr><td colspan="5" class="muted">carregando…</td></tr>`;
+  try{
+    const r = await fetch(`${API_BASE}?path=/users/list&token=${encodeURIComponent(sess.token)}`, { method:"POST", body:"{}" });
+    const j = await r.json();
+    if(j.error){ tbody.innerHTML = `<tr><td colspan="5" class="err">${j.error}</td></tr>`; return; }
+    if(!j.users || !j.users.length){ tbody.innerHTML = `<tr><td colspan="5" class="muted">sem usuários</td></tr>`; return; }
+    tbody.innerHTML = "";
+    j.users.forEach(u=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${u.usuario}</td>
+        <td>${u.nome||""}</td>
+        <td>${u.role}</td>
+        <td>${u.ativo ? 'sim' : 'não'}</td>
+        <td class="right">
+          <button class="btn ghost" onclick="toggleActive('${u.usuario}', ${!u.ativo})">${u.ativo?'Desativar':'Ativar'}</button>
+          <button class="btn ghost" onclick="resetPasswordPrompt('${u.usuario}')">Reset senha</button>
+        </td>`;
+      tbody.appendChild(tr);
+    });
+  }catch(e){
+    tbody.innerHTML = `<tr><td colspan="5" class="err">Falha: ${e.message}</td></tr>`;
+  }
+}
+async function createUser(){
+  const m = (t,c="muted") => document.getElementById('uMsg').outerHTML = `<span id="uMsg" class="${c}">${t}</span>`;
+  const sess = getSession(); if(!sess) return;
+  const usuario = document.getElementById('uUsuario').value.trim();
+  const nome    = document.getElementById('uNome').value.trim();
+  const senha   = document.getElementById('uSenha').value;
+  const role    = document.getElementById('uRole').value;
+  if(!usuario || !senha){ m("Informe usuário e senha","err"); return; }
+
+  try{
+    const r = await fetch(`${API_BASE}?path=/users/create&token=${encodeURIComponent(sess.token)}`, {
+      method:"POST", body: JSON.stringify({usuario,nome,senha,role})
+    });
+    const j = await r.json();
+    if(j.error){ m(j.error,"err"); return; }
+    m("Criado com sucesso","ok");
+    document.getElementById('uUsuario').value="";
+    document.getElementById('uNome').value="";
+    document.getElementById('uSenha').value="";
+    document.getElementById('uRole').value="operador";
+    await loadUsers();
+  }catch(e){ m("Falha: "+e.message,"err"); }
+}
+function resetPasswordPrompt(usuario){
+  const nova = prompt(`Nova senha para ${usuario}:`);
+  if(!nova) return;
+  resetPassword(usuario, nova);
+}
+async function resetPassword(usuario, novaSenha){
+  const sess = getSession(); if(!sess) return;
+  const m = (t,c="muted") => document.getElementById('uMsg').outerHTML = `<span id="uMsg" class="${c}">${t}</span>`;
+  try{
+    const r = await fetch(`${API_BASE}?path=/users/resetPassword&token=${encodeURIComponent(sess.token)}`, {
+      method:"POST", body: JSON.stringify({usuario,novaSenha})
+    });
+    const j = await r.json();
+    if(j.error){ m(j.error,"err"); return; }
+    m("Senha redefinida","ok");
+  }catch(e){ m("Falha: "+e.message,"err"); }
+}
+async function toggleActive(usuario, ativo){
+  const sess = getSession(); if(!sess) return;
+  const m = (t,c="muted") => document.getElementById('uMsg').outerHTML = `<span id="uMsg" class="${c}">${t}</span>`;
+  try{
+    const r = await fetch(`${API_BASE}?path=/users/setActive&token=${encodeURIComponent(sess.token)}`, {
+      method:"POST", body: JSON.stringify({usuario,ativo})
+    });
+    const j = await r.json();
+    if(j.error){ m(j.error,"err"); return; }
+    await loadUsers();
+  }catch(e){ m("Falha: "+e.message,"err"); }
+}
+
+/* ======= MINHA SENHA ======= */
+function openChangePass(){ show('modalPass'); }
+async function changePass(){
+  const sess = getSession(); if(!sess) return;
+  const senhaAtual = document.getElementById('pAtual').value;
+  const novaSenha  = document.getElementById('pNova').value;
+  const pMsg = document.getElementById('pMsg');
+  pMsg.className='muted'; pMsg.textContent='salvando…';
+  if(!senhaAtual || !novaSenha){ pMsg.className='err'; pMsg.textContent='Preencha os dois campos.'; return; }
+
+  try{
+    const r = await fetch(`${API_BASE}?path=/user/changePassword&token=${encodeURIComponent(sess.token)}`, {
+      method:"POST", body: JSON.stringify({senhaAtual,novaSenha})
+    });
+    const j = await r.json();
+    if(j.error){ pMsg.className='err'; pMsg.textContent=j.error; return; }
+    pMsg.className='ok'; pMsg.textContent='Senha alterada!';
+    document.getElementById('pAtual').value="";
+    document.getElementById('pNova').value="";
+  }catch(e){
+    pMsg.className='err'; pMsg.textContent='Falha: '+e.message;
   }
 }
 
-function logout(){
-  localStorage.removeItem("session");
-  window.location.href="index.html";
-}
-
-checkSession();
+/* boot */
+ensureSession();
 </script>
 </body>
 </html>
