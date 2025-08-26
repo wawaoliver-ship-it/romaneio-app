@@ -1,4 +1,4 @@
-const CACHE = "romaneio-v15";
+const CACHE = "romaneio-v16";
 self.addEventListener("install", e=>{
   e.waitUntil(caches.open(CACHE).then(c=>c.addAll(["./","./index.html","./app.html","./manifest.webmanifest","./icon-192.png","./icon-512.png"])));
 });
