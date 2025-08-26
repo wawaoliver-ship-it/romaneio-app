@@ -1,295 +1,315 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="theme-color" content="#0d1117" />
-<title>Romaneio • Painel</title>
-<link rel="manifest" href="manifest.webmanifest">
-<style>
-:root{
-  --bg:#0b0f19;--panel:#0f172a;--muted:#8a94a6;--text:#e6edf3;
-  --primary:#2563eb;--primary-hover:#1d4ed8;--border:#1f2a44;
-}
-*{box-sizing:border-box}
-html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif}
-header{position:sticky;top:0;background:#0d1117;border-bottom:1px solid var(--border);padding:12px 16px;display:flex;gap:10px;align-items:center;z-index:5}
-.brand{font-weight:700;letter-spacing:.3px;color:#9abaff}
-.spacer{flex:1}
-button{border:1px solid #334155;background:#0b0f19;color:var(--text);padding:10px 12px;border-radius:10px;cursor:pointer}
-button.primary{background:var(--primary);border-color:var(--primary)}
-button:hover{opacity:.95}
-main{max-width:1100px;margin:0 auto;padding:16px;display:grid;gap:14px}
-.card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px}
-h2{margin:0 0 10px 0;font-size:18px;color:#c7d2fe}
-.note{color:#9aa4b2}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-@media (max-width:980px){.grid{grid-template-columns:1fr}}
-.table{width:100%;border-collapse:collapse}
-.table th,.table td{border-bottom:1px solid var(--border);padding:10px;text-align:left}
-.badge{display:inline-block;padding:2px 8px;border:1px solid var(--border);border-radius:999px;background:#0b0f19;color:#9aa4b2}
-
-/* Modal */
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:18px}
-.modal.show{display:flex}
-.modal > .content{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px;max-width:900px;width:100%;max-height:80vh;overflow:auto}
-.modal h3{margin:0 0 10px 0;color:#c7d2fe}
-.field{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
-input,select{background:#0b0f19;border:1px solid #243146;color:var(--text);border-radius:10px;padding:10px}
-
-/* Toast */
-.toast{position:fixed;right:12px;bottom:12px;background:#0b0f19;border:1px solid var(--border);border-radius:10px;padding:10px 12px;display:none}
-.toast.show{display:block}
-</style>
+  <meta charset="UTF-8" />
+  <title>Romaneio • Painel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0d1117" />
+  <style>
+    :root{
+      --bg:#0b0f19;--panel:#0f172a;--muted:#8a94a6;--text:#e6edf3;
+      --primary:#2563eb;--primary-hover:#1d4ed8;--border:#1f2a44;--ok:#22c55e;--bad:#ef4444
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:system-ui,Segoe UI,Roboto,Ubuntu,sans-serif}
+    header{position:sticky;top:0;background:#0c1324;border-bottom:1px solid var(--border);padding:10px 14px;display:flex;gap:10px;align-items:center;z-index:10}
+    .brand{font-weight:700}
+    .chip{border:1px solid var(--border);padding:.35rem .6rem;border-radius:999px;color:#9ab}
+    .spacer{flex:1}
+    .btn{border:1px solid var(--border);background:#0b0f19;color:var(--text);padding:.6rem .9rem;border-radius:8px;cursor:pointer}
+    .btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}
+    .btn:hover{opacity:.95}
+    main{max-width:1100px;margin:0 auto;padding:16px;display:grid;gap:14px}
+    .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:18px}
+    h2{margin:0 0 8px;font-size:1.05rem}
+    .muted{color:var(--muted)}
+    table{width:100%;border-collapse:collapse}
+    th,td{border-bottom:1px solid var(--border);padding:.6rem .5rem;text-align:left}
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    /* Modal */
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.5);z-index:30}
+    .modal .panel{background:var(--panel);border:1px solid var(--border);border-radius:14px;max-width:900px;width:95%;padding:16px}
+    .grid{display:grid;gap:10px}
+    .grid.two{grid-template-columns:1fr 1fr}
+    input,select{width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:#0b0f19;color:var(--text)}
+    .msg{margin-top:8px;font-size:.9rem}
+    .ok{color:var(--ok)} .bad{color:var(--bad)}
+  </style>
 </head>
 <body>
 <header>
   <div class="brand">🚚 Romaneio</div>
+  <div id="userChip" class="chip">—</div>
   <div class="spacer"></div>
-  <button id="btnUsers" class="ghost">Usuários</button>
-  <button id="btnAudit" class="ghost">Auditoria</button>
-  <button id="btnPwd" class="ghost">Minha senha</button>
-  <button id="btnLogout">Sair</button>
+  <button class="btn" id="btnUsers">Usuários</button>
+  <button class="btn" id="btnPwd">Minha senha</button>
+  <button class="btn" id="btnLogout">Sair</button>
 </header>
 
 <main>
-  <section class="grid">
-    <div class="card">
-      <h2>Novo Romaneio</h2>
-      <p class="note">Em breve: formulário completo com foto, volumes e impressão A4.</p>
-      <button disabled>Em breve</button>
-    </div>
-    <div class="card">
-      <h2>Meus Romaneios</h2>
-      <p class="note">Filtro por cidade/romaneio e impressão. Integração chega no próximo passo.</p>
-      <button disabled>Em breve</button>
-    </div>
-    <div class="card">
-      <h2>Clientes</h2>
-      <p class="note">Cadastro/consulta por telefone virá junto do fluxo de romaneio.</p>
-      <button disabled>Em breve</button>
-    </div>
-  </section>
-
   <section class="card">
-    <h2>Sessão</h2>
-    <div id="sessInfo" class="note"></div>
+    <h2>Bem-vindo</h2>
+    <div class="muted">Aqui você consegue gerenciar usuários, sua senha e visualizar a tabela de itens da planilha.</div>
+    <div id="sessionInfo" class="muted" style="margin-top:6px"></div>
   </section>
 
   <section class="card">
     <h2>Tabela de Preços (Planilha → ITENS)</h2>
-    <table class="table" id="tblItens">
-      <thead><tr><th>Embalagem</th><th>Valor</th></tr></thead>
-      <tbody></tbody>
-    </table>
+    <div class="muted">Lista automática da aba <b>ITENS</b> (embalagem, valor).</div>
+    <div style="margin-top:8px;overflow:auto">
+      <table>
+        <thead><tr><th>Embalagem</th><th>Valor</th></tr></thead>
+        <tbody id="tbodyItens"></tbody>
+      </table>
+    </div>
   </section>
 </main>
 
-<!-- Modal Usuários -->
-<div class="modal" id="mdlUsers">
-  <div class="content" id="mdlUsersContent">
-    <h3>Usuários</h3>
-    <div style="display:grid;grid-template-columns:2fr 1fr;gap:14px">
+<!-- MODAL USUÁRIOS -->
+<div id="modalUsers" class="modal">
+  <div class="panel">
+    <div class="row" style="justify-content:space-between">
+      <h2>Usuários</h2>
+      <button class="btn" onclick="closeUsers()">Fechar</button>
+    </div>
+    <div class="grid two" style="margin:8px 0 12px">
       <div>
-        <table class="table" id="tblUsers">
-          <thead>
-            <tr><th>Usuário</th><th>Nome</th><th>Perfil</th><th>Ativo</th><th>Ações</th></tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-      <div class="card" style="padding:12px">
-        <h4 style="margin:0 0 8px 0">Novo usuário</h4>
-        <div class="field"><label>Usuário</label><input id="nuUsuario" placeholder="ex.: joao" /></div>
-        <div class="field"><label>Nome</label><input id="nuNome" placeholder="João da Silva" /></div>
-        <div class="field"><label>Senha</label><input id="nuSenha" type="password" placeholder="••••••" /></div>
-        <div class="field"><label>Perfil</label>
-          <select id="nuRole"><option value="admin">admin</option><option value="operador">operador</option></select>
+        <div class="muted" style="margin-bottom:6px">Novo usuário</div>
+        <div class="grid two">
+          <input id="u_usuario" placeholder="usuário (login)">
+          <input id="u_nome" placeholder="nome completo">
         </div>
-        <div style="display:flex;gap:8px">
-          <button id="btnCreateUser" class="primary">Criar</button>
-          <button id="btnCloseUsers">Fechar</button>
+        <div class="grid two" style="margin-top:6px">
+          <input id="u_senha" placeholder="senha">
+          <select id="u_role">
+            <option value="operador">operador</option>
+            <option value="admin">admin</option>
+          </select>
         </div>
-        <div class="note" id="usersMsg" style="margin-top:6px"></div>
+        <div class="row" style="margin-top:8px">
+          <button class="btn primary" onclick="createUser()">Criar</button>
+          <div id="usersMsg" class="msg"></div>
+        </div>
       </div>
+      <div>
+        <div class="muted" style="margin-bottom:6px">Ações rápidas</div>
+        <div class="grid two">
+          <input id="a_usuario" placeholder="usuário-alvo">
+          <input id="a_novasenha" placeholder="nova senha (reset)">
+        </div>
+        <div class="row" style="margin-top:8px">
+          <button class="btn" onclick="resetPassword()">Resetar senha</button>
+          <button class="btn" onclick="ativarUsuario(true)">Ativar</button>
+          <button class="btn" onclick="ativarUsuario(false)">Desativar</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="overflow:auto">
+      <table>
+        <thead>
+          <tr>
+            <th>Usuário</th><th>Nome</th><th>Perfil</th><th>Ativo</th>
+          </tr>
+        </thead>
+        <tbody id="tbodyUsers"></tbody>
+      </table>
     </div>
   </div>
 </div>
 
-<!-- Modal Minha senha -->
-<div class="modal" id="mdlPwd">
-  <div class="content" id="mdlPwdContent" style="max-width:420px">
-    <h3>Alterar minha senha</h3>
-    <div class="field"><label>Senha atual</label><input id="pwdAtual" type="password" /></div>
-    <div class="field"><label>Nova senha</label><input id="pwdNova" type="password" /></div>
-    <div class="field"><label>Confirmar nova senha</label><input id="pwdConf" type="password" /></div>
-    <div style="display:flex;gap:8px">
-      <button id="btnSavePwd" class="primary">Salvar</button>
-      <button id="btnClosePwd">Fechar</button>
+<!-- MODAL MINHA SENHA -->
+<div id="modalPwd" class="modal">
+  <div class="panel" style="max-width:520px">
+    <div class="row" style="justify-content:space-between">
+      <h2>Alterar minha senha</h2>
+      <button class="btn" onclick="closePwd()">Fechar</button>
     </div>
-    <div class="note" id="pwdMsg" style="margin-top:6px"></div>
+    <div class="grid">
+      <input id="p_atual" type="password" placeholder="Senha atual">
+      <input id="p_nova" type="password" placeholder="Nova senha">
+      <input id="p_conf" type="password" placeholder="Confirmar nova senha">
+    </div>
+    <div class="row" style="margin-top:8px">
+      <button class="btn primary" onclick="savePwd()">Salvar</button>
+      <div id="pwdMsg" class="msg"></div>
+    </div>
   </div>
 </div>
-
-<!-- Modal Auditoria -->
-<div class="modal" id="mdlAudit">
-  <div class="content" id="mdlAuditContent">
-    <h3>Auditoria (últimos eventos)</h3>
-    <table class="table" id="tblAudit">
-      <thead><tr><th>Quando</th><th>Usuário</th><th>Role</th><th>Ação</th><th>Detalhes</th><th>Ref</th></tr></thead>
-      <tbody></tbody>
-    </table>
-    <div style="margin-top:8px"><button id="btnCloseAudit">Fechar</button></div>
-  </div>
-</div>
-
-<div class="toast" id="toast"></div>
 
 <script>
-const API_BASE = "https://script.google.com/macros/s/AKfycbyGZu5c4vTiXjQx5Ud45m0Ij3Dotejl_ziYTdFmjtWXU4cPRz1i2qWLPkVF4RzhuIMr/exec";
-const $ = (s,ctx=document)=>ctx.querySelector(s);
-const $$ = (s,ctx=document)=>Array.from(ctx.querySelectorAll(s));
+  // ====== CONFIG ======
+  const API_BASE = "https://script.google.com/macros/s/AKfycbyGZu5c4vTiXjQx5Ud45m0Ij3Dotejl_ziYTdFmjtWXU4cPRz1i2qWLPkVF4RzhuIMr/exec";
 
-function saveSession(s){ localStorage.setItem("rom.session", JSON.stringify(s)); }
-function getSession(){ try{return JSON.parse(localStorage.getItem("rom.session")||"null")}catch(_){return null} }
-function clearSession(){ localStorage.removeItem("rom.session"); }
-function toast(msg, ok=true){
-  const t=$("#toast"); t.textContent=(ok?"✅ ":"❌ ")+msg; t.classList.add("show");
-  setTimeout(()=>t.classList.remove("show"), 3000);
-}
-async function api(path, data={}){
-  const sess=getSession(); const url = API_BASE + "?path="+encodeURIComponent(path)+(sess && sess.token? "&token="+encodeURIComponent(sess.token):"");
-  const res = await fetch(url,{ method:"POST", mode:"cors", headers:{ "Content-Type":"application/json" }, body: JSON.stringify(data) });
-  return await res.json();
-}
+  const state = {
+    session: null,
+  };
 
-async function boot(){
-  // exige sessão válida
-  const sess = getSession();
-  if (!sess || !sess.token){
-    location.href="index.html"; return;
-  }
-  const r = await api("/whoami",{});
-  if (!r || !r.session){ clearSession(); location.href="index.html"; return; }
-  // header buttons por role
-  $("#btnUsers").style.display = r.session.role==="admin"?"inline-block":"none";
-  $("#btnAudit").style.display = r.session.role==="admin"?"inline-block":"none";
-  $("#sessInfo").textContent = `Usuário: ${r.session.usuario} • Perfil: ${r.session.role} • Token: ${r.session.token.slice(0,6)}…`;
+  // ====== API helper (SEM preflight CORS) ======
+  async function api(path, payload = {}, withToken = true){
+    const url = API_BASE + "?path=" + encodeURIComponent(path) +
+      (withToken && state.session?.token ? "&token=" + encodeURIComponent(state.session.token) : "");
 
-  // itens
-  const li = await api("/itens/list",{});
-  const tbody = $("#tblItens tbody"); tbody.innerHTML="";
-  (li?.itens||[]).forEach(i=>{
-    const tr=document.createElement("tr");
-    tr.innerHTML=`<td>${i.embalagem||""}</td><td>R$ ${Number(i.valor||0).toFixed(2)}</td>`;
-    tbody.appendChild(tr);
-  });
-}
-
-$("#btnLogout").addEventListener("click", async ()=>{
-  await api("/logout",{}).catch(()=>{});
-  clearSession();
-  location.href="index.html";
-});
-
-/* ==== Modal Usuários ==== */
-const mdlUsers = $("#mdlUsers");
-$("#btnUsers").addEventListener("click", async ()=>{
-  mdlUsers.classList.add("show");
-  await loadUsers();
-});
-$("#btnCloseUsers").addEventListener("click", ()=> mdlUsers.classList.remove("show"));
-mdlUsers.addEventListener("click", ()=> mdlUsers.classList.remove("show"));
-$("#mdlUsersContent").addEventListener("click", e=> e.stopPropagation()); // não fecha ao clicar dentro
-
-async function loadUsers(){
-  $("#usersMsg").textContent="";
-  const r = await api("/users/list",{});
-  const tbody = $("#tblUsers tbody"); tbody.innerHTML="";
-  if (r?.users){
-    r.users.forEach(u=>{
-      const tr=document.createElement("tr");
-      tr.innerHTML = `
-        <td>${u.usuario}</td>
-        <td>${u.nome||""}</td>
-        <td><span class="badge">${u.role}</span></td>
-        <td>${u.ativo? "✅" : "❌"}</td>
-        <td style="display:flex;gap:6px;flex-wrap:wrap">
-          <button data-act="toggle" data-u="${u.usuario}" class="ghost">${u.ativo?"Desativar":"Ativar"}</button>
-          <button data-act="reset" data-u="${u.usuario}" class="ghost">Resetar senha</button>
-        </td>`;
-      tbody.appendChild(tr);
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" }, // <- simples (sem OPTIONS)
+      body: JSON.stringify(payload || {})
     });
+
+    // se caiu no CORS/Network, o fetch lançaria antes; aqui é HTTP real
+    const json = await res.json();
+    return json;
   }
-}
-$("#tblUsers").addEventListener("click", async (e)=>{
-  const btn = e.target.closest("button"); if(!btn) return;
-  const act = btn.dataset.act, usuario = btn.dataset.u;
-  if (act==="toggle"){
-    const want = btn.textContent.includes("Desativar") ? false : true;
-    const r = await api("/users/setActive",{ usuario, ativo: want });
-    if (r?.error) toast(r.error,false); else { toast("Atualizado"); loadUsers(); }
+
+  // ====== Sessão ======
+  function readSession(){
+    try{
+      state.session = JSON.parse(localStorage.getItem("session")||"null");
+    }catch(e){ state.session = null; }
   }
-  if (act==="reset"){
-    const nova = prompt(`Nova senha para ${usuario}:`);
-    if (!nova) return;
-    const r = await api("/users/resetPassword",{ usuario, novaSenha: nova });
-    if (r?.error) toast(r.error,false); else toast("Senha redefinida");
+
+  function ensureSession(){
+    if(!state.session?.token){
+      window.location.href = "index.html";
+      return false;
+    }
+    return true;
   }
-});
-$("#btnCreateUser").addEventListener("click", async ()=>{
-  const usuario = $("#nuUsuario").value.trim();
-  const nome    = $("#nuNome").value.trim();
-  const senha   = $("#nuSenha").value;
-  const role    = $("#nuRole").value;
-  if (!usuario || !senha){ $("#usersMsg").textContent="Informe usuário e senha."; return; }
-  const r = await api("/users/create",{ usuario, nome, senha, role });
-  if (r?.error){ $("#usersMsg").textContent = "Erro: "+r.error; return; }
-  $("#usersMsg").textContent = "Criado!";
-  $("#nuUsuario").value = $("#nuNome").value = $("#nuSenha").value = "";
-  await loadUsers();
-});
 
-/* ==== Modal Minha Senha ==== */
-const mdlPwd = $("#mdlPwd");
-$("#btnPwd").addEventListener("click", ()=> mdlPwd.classList.add("show"));
-$("#btnClosePwd").addEventListener("click", ()=> mdlPwd.classList.remove("show"));
-mdlPwd.addEventListener("click", ()=> mdlPwd.classList.remove("show"));
-$("#mdlPwdContent").addEventListener("click", e=> e.stopPropagation());
+  async function loadWhoAmI(){
+    try{
+      const r = await api("/whoami", {}, true);
+      if(!r?.session){ doLogout(); return; }
+      state.session = r.session;
+      localStorage.setItem("session", JSON.stringify(state.session));
+      paintHeader();
+      document.getElementById("sessionInfo").textContent =
+        `Sessão de ${state.session?.nome || state.session?.usuario} • perfil: ${state.session?.role}`;
+    }catch(e){
+      // se falhar, volta pro login
+      doLogout();
+    }
+  }
 
-$("#btnSavePwd").addEventListener("click", async ()=>{
-  $("#pwdMsg").textContent="";
-  const atual=$("#pwdAtual").value, nova=$("#pwdNova").value, conf=$("#pwdConf").value;
-  if (!atual || !nova || !conf) { $("#pwdMsg").textContent="Preencha todos os campos."; return; }
-  if (nova!==conf){ $("#pwdMsg").textContent="As senhas não conferem."; return; }
-  const r = await api("/user/changePassword",{ senhaAtual:atual, novaSenha:nova });
-  if (r?.error){ $("#pwdMsg").textContent="Erro: "+r.error; return; }
-  $("#pwdMsg").textContent="Senha alterada!";
-  $("#pwdAtual").value = $("#pwdNova").value = $("#pwdConf").value = "";
-});
+  function paintHeader(){
+    const chip = document.getElementById("userChip");
+    chip.textContent = `${state.session?.nome||state.session?.usuario||"—"} • ${state.session?.role||"—"}`;
+    // admin vê "Usuários"; operador não
+    document.getElementById("btnUsers").style.display = state.session?.role==="admin" ? "inline-block" : "none";
+  }
 
-/* ==== Modal Auditoria (admin) ==== */
-const mdlAudit = $("#mdlAudit");
-$("#btnAudit").addEventListener("click", async ()=>{
-  mdlAudit.classList.add("show");
-  const tbody = $("#tblAudit tbody"); tbody.innerHTML="";
-  const r = await api("/audit/list",{ limit: 200 });
-  (r?.rows||[]).forEach(a=>{
-    const tr=document.createElement("tr");
-    tr.innerHTML = `<td>${a.at||""}</td><td>${a.usuario||""}</td><td>${a.role||""}</td><td>${a.acao||""}</td><td>${a.detalhes||""}</td><td>${a.ref||""}</td>`;
-    tbody.appendChild(tr);
-  });
-});
-$("#btnCloseAudit").addEventListener("click", ()=> mdlAudit.classList.remove("show"));
-mdlAudit.addEventListener("click", ()=> mdlAudit.classList.remove("show"));
-$("#mdlAuditContent").addEventListener("click", e=> e.stopPropagation());
+  // ====== Logout ======
+  async function doLogout(){
+    try{ await api("/logout", {}, true);}catch(e){}
+    localStorage.removeItem("session");
+    window.location.href = "index.html";
+  }
 
-/* ==== PWA ==== */
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", ()=> navigator.serviceWorker.register("./sw.js").catch(()=>{}));
-}
+  // ====== Itens ======
+  async function loadItens(){
+    try{
+      const r = await api("/itens/list", {}, true);
+      const tb = document.getElementById("tbodyItens"); tb.innerHTML = "";
+      (r.itens||[]).forEach(it=>{
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${escapeHtml(it.embalagem||"")}</td><td>${it.valor||""}</td>`;
+        tb.appendChild(tr);
+      });
+    }catch(e){
+      const tb = document.getElementById("tbodyItens");
+      tb.innerHTML = `<tr><td colspan="2" class="bad">Falha ao carregar itens</td></tr>`;
+    }
+  }
 
-boot();
+  // ====== Usuários (ADMIN) ======
+  function openUsers(){ document.getElementById("modalUsers").style.display = "flex"; listUsers(); }
+  function closeUsers(){ document.getElementById("modalUsers").style.display = "none"; }
+
+  async function listUsers(){
+    const tb = document.getElementById("tbodyUsers"); tb.innerHTML = "";
+    try{
+      const r = await api("/users/list", {}, true);
+      (r.users||[]).forEach(u=>{
+        const tr = document.createElement("tr");
+        tr.innerHTML =
+          `<td>${escapeHtml(u.usuario)}</td>
+           <td>${escapeHtml(u.nome||"")}</td>
+           <td>${escapeHtml(u.role)}</td>
+           <td>${u.ativo? "✅" : "❌"}</td>`;
+        tb.appendChild(tr);
+      });
+    }catch(e){
+      tb.innerHTML = `<tr><td colspan="4" class="bad">Falha ao listar usuários</td></tr>`;
+    }
+  }
+
+  async function createUser(){
+    const usuario = val("#u_usuario"), nome = val("#u_nome"), senha = val("#u_senha"), role = val("#u_role");
+    if(!usuario || !senha){ setUsersMsg("Informe usuário e senha", true); return; }
+    try{
+      const r = await api("/users/create", {usuario,nome,senha,role}, true);
+      if(r.ok){ setUsersMsg("Usuário criado ✔", false); clearUserForm(); listUsers(); }
+      else setUsersMsg(r.error||"Falha ao criar", true);
+    }catch(e){ setUsersMsg("Erro de rede", true); }
+  }
+
+  async function resetPassword(){
+    const usuario = val("#a_usuario"), novaSenha = val("#a_novasenha");
+    if(!usuario || !novaSenha){ setUsersMsg("Informe usuário e nova senha", true); return; }
+    try{
+      const r = await api("/users/resetPassword", {usuario,novaSenha}, true);
+      if(r.ok){ setUsersMsg("Senha resetada ✔", false); }
+      else setUsersMsg(r.error||"Falha no reset", true);
+    }catch(e){ setUsersMsg("Erro de rede", true); }
+  }
+
+  async function ativarUsuario(flag){
+    const usuario = val("#a_usuario");
+    if(!usuario){ setUsersMsg("Informe o usuário", true); return; }
+    try{
+      const r = await api("/users/setActive", {usuario,ativo:!!flag}, true);
+      if(r.ok){ setUsersMsg((flag?"Ativado":"Desativado")+" ✔", false); listUsers(); }
+      else setUsersMsg(r.error||"Falha na operação", true);
+    }catch(e){ setUsersMsg("Erro de rede", true); }
+  }
+
+  function clearUserForm(){
+    ["#u_usuario","#u_nome","#u_senha"].forEach(s => document.querySelector(s).value = "");
+    document.querySelector("#u_role").value = "operador";
+  }
+  function setUsersMsg(t,err){ const el = document.getElementById("usersMsg"); el.className="msg "+(err?"bad":"ok"); el.textContent=t; }
+
+  // ====== Minha Senha ======
+  function openPwd(){ document.getElementById("modalPwd").style.display="flex"; }
+  function closePwd(){ document.getElementById("modalPwd").style.display="none"; }
+
+  async function savePwd(){
+    const atual = val("#p_atual"), nova = val("#p_nova"), conf = val("#p_conf");
+    const m = document.getElementById("pwdMsg");
+    if(!atual || !nova){ m.className="msg bad"; m.textContent="Preencha senha atual e nova."; return; }
+    if(nova!==conf){ m.className="msg bad"; m.textContent="Confirmação diferente."; return; }
+    try{
+      const r = await api("/user/changePassword", {senhaAtual:atual,novaSenha:nova}, true);
+      if(r.ok){ m.className="msg ok"; m.textContent="Senha atualizada ✔"; document.querySelector("#p_atual").value=""; document.querySelector("#p_nova").value=""; document.querySelector("#p_conf").value=""; }
+      else { m.className="msg bad"; m.textContent=r.error||"Falha ao atualizar"; }
+    }catch(e){ m.className="msg bad"; m.textContent="Erro de rede"; }
+  }
+
+  // ====== Helpers ======
+  function val(sel){ return document.querySelector(sel).value.trim(); }
+  function escapeHtml(s){ return (s||"").replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;", '"':"&quot;","'":"&#39;" }[m])); }
+
+  // ====== Boot ======
+  document.getElementById("btnLogout").addEventListener("click", doLogout);
+  document.getElementById("btnUsers").addEventListener("click", openUsers);
+  document.getElementById("btnPwd").addEventListener("click", openPwd);
+
+  (async function init(){
+    readSession();
+    if(!ensureSession()) return;
+    await loadWhoAmI();
+    await loadItens();
+  })();
 </script>
 </body>
 </html>
