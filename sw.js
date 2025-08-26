@@ -1,130 +1,46 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Romaneio • Painel</title>
-  <meta name="theme-color" content="#0d1117" />
-  <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="icon" href="icon-192.png" />
-  <style>
-    :root{
-      --bg:#0d1117;--panel:#0f172a;--muted:#8a94a6;--text:#e6edf3;
-      --primary:#2563eb;--border:#1f2a44;
-    }
-    body{margin:0;background:var(--bg);color:var(--text);
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif}
-    header{padding:.75rem;background:#0b0f1a;border-bottom:1px solid var(--border);
-      display:flex;justify-content:space-between;align-items:center}
-    header .title{font-weight:600}
-    nav a{margin-left:14px;color:var(--muted);text-decoration:none;font-weight:500}
-    nav a:hover{color:var(--primary)}
-    .wrap{max-width:1100px;margin:0 auto;padding:16px}
-    h2{margin-top:28px;border-bottom:1px solid var(--border);padding-bottom:6px}
-    table{width:100%;border-collapse:collapse;margin-top:10px}
-    th,td{padding:.6rem .75rem;border-bottom:1px solid var(--border);text-align:left}
-    th{background:#111827}
-    .btn{padding:.5rem 1rem;background:var(--primary);border:0;
-      border-radius:6px;color:#fff;cursor:pointer;font-weight:600}
-    .btn:hover{background:#1d4ed8}
-  </style>
-</head>
-<body>
-  <header>
-    <div class="title">🚚 Romaneio</div>
-    <nav>
-      <a href="#" onclick="showTab('clientes')">Clientes</a>
-      <a href="#" onclick="showTab('romaneios')">Romaneios</a>
-      <a href="#" onclick="showTab('financeiro')">Financeiro</a>
-      <a href="#" onclick="logout()">Sair</a>
-    </nav>
-  </header>
+// troque a versão para forçar atualização quando editar o app
+const CACHE = "romaneio-v17";
 
-  <main class="wrap">
-    <section id="clientes" class="tab">
-      <h2>Clientes</h2>
-      <button class="btn" onclick="carregarClientes()">🔄 Atualizar</button>
-      <table id="tblClientes">
-        <thead><tr><th>Nome</th><th>Telefone</th><th>Email</th></tr></thead>
-        <tbody></tbody>
-      </table>
-    </section>
+self.addEventListener("install", (e) => {
+  e.waitUntil(
+    caches.open(CACHE).then((c) =>
+      c.addAll([
+        "./",
+        "./index.html",
+        "./app.html",
+        "./manifest.webmanifest",
+        "./icon-192.png",
+        "./icon-512.png",
+      ])
+    )
+  );
+});
 
-    <section id="romaneios" class="tab" style="display:none">
-      <h2>Romaneios</h2>
-      <button class="btn" onclick="carregarRomaneios()">🔄 Atualizar</button>
-      <table id="tblRomaneios">
-        <thead><tr><th>ID</th><th>Data</th><th>Cliente</th><th>Status</th></tr></thead>
-        <tbody></tbody>
-      </table>
-    </section>
+self.addEventListener("activate", (e) => {
+  e.waitUntil(
+    caches.keys().then((keys) =>
+      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+    )
+  );
+});
 
-    <section id="financeiro" class="tab" style="display:none">
-      <h2>Financeiro</h2>
-      <button class="btn" onclick="carregarFinanceiro()">🔄 Atualizar</button>
-      <table id="tblFinanceiro">
-        <thead><tr><th>ID</th><th>Data</th><th>Descrição</th><th>Valor</th></tr></thead>
-        <tbody></tbody>
-      </table>
-    </section>
-  </main>
+// Estratégia: somente GET da mesma origem. POSTs para Apps Script passam direto.
+self.addEventListener("fetch", (e) => {
+  const req = e.request;
+  const url = new URL(req.url);
 
-<script>
-  // === TROQUE AQUI PELO SEU /exec ===
-  const API_BASE = "https://script.google.com/macros/s/AKfycbwJwVO5VR138hBjVH07DkVqpmpz0-V7wh3FMTEjh7ey-tYaWWITKR37SJUvYxKSaEAB/exec";
+  // não intercepta chamadas ao Google Apps Script nem POSTs
+  if (req.method !== "GET") return;
+  if (url.origin !== location.origin) return;
 
-  function showTab(id){
-    document.querySelectorAll('.tab').forEach(el=>el.style.display='none');
-    document.getElementById(id).style.display='block';
-  }
-
-  async function api(path, body = {}, token = null) {
-    const session = JSON.parse(localStorage.getItem("session")||"null");
-    const url = API_BASE + "?path=" + encodeURIComponent(path);
-    const res = await fetch(url, {
-      method: "POST",
-      headers: {"Content-Type":"text/plain;charset=utf-8"},
-      body: JSON.stringify({...body, token: session?.token}),
-      cache: "no-store"
-    });
-    if(!res.ok) throw new Error("HTTP "+res.status);
-    return res.json();
-  }
-
-  async function carregarClientes(){
-    const data = await api("/clientes");
-    const tbody = document.querySelector("#tblClientes tbody");
-    tbody.innerHTML = "";
-    (data.items||[]).forEach(c=>{
-      tbody.innerHTML += `<tr><td>${c.nome}</td><td>${c.fone||""}</td><td>${c.email||""}</td></tr>`;
-    });
-  }
-
-  async function carregarRomaneios(){
-    const data = await api("/romaneios");
-    const tbody = document.querySelector("#tblRomaneios tbody");
-    tbody.innerHTML = "";
-    (data.items||[]).forEach(r=>{
-      tbody.innerHTML += `<tr><td>${r.id}</td><td>${r.data}</td><td>${r.cliente}</td><td>${r.status}</td></tr>`;
-    });
-  }
-
-  async function carregarFinanceiro(){
-    const data = await api("/financeiro");
-    const tbody = document.querySelector("#tblFinanceiro tbody");
-    tbody.innerHTML = "";
-    (data.items||[]).forEach(f=>{
-      tbody.innerHTML += `<tr><td>${f.id}</td><td>${f.data}</td><td>${f.desc}</td><td>${f.valor}</td></tr>`;
-    });
-  }
-
-  function logout(){
-    localStorage.removeItem("session");
-    location.href="index.html";
-  }
-
-  // carrega tab padrão
-  showTab("clientes");
-</script>
-</body>
-</html>
+  e.respondWith(
+    caches.match(req).then((cached) =>
+      cached ||
+      fetch(req).then((res) => {
+        const copy = res.clone();
+        caches.open(CACHE).then((c) => c.put(req, copy));
+        return res;
+      })
+    )
+  );
+});
