@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Romaneio • Painel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0d1117" />
+  <style>
+    :root{--bg:#0b0f19;--panel:#0f172a;--muted:#8a94a6;--text:#e6edf3;--primary:#2563eb;--primary-hover:#1d4ed8;--border:#1f2a44}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif}
+    .topbar{position:sticky;top:0;background:#0d1117;border-bottom:1px solid var(--border);padding:10px 14px;display:flex;gap:10px;align-items:center;z-index:2}
+    .brand{font-weight:700;letter-spacing:.3px;color:#9abaff}
+    .grow{flex:1}
+    .chip{border:1px solid var(--border);padding:.35rem .6rem;border-radius:999px;background:#0b0f1a;color:#9abaff}
+    .btn{border:1px solid var(--border);background:#0b0f1a;color:var(--text);padding:.55rem .8rem;border-radius:10px;cursor:pointer}
+    .btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}
+    .btn:hover{opacity:.95}
+    main{max-width:1100px;margin:0 auto;padding:14px}
+    .grid{display:grid;gap:14px}
+    .cols-3{grid-template-columns:repeat(3,1fr)}
+    .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px}
+    .muted{color:var(--muted)}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:8px;border-bottom:1px solid var(--border);text-align:left}
+    .right{text-align:right}
+    @media (max-width:900px){.cols-3{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">🚚 Romaneio</div>
+    <div class="grow"></div>
+    <span id="userChip" class="chip"></span>
+    <button id="btnLogout" class="btn">Sair</button>
+  </header>
+
+  <main>
+    <!-- atalhos -->
+    <div class="grid cols-3">
+      <div class="card">
+        <h3>📦 Novo Romaneio</h3>
+        <p class="muted">Em breve: formulário completo para registrar romaneios com foto, volumes e impressão A4.</p>
+        <button class="btn primary" disabled>Em breve</button>
+      </div>
+      <div class="card">
+        <h3>🧾 Meus Romaneios</h3>
+        <p class="muted">Filtro por cidade/romaneio e impressão. Integração chega no próximo passo.</p>
+        <button class="btn" disabled>Em breve</button>
+      </div>
+      <div class="card">
+        <h3>👤 Clientes</h3>
+        <p class="muted">Consulta/cadastro automático por telefone na próxima etapa.</p>
+        <button class="btn" disabled>Em breve</button>
+      </div>
+    </div>
+
+    <!-- sessão -->
+    <div class="card" style="margin-top:14px">
+      <h3>Sessão</h3>
+      <div id="whoamiBox" class="muted">Carregando...</div>
+    </div>
+
+    <!-- tabela de preços (ITENS) -->
+    <div class="card" style="margin-top:14px">
+      <h3>Tabela de Preços (Planilha → ITENS)</h3>
+      <div class="muted" id="itensInfo">Carregando itens...</div>
+      <div class="table-wrap" style="overflow:auto;margin-top:8px">
+        <table id="tblItens">
+          <thead><tr><th>Embalagem</th><th class="right">Valor</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    const API_BASE = "https://script.google.com/macros/s/AKfycbxM4FUC7kD5PuP_DhoX1Yph6F-2n0-o88QSsAYUmsfNWHItmo3_D8O7PJ9OZwwkB0hW/exec";
+    const saveSession = (s) => localStorage.setItem("romaneio.session", JSON.stringify(s));
+    const loadSession = () => { try { return JSON.parse(localStorage.getItem("romaneio.session")||"null"); } catch { return null; } };
+
+    const session = loadSession();
+    if (!session || !session.token) {
+      // não logado → volta
+      window.location.href = "index.html";
+    }
+
+    document.getElementById("btnLogout").addEventListener("click", () => {
+      localStorage.removeItem("romaneio.session");
+      window.location.href = "index.html";
+    });
+
+    // ajuda: fetch com token
+    async function apiGet(path){
+      const url = `${API_BASE}?path=${encodeURIComponent(path)}&token=${encodeURIComponent(session.token)}`;
+      const r = await fetch(url); const t = await r.text();
+      let data; try { data = JSON.parse(t); } catch { throw new Error("Resposta não-JSON: " + t); }
+      if (!r.ok || data.error) throw new Error(data.error||("HTTP "+r.status));
+      return data;
+    }
+
+    async function boot(){
+      // pinta chip
+      document.getElementById("userChip").textContent = (session.name||session.usuario) + (session.role ? " • "+session.role : "");
+
+      // whoami
+      try {
+        const w = await apiGet("/whoami");
+        document.getElementById("whoamiBox").textContent =
+          `Usuário: ${w.session.usuario} • Nome: ${w.session.name||"-"} • Perfil: ${w.session.role||"-"} • expira: ${w.session.expira_em}`;
+      } catch(e){
+        document.getElementById("whoamiBox").textContent = "Falha ao carregar sessão: " + e.message;
+      }
+
+      // itens (preços)
+      try {
+        const r = await apiGet("/itens/list");
+        const tb = document.querySelector("#tblItens tbody");
+        tb.innerHTML = "";
+        (r.itens||[]).forEach(i => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `<td>${i.embalagem||""}</td><td class="right">${formatBRL(i.valor)}</td>`;
+          tb.appendChild(tr);
+        });
+        document.getElementById("itensInfo").textContent = r.itens?.length ? `${r.itens.length} itens` : "Sem itens definidos";
+      } catch(e){
+        document.getElementById("itensInfo").textContent = "Falha ao carregar itens: " + e.message;
+      }
+    }
+
+    function formatBRL(v){
+      const n = Number(String(v).replace(",","."));
+      if (isNaN(n)) return v??"";
+      return n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+    }
+
+    boot();
+  </script>
+</body>
+</html>
