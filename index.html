@@ -1,83 +1,64 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Romaneio • Login</title>
-  <meta name="theme-color" content="#0d1117" />
-  <style>
-    body {
-      margin:0;
-      font-family: system-ui, sans-serif;
-      background:#0d1117;
-      color:#e6edf3;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      height:100vh;
-    }
-    .card {
-      background:#161b22;
-      padding:24px;
-      border-radius:10px;
-      box-shadow:0 0 10px rgba(0,0,0,.3);
-      width:320px;
-    }
-    h2 { margin-top:0; }
-    input, button {
-      width:100%;
-      margin:8px 0;
-      padding:10px;
-      border-radius:6px;
-      border:1px solid #30363d;
-    }
-    button {
-      background:#2563eb;
-      color:white;
-      border:none;
-      cursor:pointer;
-    }
-    button:hover { background:#1d4ed8; }
-    .error { color:#f87171; margin-top:10px; font-size:.9em; }
-  </style>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="card">
+  <div class="login-container">
     <h2>Acesso</h2>
-    <input id="usuario" placeholder="Usuário">
-    <input id="senha" placeholder="Senha" type="password">
-    <button onclick="login()">Entrar</button>
-    <p style="font-size:.85em;margin-top:10px;color:#9ca3af">
+    <form id="loginForm">
+      <label for="usuario">Usuário</label>
+      <input type="text" id="usuario" required />
+
+      <label for="senha">Senha</label>
+      <input type="password" id="senha" required />
+
+      <button type="submit">Entrar</button>
+    </form>
+    <p id="msg" style="color:red;margin-top:10px;"></p>
+    <p style="margin-top:15px;font-size:0.85em;color:#aaa">
       Admin cria/gerencia usuários via planilha. Precisa de acesso? Fale com o responsável.
     </p>
-    <div id="msg" class="error"></div>
   </div>
 
-<script>
-const API_BASE = "https://script.google.com/macros/s/AKfycbwJwVO5VR138hBjVH07DkVqpmpz0-V7wh3FMTEjh7ey-tYaWWITKR37SJUvYxKSaEAB/exec";
+  <script>
+    // 🚨 coloque aqui sua URL de implantação mais recente
+    const API_BASE = "https://script.google.com/macros/s/AKfycbwJwVO5VR138hBjVH07DkVqpmpz0-V7wh3FMTEjh7ey-tYaWWITKR37SJUvYxKSaEAB/exec";
 
-async function login(){
-  const usuario = document.getElementById("usuario").value;
-  const senha = document.getElementById("senha").value;
-  const msg = document.getElementById("msg");
-  msg.innerText = "";
-
-  try {
-    const r = await fetch(API_BASE+"?op=login", {
-      method:"POST",
-      body: JSON.stringify({usuario, senha})
-    });
-    const data = await r.json();
-    if(data.ok){
-      localStorage.setItem("session", JSON.stringify(data.session));
-      window.location.href="app.html";
-    } else {
-      msg.innerText = "Usuário ou senha inválidos.";
+    async function api(path, body = {}, token = null) {
+      try {
+        const res = await fetch(API_BASE + "?path=" + encodeURIComponent(path), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+        return await res.json();
+      } catch (err) {
+        return { error: "fetch:" + err };
+      }
     }
-  } catch(e){
-    msg.innerText = "Erro: "+e;
-  }
-}
-</script>
+
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const usuario = document.getElementById("usuario").value.trim();
+      const senha = document.getElementById("senha").value.trim();
+      document.getElementById("msg").textContent = "Carregando...";
+
+      const r = await api("/login", { usuario, senha });
+      if (r.error) {
+        document.getElementById("msg").textContent = "Erro: " + r.error;
+      } else if (r.session) {
+        localStorage.setItem("session", JSON.stringify(r.session));
+        document.getElementById("msg").style.color = "green";
+        document.getElementById("msg").textContent = "Login OK! Redirecionando...";
+        setTimeout(() => (window.location.href = "app.html"), 800);
+      } else {
+        document.getElementById("msg").textContent = "Erro inesperado.";
+      }
+    });
+  </script>
 </body>
 </html>
