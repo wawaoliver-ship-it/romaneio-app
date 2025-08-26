@@ -1,97 +1,83 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Romaneio • Login</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#0d1117" />
   <style>
-    :root {
-      --bg:#0b0f19;--panel:#0f172a;--muted:#8a94a6;--text:#e6edf3;
-      --primary:#2563eb;--primary-hover:#1d4ed8;--border:#1f2a44
+    body {
+      margin:0;
+      font-family: system-ui, sans-serif;
+      background:#0d1117;
+      color:#e6edf3;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      height:100vh;
     }
-    *{box-sizing:border-box}
-    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,Segoe UI,Roboto,Ubuntu,sans-serif}
-    main{min-height:100vh;display:grid;place-items:center;padding:20px}
-    .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:22px;width:100%;max-width:400px;box-shadow:0 10px 20px rgba(0,0,0,.4)}
-    h2{text-align:center;margin:0 0 14px}
-    label{display:block;margin-top:12px;font-size:.9rem;color:var(--muted)}
-    input{width:100%;padding:10px;margin-top:4px;border-radius:8px;border:1px solid var(--border);background:#0b0f19;color:var(--text)}
-    button{width:100%;margin-top:16px;padding:12px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:1rem;cursor:pointer}
-    button:hover{background:var(--primary-hover)}
-    .msg{margin-top:14px;font-size:.9rem;text-align:center}
-    .error{color:#f87171}
-    .success{color:#4ade80}
-    footer{text-align:center;margin-top:20px;font-size:.8rem;color:var(--muted)}
+    .card {
+      background:#161b22;
+      padding:24px;
+      border-radius:10px;
+      box-shadow:0 0 10px rgba(0,0,0,.3);
+      width:320px;
+    }
+    h2 { margin-top:0; }
+    input, button {
+      width:100%;
+      margin:8px 0;
+      padding:10px;
+      border-radius:6px;
+      border:1px solid #30363d;
+    }
+    button {
+      background:#2563eb;
+      color:white;
+      border:none;
+      cursor:pointer;
+    }
+    button:hover { background:#1d4ed8; }
+    .error { color:#f87171; margin-top:10px; font-size:.9em; }
   </style>
 </head>
 <body>
-  <main>
-    <div class="card">
-      <h2>Acesso</h2>
-      <label>Usuário
-        <input id="usuario" type="text" placeholder="Usuário" />
-      </label>
-      <label>Senha
-        <input id="senha" type="password" placeholder="Senha" />
-      </label>
-      <button onclick="login()">Entrar</button>
-      <div class="msg" id="msg"></div>
-    </div>
-    <footer>
-      v1 • PWA (instalável)
-    </footer>
-  </main>
+  <div class="card">
+    <h2>Acesso</h2>
+    <input id="usuario" placeholder="Usuário">
+    <input id="senha" placeholder="Senha" type="password">
+    <button onclick="login()">Entrar</button>
+    <p style="font-size:.85em;margin-top:10px;color:#9ca3af">
+      Admin cria/gerencia usuários via planilha. Precisa de acesso? Fale com o responsável.
+    </p>
+    <div id="msg" class="error"></div>
+  </div>
 
-  <script>
-    // 🚀 URL base da API (sua implantação Google Apps Script)
-    const API_BASE = "https://script.google.com/macros/s/AKfycbyGZu5c4vTiXjQx5Ud45m0Ij3Dotejl_ziYTdFmjtWXU4cPRz1i2qWLPkVF4RzhuIMr/exec";
+<script>
+const API_BASE = "https://script.google.com/macros/s/AKfycbxQjxpt1hA1KnQ2p9-LOWTCWtUaf--Zr1-02juFuHe5lXR1Ait7t_QsLOJf0yCYteQ/exec";
 
-    // 🔧 Helper seguro para chamadas API
-    async function apiFetch(path, options = {}) {
-      try {
-        const res = await fetch(API_BASE + path, {
-          method: options.method || "POST",
-          headers: { "Content-Type": "application/json" },
-          body: options.body ? JSON.stringify(options.body) : null
-        });
-        if (!res.ok) throw new Error("Erro HTTP " + res.status);
-        return await res.json();
-      } catch (err) {
-        console.error("Erro ao chamar API:", err);
-        document.getElementById("msg").innerHTML = `<span class="error">❌ Erro: ${err.message}</span>`;
-        throw err;
-      }
+async function login(){
+  const usuario = document.getElementById("usuario").value;
+  const senha = document.getElementById("senha").value;
+  const msg = document.getElementById("msg");
+  msg.innerText = "";
+
+  try {
+    const r = await fetch(API_BASE+"?op=login", {
+      method:"POST",
+      body: JSON.stringify({usuario, senha})
+    });
+    const data = await r.json();
+    if(data.ok){
+      localStorage.setItem("session", JSON.stringify(data.session));
+      window.location.href="app.html";
+    } else {
+      msg.innerText = "Usuário ou senha inválidos.";
     }
-
-    // 🔑 Função de login
-    async function login() {
-      const usuario = document.getElementById("usuario").value.trim();
-      const senha = document.getElementById("senha").value.trim();
-      const msg = document.getElementById("msg");
-
-      if (!usuario || !senha) {
-        msg.innerHTML = `<span class="error">❌ Preencha usuário e senha</span>`;
-        return;
-      }
-
-      msg.innerHTML = "⏳ Verificando...";
-
-      try {
-        const data = await apiFetch("/login", { body: { usuario, senha } });
-
-        if (data.ok) {
-          msg.innerHTML = `<span class="success">✅ Login OK! Redirecionando...</span>`;
-          // salva a sessão localmente
-          localStorage.setItem("session", JSON.stringify(data.session));
-          setTimeout(() => { window.location.href = "app.html"; }, 1000);
-        } else {
-          msg.innerHTML = `<span class="error">❌ ${data.error || "Falha no login"}</span>`;
-        }
-      } catch (err) {
-        console.log("Falha de comunicação:", err);
-      }
-    }
-  </script>
+  } catch(e){
+    msg.innerText = "Erro: "+e;
+  }
+}
+</script>
 </body>
 </html>
