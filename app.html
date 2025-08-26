@@ -1,319 +1,270 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Romaneio • Painel</title>
-  <meta name="theme-color" content="#0d1117">
   <style>
     :root{
-      --bg:#0d1117;--panel:#161b22;--border:#30363d;--text:#e6edf3;
-      --muted:#9aa4b2;--primary:#2563eb;--primary-h:#1d4ed8;--danger:#ef4444;
+      --bg:#0b0f19;--panel:#0f172a;--muted:#8a94ae;--text:#e6edf3;
+      --primary:#2563eb;--primary-hover:#1d4ed8;--border:#1f2a44;
     }
     *{box-sizing:border-box}
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif;background:var(--bg);color:var(--text)}
-    .top{display:flex;justify-content:space-between;align-items:center;background:var(--panel);border-bottom:1px solid var(--border);padding:10px 14px;position:sticky;top:0;z-index:10}
-    main{max-width:1100px;margin:0 auto;padding:16px}
-    .card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px}
-    .btn{background:var(--primary);color:#fff;border:none;border-radius:8px;padding:8px 12px;cursor:pointer}
-    .btn:hover{background:var(--primary-h)}
-    .btn.ghost{background:#0b0f1a;border:1px solid var(--border)}
-    .btn.danger{background:var(--danger)}
-    .muted{color:var(--muted)}
-    pre{white-space:pre-wrap;background:#0b0f1a;border:1px solid var(--border);border-radius:8px;padding:10px}
-    .toolbar{display:flex;gap:8px;align-items:center}
-    .chip{display:inline-block;border:1px solid var(--border);padding:6px 10px;border-radius:20px;margin-right:8px;background:#0b0f1a}
-
-    /* MODAL */
-    .modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;padding:16px}
-    .modal .box{background:var(--panel);border:1px solid var(--border);border-radius:12px;max-width:860px;width:100%;padding:16px}
-    .grid{display:grid;gap:10px}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif}
+    header{position:sticky;top:0;background:#0d1222;border-bottom:1px solid var(--border);padding:12px 16px;display:flex;gap:10px;align-items:center;z-index:5}
+    .brand{font-weight:700;letter-spacing:.3px}
+    .chip{border:1px solid var(--border);padding:.35rem .6rem;border-radius:999px;background:#0b1020}
+    .btn{border:1px solid var(--border);background:#0b1020;color:var(--text);padding:.55rem .9rem;border-radius:.65rem;cursor:pointer}
+    .btn.primary{background:var(--primary);border-color:var(--primary)}
+    .btn:hover{opacity:.92}
+    main{max-width:1100px;margin:0 auto;padding:18px}
+    .grid{display:grid;gap:16px}
     .grid.two{grid-template-columns:1fr 1fr}
-    input,select{width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:#0b0f1a;color:var(--text)}
+    .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px}
+    h1{margin:0 0 10px;font-size:20px}
+    h2{margin:.2rem 0 .8rem;font-size:18px}
     table{width:100%;border-collapse:collapse}
-    th,td{border-bottom:1px solid var(--border);padding:8px;text-align:left}
-    .right{text-align:right}
-    .err{color:#f87171;font-size:.9em;margin-top:6px}
-    .ok{color:#34d399;font-size:.9em;margin-top:6px}
-    @media (max-width:800px){.grid.two{grid-template-columns:1fr}}
+    th,td{border-bottom:1px solid var(--border);padding:10px;text-align:left}
+    .muted{color:var(--muted);font-size:.9rem}
+    .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    /* modal */
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.4);z-index:20}
+    .modal.on{display:flex}
+    .modal .panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;max-width:900px;width:96%;padding:16px}
+    .field{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+    input,select{background:#0b1020;border:1px solid #243146;color:var(--text);padding:.6rem .7rem;border-radius:.55rem}
+    .right{margin-left:auto}
+    .msg{margin-top:.7rem;font-size:.9rem}
+    .ok{color:#22c55e}.err{color:#ef4444}
+    .badge{display:inline-block;padding:.2rem .5rem;border:1px solid var(--border);border-radius:6px;background:#0b1020;font-size:.85rem}
   </style>
 </head>
 <body>
-  <header class="top">
-    <div><b>🚚 Romaneio</b></div>
-    <div class="toolbar">
-      <span id="chip" class="chip"></span>
-      <button id="btnUsers" class="btn ghost" onclick="openUsers()" style="display:none">Usuários</button>
-      <button class="btn ghost" onclick="openChangePass()">Minha senha</button>
-      <button class="btn" onclick="logout()">Sair</button>
+  <header>
+    <div class="brand">🚚 Romaneio</div>
+    <span class="chip" id="chipUser">—</span>
+    <div class="right row">
+      <button class="btn" id="btnUsers" style="display:none">Usuários</button>
+      <button class="btn" id="btnMyPass">Minha senha</button>
+      <button class="btn" id="btnLogout">Sair</button>
     </div>
   </header>
 
   <main>
-    <section class="card">
-      <h3>Novo Romaneio</h3>
-      <div class="muted">Em breve: formulário completo com foto, volumes e impressão A4.</div>
+    <section class="grid two">
+      <div class="card">
+        <h2>Novo Romaneio</h2>
+        <p class="muted">Em breve: formulário completo para registrar romaneios com foto, volumes e impressão A4.</p>
+        <button class="btn" disabled>Em breve</button>
+      </div>
+
+      <div class="card">
+        <h2>Meus Romaneios</h2>
+        <p class="muted">Filtro por cidade/romaneio e impressão. Integração chega no próximo passo.</p>
+        <button class="btn" disabled>Em breve</button>
+      </div>
+    </section>
+
+    <section class="card" id="sessBox">
+      <h2>Sessão</h2>
+      <div id="sessInfo" class="muted">—</div>
+      <div id="sessMsg" class="msg"></div>
     </section>
 
     <section class="card">
-      <h3>Meus Romaneios</h3>
-      <div class="muted">Filtros por cidade/romaneio e impressão — próximo passo.</div>
-    </section>
-
-    <section class="card">
-      <h3>Sessão</h3>
-      <div id="sess"></div>
-    </section>
-
-    <section class="card">
-      <h3>Tabela de Itens (planilha → ITENS)</h3>
-      <div id="itensBox" class="muted">carregando…</div>
+      <h2>Tabela de Preços (Planilha → ITENS)</h2>
+      <table>
+        <thead><tr><th>Embalagem</th><th>Valor</th></tr></thead>
+        <tbody id="tbodyItens"><tr><td colspan="2" class="muted">Carregando…</td></tr></tbody>
+      </table>
+      <div id="itensMsg" class="msg"></div>
     </section>
   </main>
 
   <!-- MODAL: Usuários (admin) -->
-  <div id="modalUsers" class="modal" onclick="closeOnBackdrop(event,'modalUsers')">
-    <div class="box" onclick="event.stopPropagation()">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <h3 style="margin:0">Usuários</h3>
-        <button class="btn ghost" onclick="hide('modalUsers')">Fechar</button>
+  <div class="modal" id="dlgUsers" aria-hidden="true">
+    <div class="panel">
+      <div class="row">
+        <h2 style="margin-right:auto">Usuários</h2>
+        <button class="btn" onclick="dlg('dlgUsers',false)">Fechar</button>
       </div>
-
-      <div class="grid two" style="margin-bottom:12px">
+      <div class="grid two">
         <div>
-          <label>Usuário</label>
-          <input id="uUsuario" placeholder="ex.: operador1">
+          <h3 style="margin:.2rem 0 .5rem">Lista</h3>
+          <table>
+            <thead><tr><th>Usuário</th><th>Nome</th><th>Perfil</th><th>Ativo</th><th>Ações</th></tr></thead>
+            <tbody id="tbodyUsers"><tr><td colspan="5" class="muted">Carregando…</td></tr></tbody>
+          </table>
         </div>
         <div>
-          <label>Nome</label>
-          <input id="uNome" placeholder="Nome completo">
+          <h3 style="margin:.2rem 0 .5rem">Novo usuário</h3>
+          <div class="field"><label>Usuário</label><input id="nuUsuario" autocomplete="off"></div>
+          <div class="field"><label>Nome</label><input id="nuNome" autocomplete="off"></div>
+          <div class="field"><label>Senha</label><input id="nuSenha" type="password" autocomplete="new-password"></div>
+          <div class="field"><label>Perfil</label>
+            <select id="nuRole">
+              <option value="admin">admin</option>
+              <option value="operador" selected>operador</option>
+            </select>
+          </div>
+          <div class="row">
+            <button class="btn primary" onclick="createUser()">Criar</button>
+            <div id="usersMsg" class="msg"></div>
+          </div>
         </div>
-        <div>
-          <label>Senha inicial</label>
-          <input id="uSenha" placeholder="senha" type="text">
-        </div>
-        <div>
-          <label>Perfil</label>
-          <select id="uRole">
-            <option value="operador">operador</option>
-            <option value="admin">admin</option>
-          </select>
-        </div>
-      </div>
-      <div class="toolbar" style="margin-bottom:12px">
-        <button class="btn" onclick="createUser()">Criar</button>
-        <span id="uMsg" class="muted"></span>
-      </div>
-
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Usuário</th><th>Nome</th><th>Perfil</th><th>Ativo</th><th class="right">Ações</th>
-            </tr>
-          </thead>
-          <tbody id="usersTbody"></tbody>
-        </table>
       </div>
     </div>
   </div>
 
   <!-- MODAL: Minha senha -->
-  <div id="modalPass" class="modal" onclick="closeOnBackdrop(event,'modalPass')">
-    <div class="box" onclick="event.stopPropagation()">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <h3 style="margin:0">Alterar minha senha</h3>
-        <button class="btn ghost" onclick="hide('modalPass')">Fechar</button>
+  <div class="modal" id="dlgPass" aria-hidden="true">
+    <div class="panel" style="max-width:520px">
+      <div class="row">
+        <h2 style="margin-right:auto">Alterar minha senha</h2>
+        <button class="btn" onclick="dlg('dlgPass',false)">Fechar</button>
       </div>
-      <div class="grid two">
-        <div>
-          <label>Senha atual</label>
-          <input id="pAtual" type="password" placeholder="••••••">
-        </div>
-        <div>
-          <label>Nova senha</label>
-          <input id="pNova" type="password" placeholder="••••••">
-        </div>
-      </div>
-      <div class="toolbar" style="margin-top:12px">
-        <button class="btn" onclick="changePass()">Salvar</button>
-        <span id="pMsg" class="muted"></span>
+      <div class="field"><label>Senha atual</label><input id="cpAtual" type="password" autocomplete="current-password"></div>
+      <div class="field"><label>Nova senha</label><input id="cpNova" type="password" autocomplete="new-password"></div>
+      <div class="row">
+        <button class="btn primary" onclick="changeMyPass()">Salvar</button>
+        <div id="passMsg" class="msg"></div>
       </div>
     </div>
   </div>
 
-<script>
-/* ======= CONFIG ======= */
-const API_BASE = "https://script.google.com/macros/s/AKfycbwJwVO5VR138hBjVH07DkVqpmpz0-V7wh3FMTEjh7ey-tYaWWITKR37SJUvYxKSaEAB/exec";
+  <script>
+    // ⚠️ Troque pela sua URL /exec mais recente (a MESMA do index.html)
+    const API_BASE = "https://script.google.com/macros/s/AKfycbwJwVO5VR138hBjVH07DkVqpmpz0-V7wh3FMTEjh7ey-tYaWWITKR37SJUvYxKSaEAB/exec";
 
-/* ======= SESSÃO ======= */
-function getSession(){
-  const raw = localStorage.getItem("rom.session");
-  if(!raw) return null;
-  try{ return JSON.parse(raw); }catch{ return null; }
-}
-function setChip(sess){
-  document.getElementById('chip').textContent = `${sess.nome || sess.usuario} • ${sess.role}`;
-  // mostra botão Usuários só para admin
-  document.getElementById('btnUsers').style.display = (sess.role === 'admin' ? 'inline-block' : 'none');
-}
-async function ensureSession(){
-  const sess = getSession();
-  if(!sess){ location.href="index.html"; return; }
-  setChip(sess);
+    // ===== helpers =====
+    const $ = (sel, ctx=document)=>ctx.querySelector(sel);
+    const $$ = (sel, ctx=document)=>Array.from(ctx.querySelectorAll(sel));
+    const sess = ()=> JSON.parse(localStorage.getItem("session")||"null");
+    const setMsg = (el, text, ok=false)=>{ const n=$(el); if(!n) return; n.textContent=text||""; n.className="msg "+(ok?"ok":"err"); };
 
-  try{
-    const r = await fetch(`${API_BASE}?path=/whoami&token=${encodeURIComponent(sess.token)}`, { method:"POST", body:"{}" });
-    const j = await r.json();
-    if(!j.session){ logout(); return; }
-    document.getElementById('sess').innerHTML =
-      `<div>Usuário: <b>${j.session.usuario}</b> (${j.session.role})</div>
-       <div>Ativo: ${j.session.ativo ? 'sim' : 'não'}</div>
-       <div class="muted">token: ${sess.token}</div>`;
-  }catch(e){
-    document.getElementById('sess').textContent = "Falha ao checar sessão";
-  }
+    function dlg(id, on=true){ const m=$("#"+id); if(!m) return; m.classList.toggle("on", !!on); m.setAttribute("aria-hidden", on?"false":"true"); }
 
-  // Carrega ITENS
-  try{
-    const r2 = await fetch(`${API_BASE}?path=/itens/list&token=${encodeURIComponent(sess.token)}`, { method:"POST", body:"{}" });
-    const j2 = await r2.json();
-    if(j2.itens && j2.itens.length){
-      document.getElementById('itensBox').innerHTML =
-        `<pre>${j2.itens.map(x=>`${x.embalagem} — R$ ${x.valor}`).join('\n')}</pre>`;
-    }else{
-      document.getElementById('itensBox').textContent = "Sem itens definidos.";
+    async function api(path, body={}, withToken=true){
+      const token = withToken && sess()?.token ? "&token="+encodeURIComponent(sess().token) : "";
+      try{
+        const res = await fetch(API_BASE+"?path="+encodeURIComponent(path)+token,{
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body: JSON.stringify(body||{})
+        });
+        return await res.json();
+      }catch(e){ return {error:"fetch:"+e}; }
     }
-  }catch(e){
-    document.getElementById('itensBox').textContent = "Falha ao carregar ITENS.";
-  }
-}
-function logout(){
-  const sess = getSession();
-  if(sess){
-    fetch(`${API_BASE}?path=/logout&token=${encodeURIComponent(sess.token)}`, { method:"POST", body:"{}" })
-      .finally(()=>{});
-  }
-  localStorage.removeItem("rom.session");
-  location.href = "index.html";
-}
 
-/* ======= MODAL helpers ======= */
-function show(id){ document.getElementById(id).style.display='flex'; }
-function hide(id){ document.getElementById(id).style.display='none'; }
-function closeOnBackdrop(e,id){ if(e.target.id===id) hide(id); }
+    function requireSession(){
+      const s=sess();
+      if(!s){ location.href="index.html"; return null; }
+      return s;
+    }
 
-/* ======= USUÁRIOS (ADMIN) ======= */
-async function openUsers(){
-  show('modalUsers');
-  await loadUsers();
-}
-async function loadUsers(){
-  const sess = getSession(); if(!sess) return;
-  const tbody = document.getElementById('usersTbody');
-  tbody.innerHTML = `<tr><td colspan="5" class="muted">carregando…</td></tr>`;
-  try{
-    const r = await fetch(`${API_BASE}?path=/users/list&token=${encodeURIComponent(sess.token)}`, { method:"POST", body:"{}" });
-    const j = await r.json();
-    if(j.error){ tbody.innerHTML = `<tr><td colspan="5" class="err">${j.error}</td></tr>`; return; }
-    if(!j.users || !j.users.length){ tbody.innerHTML = `<tr><td colspan="5" class="muted">sem usuários</td></tr>`; return; }
-    tbody.innerHTML = "";
-    j.users.forEach(u=>{
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${u.usuario}</td>
-        <td>${u.nome||""}</td>
-        <td>${u.role}</td>
-        <td>${u.ativo ? 'sim' : 'não'}</td>
-        <td class="right">
-          <button class="btn ghost" onclick="toggleActive('${u.usuario}', ${!u.ativo})">${u.ativo?'Desativar':'Ativar'}</button>
-          <button class="btn ghost" onclick="resetPasswordPrompt('${u.usuario}')">Reset senha</button>
-        </td>`;
-      tbody.appendChild(tr);
-    });
-  }catch(e){
-    tbody.innerHTML = `<tr><td colspan="5" class="err">Falha: ${e.message}</td></tr>`;
-  }
-}
-async function createUser(){
-  const m = (t,c="muted") => document.getElementById('uMsg').outerHTML = `<span id="uMsg" class="${c}">${t}</span>`;
-  const sess = getSession(); if(!sess) return;
-  const usuario = document.getElementById('uUsuario').value.trim();
-  const nome    = document.getElementById('uNome').value.trim();
-  const senha   = document.getElementById('uSenha').value;
-  const role    = document.getElementById('uRole').value;
-  if(!usuario || !senha){ m("Informe usuário e senha","err"); return; }
+    // ===== boot =====
+    (async function boot(){
+      const s=requireSession(); if(!s) return;
 
-  try{
-    const r = await fetch(`${API_BASE}?path=/users/create&token=${encodeURIComponent(sess.token)}`, {
-      method:"POST", body: JSON.stringify({usuario,nome,senha,role})
-    });
-    const j = await r.json();
-    if(j.error){ m(j.error,"err"); return; }
-    m("Criado com sucesso","ok");
-    document.getElementById('uUsuario').value="";
-    document.getElementById('uNome').value="";
-    document.getElementById('uSenha').value="";
-    document.getElementById('uRole').value="operador";
-    await loadUsers();
-  }catch(e){ m("Falha: "+e.message,"err"); }
-}
-function resetPasswordPrompt(usuario){
-  const nova = prompt(`Nova senha para ${usuario}:`);
-  if(!nova) return;
-  resetPassword(usuario, nova);
-}
-async function resetPassword(usuario, novaSenha){
-  const sess = getSession(); if(!sess) return;
-  const m = (t,c="muted") => document.getElementById('uMsg').outerHTML = `<span id="uMsg" class="${c}">${t}</span>`;
-  try{
-    const r = await fetch(`${API_BASE}?path=/users/resetPassword&token=${encodeURIComponent(sess.token)}`, {
-      method:"POST", body: JSON.stringify({usuario,novaSenha})
-    });
-    const j = await r.json();
-    if(j.error){ m(j.error,"err"); return; }
-    m("Senha redefinida","ok");
-  }catch(e){ m("Falha: "+e.message,"err"); }
-}
-async function toggleActive(usuario, ativo){
-  const sess = getSession(); if(!sess) return;
-  const m = (t,c="muted") => document.getElementById('uMsg').outerHTML = `<span id="uMsg" class="${c}">${t}</span>`;
-  try{
-    const r = await fetch(`${API_BASE}?path=/users/setActive&token=${encodeURIComponent(sess.token)}`, {
-      method:"POST", body: JSON.stringify({usuario,ativo})
-    });
-    const j = await r.json();
-    if(j.error){ m(j.error,"err"); return; }
-    await loadUsers();
-  }catch(e){ m("Falha: "+e.message,"err"); }
-}
+      $("#chipUser").textContent = (s.nome||s.usuario)+" • "+(s.role||"-");
 
-/* ======= MINHA SENHA ======= */
-function openChangePass(){ show('modalPass'); }
-async function changePass(){
-  const sess = getSession(); if(!sess) return;
-  const senhaAtual = document.getElementById('pAtual').value;
-  const novaSenha  = document.getElementById('pNova').value;
-  const pMsg = document.getElementById('pMsg');
-  pMsg.className='muted'; pMsg.textContent='salvando…';
-  if(!senhaAtual || !novaSenha){ pMsg.className='err'; pMsg.textContent='Preencha os dois campos.'; return; }
+      // Botões topo
+      $("#btnLogout").onclick = ()=>{ localStorage.removeItem("session"); location.href="index.html"; };
+      $("#btnMyPass").onclick = ()=>{ $("#cpAtual").value=""; $("#cpNova").value=""; setMsg("#passMsg",""); dlg('dlgPass',true); };
 
-  try{
-    const r = await fetch(`${API_BASE}?path=/user/changePassword&token=${encodeURIComponent(sess.token)}`, {
-      method:"POST", body: JSON.stringify({senhaAtual,novaSenha})
-    });
-    const j = await r.json();
-    if(j.error){ pMsg.className='err'; pMsg.textContent=j.error; return; }
-    pMsg.className='ok'; pMsg.textContent='Senha alterada!';
-    document.getElementById('pAtual').value="";
-    document.getElementById('pNova').value="";
-  }catch(e){
-    pMsg.className='err'; pMsg.textContent='Falha: '+e.message;
-  }
-}
+      if((s.role||"") === "admin"){
+        $("#btnUsers").style.display="";
+        $("#btnUsers").onclick = ()=>{ openUsers(); };
+      }
 
-/* boot */
-ensureSession();
-</script>
+      // Sessão box
+      $("#sessInfo").textContent = `Usuário: ${s.usuario} • Nome: ${s.nome||"-"} • Perfil: ${s.role||"-"} • Expira: ${new Date(s.expira||s.expira_em||"").toLocaleString()}`;
+
+      // Itens
+      await loadItens();
+    })();
+
+    // ===== Itens =====
+    async function loadItens(){
+      const r = await api("/itens/list",{});
+      const tb = $("#tbodyItens"); tb.innerHTML="";
+      if(r.error){ tb.innerHTML=`<tr><td colspan="2" class="muted">Erro: ${r.error}</td></tr>`; return; }
+      if(!r.itens || !r.itens.length){ tb.innerHTML=`<tr><td colspan="2" class="muted">Sem itens definidos na aba ITENS.</td></tr>`; return; }
+      r.itens.forEach(i=>{
+        const tr=document.createElement("tr");
+        tr.innerHTML = `<td>${i.embalagem||""}</td><td>R$ ${Number(i.valor||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}</td>`;
+        tb.appendChild(tr);
+      });
+    }
+
+    // ===== Minha senha =====
+    async function changeMyPass(){
+      setMsg("#passMsg","Salvando…", true);
+      const senhaAtual = $("#cpAtual").value.trim();
+      const novaSenha  = $("#cpNova").value.trim();
+      if(!senhaAtual || !novaSenha){ setMsg("#passMsg","Preencha as duas senhas."); return; }
+      const r = await api("/user/changePassword",{senhaAtual,novaSenha});
+      if(r.error){ setMsg("#passMsg","Erro: "+r.error); return; }
+      setMsg("#passMsg","Senha alterada com sucesso!", true);
+      setTimeout(()=> dlg('dlgPass',false), 700);
+    }
+
+    // ===== Usuários (admin) =====
+    async function openUsers(){
+      setMsg("#usersMsg","");
+      $("#tbodyUsers").innerHTML = `<tr><td colspan="5" class="muted">Carregando…</td></tr>`;
+      dlg('dlgUsers', true);
+      await loadUsers();
+    }
+
+    async function loadUsers(){
+      const r = await api("/users/list",{});
+      const tb = $("#tbodyUsers"); tb.innerHTML="";
+      if(r.error){ tb.innerHTML=`<tr><td colspan="5" class="muted">Erro: ${r.error}</td></tr>`; return; }
+      (r.users||[]).forEach(u=>{
+        const tr=document.createElement("tr");
+        tr.innerHTML = `
+          <td><span class="badge">${u.usuario}</span></td>
+          <td>${u.nome||""}</td>
+          <td>${u.role||""}</td>
+          <td>${u.ativo? "✅":"❌"}</td>
+          <td class="row">
+            <button class="btn" onclick="resetUserPass('${u.usuario}')">Resetar senha</button>
+            <button class="btn" onclick="toggleActive('${u.usuario}', ${!u.ativo})">${u.ativo?"Desativar":"Ativar"}</button>
+          </td>
+        `;
+        tb.appendChild(tr);
+      });
+      if(!(r.users||[]).length) tb.innerHTML=`<tr><td colspan="5" class="muted">Nenhum usuário.</td></tr>`;
+    }
+
+    async function createUser(){
+      const usuario=$("#nuUsuario").value.trim();
+      const nome=$("#nuNome").value.trim();
+      const senha=$("#nuSenha").value.trim();
+      const role=$("#nuRole").value;
+      if(!usuario || !senha){ setMsg("#usersMsg","Informe usuário e senha."); return; }
+      setMsg("#usersMsg","Criando…", true);
+      const r = await api("/users/create",{usuario,nome,senha,role});
+      if(r.error){ setMsg("#usersMsg","Erro: "+r.error); return; }
+      setMsg("#usersMsg","Usuário criado!", true);
+      $("#nuUsuario").value=""; $("#nuNome").value=""; $("#nuSenha").value="";
+      await loadUsers();
+    }
+
+    async function resetUserPass(usuario){
+      const novaSenha = prompt("Nova senha para: "+usuario);
+      if(!novaSenha) return;
+      const r = await api("/users/resetPassword",{usuario,novaSenha});
+      if(r.error){ alert("Erro: "+r.error); return; }
+      alert("Senha redefinida.");
+    }
+
+    async function toggleActive(usuario, ativo){
+      const r = await api("/users/setActive",{usuario,ativo});
+      if(r.error){ alert("Erro: "+r.error); return; }
+      await loadUsers();
+    }
+  </script>
 </body>
 </html>
