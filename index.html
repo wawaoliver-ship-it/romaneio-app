@@ -2,14 +2,11 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Romaneio App</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Romaneio • Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#0d1117" />
   <style>
-    :root{
-      --bg:#0b0f19;--panel:#0f172a;--muted:#8a94a6;--text:#e6edf3;
-      --primary:#2563eb;--primary-hover:#1d4ed8;--border:#1f2a44;
-    }
+    :root{--bg:#0b0f19;--panel:#0f172a;--muted:#8a94a6;--text:#e6edf3;--primary:#2563eb;--primary-hover:#1d4ed8;--border:#1f2a44}
     *{box-sizing:border-box}
     body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif}
     header{position:sticky;top:0;background:#0d1117;border-bottom:1px solid var(--border);padding:14px 18px;display:flex;gap:10px;align-items:center}
@@ -51,44 +48,44 @@
   </main>
 
   <script>
-    // 🔗 SUA API (implantação v3)
+    // 🔗 sua implantação v3 do Apps Script
     const API_BASE = "https://script.google.com/macros/s/AKfycbxM4FUC7kD5PuP_DhoX1Yph6F-2n0-o88QSsAYUmsfNWHItmo3_D8O7PJ9OZwwkB0hW/exec";
 
-    async function ping(out){
-      out.textContent = "🔎 Testando conexão...";
-      const r = await fetch(API_BASE + "?path=%2Fping"); // GET simples
-      const t = await r.text();
-      out.textContent = "✅ Ping OK\n" + t;
-    }
+    const saveSession = (s) => localStorage.setItem("romaneio.session", JSON.stringify(s));
+    const loadSession = () => { try { return JSON.parse(localStorage.getItem("romaneio.session")||"null"); } catch { return null; } };
+
+    // se já está logado, vai direto pro app
+    const sess = loadSession();
+    if (sess && sess.token) window.location.href = "app.html";
 
     document.getElementById("btnDoLogin").addEventListener("click", async (e) => {
       e.preventDefault();
       const out = document.getElementById("output");
-      const usuario = document.getElementById("usuario").value.trim();
-      const senha = document.getElementById("senha").value;
-
+      out.textContent = "🔎 Testando conexão...";
       try {
-        // 1) Diagnóstico rápido
-        await ping(out);
+        // ping (GET simples)
+        const ping = await fetch(API_BASE + "?path=%2Fping");
+        await ping.text();
+        out.textContent = "Conexão OK. Autenticando...";
 
-        // 2) Login sem preflight (usa text/plain)
-        out.textContent += "\n\n➡️ Enviando login...";
+        const usuario = document.getElementById("usuario").value.trim();
+        const senha = document.getElementById("senha").value;
+
         const res = await fetch(API_BASE + "?path=/login", {
           method: "POST",
-          headers: { "Content-Type": "text/plain" }, // evita CORS preflight
+          headers: { "Content-Type": "text/plain" }, // sem preflight
           body: JSON.stringify({ usuario, senha })
         });
-
         const txt = await res.text();
         let data; try { data = JSON.parse(txt); } catch { throw new Error("Resposta não-JSON: " + txt); }
         if (!res.ok || data.error) throw new Error(data.error || ("HTTP " + res.status));
 
-        out.textContent += "\n\n✅ Login OK\n" + JSON.stringify(data, null, 2);
-        // TODO: redirecionar para a tela principal após integrar
-        // window.location.href = "app.html";
+        // guarda a sessão e redireciona
+        saveSession(data.session);
+        out.textContent = "✅ Login OK. Redirecionando...";
+        window.location.href = "app.html";
       } catch (err) {
-        out.textContent += "\n\n❌ Erro: " + err.message +
-          "\nDica: se persistir, abra em janela anônima ou limpe o cache do PWA.";
+        document.getElementById("output").textContent = "❌ " + err.message + "\nDica: Ctrl+F5 (ou janela anônima) para limpar cache.";
       }
     });
   </script>
