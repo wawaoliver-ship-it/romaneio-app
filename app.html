@@ -1,315 +1,90 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Romaneio • Painel</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#0d1117" />
   <style>
-    :root{
-      --bg:#0b0f19;--panel:#0f172a;--muted:#8a94a6;--text:#e6edf3;
-      --primary:#2563eb;--primary-hover:#1d4ed8;--border:#1f2a44;--ok:#22c55e;--bad:#ef4444
+    body {margin:0;font-family:system-ui, sans-serif;background:#0d1117;color:#e6edf3;}
+    .topbar {
+      background:#161b22;
+      padding:10px 14px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      border-bottom:1px solid #30363d;
     }
-    *{box-sizing:border-box}
-    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:system-ui,Segoe UI,Roboto,Ubuntu,sans-serif}
-    header{position:sticky;top:0;background:#0c1324;border-bottom:1px solid var(--border);padding:10px 14px;display:flex;gap:10px;align-items:center;z-index:10}
-    .brand{font-weight:700}
-    .chip{border:1px solid var(--border);padding:.35rem .6rem;border-radius:999px;color:#9ab}
-    .spacer{flex:1}
-    .btn{border:1px solid var(--border);background:#0b0f19;color:var(--text);padding:.6rem .9rem;border-radius:8px;cursor:pointer}
-    .btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}
-    .btn:hover{opacity:.95}
-    main{max-width:1100px;margin:0 auto;padding:16px;display:grid;gap:14px}
-    .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:18px}
-    h2{margin:0 0 8px;font-size:1.05rem}
-    .muted{color:var(--muted)}
-    table{width:100%;border-collapse:collapse}
-    th,td{border-bottom:1px solid var(--border);padding:.6rem .5rem;text-align:left}
-    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    /* Modal */
-    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.5);z-index:30}
-    .modal .panel{background:var(--panel);border:1px solid var(--border);border-radius:14px;max-width:900px;width:95%;padding:16px}
-    .grid{display:grid;gap:10px}
-    .grid.two{grid-template-columns:1fr 1fr}
-    input,select{width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:#0b0f19;color:var(--text)}
-    .msg{margin-top:8px;font-size:.9rem}
-    .ok{color:var(--ok)} .bad{color:var(--bad)}
+    .btn {background:#2563eb;color:#fff;border:none;padding:8px 12px;border-radius:6px;cursor:pointer;}
+    .btn:hover {background:#1d4ed8;}
+    main {padding:20px;}
+    .card {
+      background:#161b22;
+      padding:16px;
+      border-radius:8px;
+      margin-bottom:16px;
+      border:1px solid #30363d;
+    }
   </style>
 </head>
 <body>
-<header>
-  <div class="brand">🚚 Romaneio</div>
-  <div id="userChip" class="chip">—</div>
-  <div class="spacer"></div>
-  <button class="btn" id="btnUsers">Usuários</button>
-  <button class="btn" id="btnPwd">Minha senha</button>
-  <button class="btn" id="btnLogout">Sair</button>
-</header>
-
-<main>
-  <section class="card">
-    <h2>Bem-vindo</h2>
-    <div class="muted">Aqui você consegue gerenciar usuários, sua senha e visualizar a tabela de itens da planilha.</div>
-    <div id="sessionInfo" class="muted" style="margin-top:6px"></div>
-  </section>
-
-  <section class="card">
-    <h2>Tabela de Preços (Planilha → ITENS)</h2>
-    <div class="muted">Lista automática da aba <b>ITENS</b> (embalagem, valor).</div>
-    <div style="margin-top:8px;overflow:auto">
-      <table>
-        <thead><tr><th>Embalagem</th><th>Valor</th></tr></thead>
-        <tbody id="tbodyItens"></tbody>
-      </table>
-    </div>
-  </section>
-</main>
-
-<!-- MODAL USUÁRIOS -->
-<div id="modalUsers" class="modal">
-  <div class="panel">
-    <div class="row" style="justify-content:space-between">
-      <h2>Usuários</h2>
-      <button class="btn" onclick="closeUsers()">Fechar</button>
-    </div>
-    <div class="grid two" style="margin:8px 0 12px">
-      <div>
-        <div class="muted" style="margin-bottom:6px">Novo usuário</div>
-        <div class="grid two">
-          <input id="u_usuario" placeholder="usuário (login)">
-          <input id="u_nome" placeholder="nome completo">
-        </div>
-        <div class="grid two" style="margin-top:6px">
-          <input id="u_senha" placeholder="senha">
-          <select id="u_role">
-            <option value="operador">operador</option>
-            <option value="admin">admin</option>
-          </select>
-        </div>
-        <div class="row" style="margin-top:8px">
-          <button class="btn primary" onclick="createUser()">Criar</button>
-          <div id="usersMsg" class="msg"></div>
-        </div>
-      </div>
-      <div>
-        <div class="muted" style="margin-bottom:6px">Ações rápidas</div>
-        <div class="grid two">
-          <input id="a_usuario" placeholder="usuário-alvo">
-          <input id="a_novasenha" placeholder="nova senha (reset)">
-        </div>
-        <div class="row" style="margin-top:8px">
-          <button class="btn" onclick="resetPassword()">Resetar senha</button>
-          <button class="btn" onclick="ativarUsuario(true)">Ativar</button>
-          <button class="btn" onclick="ativarUsuario(false)">Desativar</button>
-        </div>
-      </div>
-    </div>
-
-    <div style="overflow:auto">
-      <table>
-        <thead>
-          <tr>
-            <th>Usuário</th><th>Nome</th><th>Perfil</th><th>Ativo</th>
-          </tr>
-        </thead>
-        <tbody id="tbodyUsers"></tbody>
-      </table>
+  <div class="topbar">
+    <div><b>Romaneio</b></div>
+    <div>
+      <span id="usuarioInfo"></span>
+      <button class="btn" onclick="logout()">Sair</button>
     </div>
   </div>
-</div>
 
-<!-- MODAL MINHA SENHA -->
-<div id="modalPwd" class="modal">
-  <div class="panel" style="max-width:520px">
-    <div class="row" style="justify-content:space-between">
-      <h2>Alterar minha senha</h2>
-      <button class="btn" onclick="closePwd()">Fechar</button>
+  <main>
+    <div class="card">
+      <h3>Novo Romaneio</h3>
+      <p>Em breve: formulário completo para registrar romaneios com foto, volumes e impressão A4.</p>
     </div>
-    <div class="grid">
-      <input id="p_atual" type="password" placeholder="Senha atual">
-      <input id="p_nova" type="password" placeholder="Nova senha">
-      <input id="p_conf" type="password" placeholder="Confirmar nova senha">
+    <div class="card">
+      <h3>Meus Romaneios</h3>
+      <p>Filtro por cidade/romaneio e impressão. Integração chega no próximo passo.</p>
     </div>
-    <div class="row" style="margin-top:8px">
-      <button class="btn primary" onclick="savePwd()">Salvar</button>
-      <div id="pwdMsg" class="msg"></div>
+    <div class="card">
+      <h3>Clientes</h3>
+      <p>Consulta/cadastro automático por telefone na próxima etapa.</p>
     </div>
-  </div>
-</div>
+    <div id="sessao" class="card"></div>
+  </main>
 
 <script>
-  // ====== CONFIG ======
-  const API_BASE = "https://script.google.com/macros/s/AKfycbxQjxpt1hA1KnQ2p9-LOWTCWtUaf--Zr1-02juFuHe5lXR1Ait7t_QsLOJf0yCYteQ/exec";
+const API_BASE = "https://script.google.com/macros/s/AKfycbxQjxpt1hA1KnQ2p9-LOWTCWtUaf--Zr1-02juFuHe5lXR1Ait7t_QsLOJf0yCYteQ/exec";
 
-  const state = {
-    session: null,
-  };
+async function checkSession(){
+  const s = localStorage.getItem("session");
+  if(!s){ window.location.href="index.html"; return; }
+  const session = JSON.parse(s);
+  document.getElementById("usuarioInfo").innerText = 
+    session.name+" • "+session.role;
 
-  // ====== API helper (SEM preflight CORS) ======
-  async function api(path, payload = {}, withToken = true){
-    const url = API_BASE + "?path=" + encodeURIComponent(path) +
-      (withToken && state.session?.token ? "&token=" + encodeURIComponent(state.session.token) : "");
-
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" }, // <- simples (sem OPTIONS)
-      body: JSON.stringify(payload || {})
+  try {
+    const r = await fetch(API_BASE+"?op=session", {
+      method:"POST",
+      body: JSON.stringify({token: session.token})
     });
-
-    // se caiu no CORS/Network, o fetch lançaria antes; aqui é HTTP real
-    const json = await res.json();
-    return json;
-  }
-
-  // ====== Sessão ======
-  function readSession(){
-    try{
-      state.session = JSON.parse(localStorage.getItem("session")||"null");
-    }catch(e){ state.session = null; }
-  }
-
-  function ensureSession(){
-    if(!state.session?.token){
-      window.location.href = "index.html";
-      return false;
+    const data = await r.json();
+    if(!data.ok){
+      logout();
+    } else {
+      document.getElementById("sessao").innerText = 
+        "Sessão ativa até: "+session.expira_em;
     }
-    return true;
+  } catch(e){
+    document.getElementById("sessao").innerText = "Falha ao carregar sessão";
   }
+}
 
-  async function loadWhoAmI(){
-    try{
-      const r = await api("/whoami", {}, true);
-      if(!r?.session){ doLogout(); return; }
-      state.session = r.session;
-      localStorage.setItem("session", JSON.stringify(state.session));
-      paintHeader();
-      document.getElementById("sessionInfo").textContent =
-        `Sessão de ${state.session?.nome || state.session?.usuario} • perfil: ${state.session?.role}`;
-    }catch(e){
-      // se falhar, volta pro login
-      doLogout();
-    }
-  }
+function logout(){
+  localStorage.removeItem("session");
+  window.location.href="index.html";
+}
 
-  function paintHeader(){
-    const chip = document.getElementById("userChip");
-    chip.textContent = `${state.session?.nome||state.session?.usuario||"—"} • ${state.session?.role||"—"}`;
-    // admin vê "Usuários"; operador não
-    document.getElementById("btnUsers").style.display = state.session?.role==="admin" ? "inline-block" : "none";
-  }
-
-  // ====== Logout ======
-  async function doLogout(){
-    try{ await api("/logout", {}, true);}catch(e){}
-    localStorage.removeItem("session");
-    window.location.href = "index.html";
-  }
-
-  // ====== Itens ======
-  async function loadItens(){
-    try{
-      const r = await api("/itens/list", {}, true);
-      const tb = document.getElementById("tbodyItens"); tb.innerHTML = "";
-      (r.itens||[]).forEach(it=>{
-        const tr = document.createElement("tr");
-        tr.innerHTML = `<td>${escapeHtml(it.embalagem||"")}</td><td>${it.valor||""}</td>`;
-        tb.appendChild(tr);
-      });
-    }catch(e){
-      const tb = document.getElementById("tbodyItens");
-      tb.innerHTML = `<tr><td colspan="2" class="bad">Falha ao carregar itens</td></tr>`;
-    }
-  }
-
-  // ====== Usuários (ADMIN) ======
-  function openUsers(){ document.getElementById("modalUsers").style.display = "flex"; listUsers(); }
-  function closeUsers(){ document.getElementById("modalUsers").style.display = "none"; }
-
-  async function listUsers(){
-    const tb = document.getElementById("tbodyUsers"); tb.innerHTML = "";
-    try{
-      const r = await api("/users/list", {}, true);
-      (r.users||[]).forEach(u=>{
-        const tr = document.createElement("tr");
-        tr.innerHTML =
-          `<td>${escapeHtml(u.usuario)}</td>
-           <td>${escapeHtml(u.nome||"")}</td>
-           <td>${escapeHtml(u.role)}</td>
-           <td>${u.ativo? "✅" : "❌"}</td>`;
-        tb.appendChild(tr);
-      });
-    }catch(e){
-      tb.innerHTML = `<tr><td colspan="4" class="bad">Falha ao listar usuários</td></tr>`;
-    }
-  }
-
-  async function createUser(){
-    const usuario = val("#u_usuario"), nome = val("#u_nome"), senha = val("#u_senha"), role = val("#u_role");
-    if(!usuario || !senha){ setUsersMsg("Informe usuário e senha", true); return; }
-    try{
-      const r = await api("/users/create", {usuario,nome,senha,role}, true);
-      if(r.ok){ setUsersMsg("Usuário criado ✔", false); clearUserForm(); listUsers(); }
-      else setUsersMsg(r.error||"Falha ao criar", true);
-    }catch(e){ setUsersMsg("Erro de rede", true); }
-  }
-
-  async function resetPassword(){
-    const usuario = val("#a_usuario"), novaSenha = val("#a_novasenha");
-    if(!usuario || !novaSenha){ setUsersMsg("Informe usuário e nova senha", true); return; }
-    try{
-      const r = await api("/users/resetPassword", {usuario,novaSenha}, true);
-      if(r.ok){ setUsersMsg("Senha resetada ✔", false); }
-      else setUsersMsg(r.error||"Falha no reset", true);
-    }catch(e){ setUsersMsg("Erro de rede", true); }
-  }
-
-  async function ativarUsuario(flag){
-    const usuario = val("#a_usuario");
-    if(!usuario){ setUsersMsg("Informe o usuário", true); return; }
-    try{
-      const r = await api("/users/setActive", {usuario,ativo:!!flag}, true);
-      if(r.ok){ setUsersMsg((flag?"Ativado":"Desativado")+" ✔", false); listUsers(); }
-      else setUsersMsg(r.error||"Falha na operação", true);
-    }catch(e){ setUsersMsg("Erro de rede", true); }
-  }
-
-  function clearUserForm(){
-    ["#u_usuario","#u_nome","#u_senha"].forEach(s => document.querySelector(s).value = "");
-    document.querySelector("#u_role").value = "operador";
-  }
-  function setUsersMsg(t,err){ const el = document.getElementById("usersMsg"); el.className="msg "+(err?"bad":"ok"); el.textContent=t; }
-
-  // ====== Minha Senha ======
-  function openPwd(){ document.getElementById("modalPwd").style.display="flex"; }
-  function closePwd(){ document.getElementById("modalPwd").style.display="none"; }
-
-  async function savePwd(){
-    const atual = val("#p_atual"), nova = val("#p_nova"), conf = val("#p_conf");
-    const m = document.getElementById("pwdMsg");
-    if(!atual || !nova){ m.className="msg bad"; m.textContent="Preencha senha atual e nova."; return; }
-    if(nova!==conf){ m.className="msg bad"; m.textContent="Confirmação diferente."; return; }
-    try{
-      const r = await api("/user/changePassword", {senhaAtual:atual,novaSenha:nova}, true);
-      if(r.ok){ m.className="msg ok"; m.textContent="Senha atualizada ✔"; document.querySelector("#p_atual").value=""; document.querySelector("#p_nova").value=""; document.querySelector("#p_conf").value=""; }
-      else { m.className="msg bad"; m.textContent=r.error||"Falha ao atualizar"; }
-    }catch(e){ m.className="msg bad"; m.textContent="Erro de rede"; }
-  }
-
-  // ====== Helpers ======
-  function val(sel){ return document.querySelector(sel).value.trim(); }
-  function escapeHtml(s){ return (s||"").replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;", '"':"&quot;","'":"&#39;" }[m])); }
-
-  // ====== Boot ======
-  document.getElementById("btnLogout").addEventListener("click", doLogout);
-  document.getElementById("btnUsers").addEventListener("click", openUsers);
-  document.getElementById("btnPwd").addEventListener("click", openPwd);
-
-  (async function init(){
-    readSession();
-    if(!ensureSession()) return;
-    await loadWhoAmI();
-    await loadItens();
-  })();
+checkSession();
 </script>
 </body>
 </html>
