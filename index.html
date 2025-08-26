@@ -1,123 +1,97 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="theme-color" content="#0d1117" />
-<title>Romaneio • Login</title>
-<link rel="manifest" href="manifest.webmanifest">
-<style>
-:root{
-  --bg:#0b0f19;--panel:#0f172a;--muted:#8a94a6;--text:#e6edf3;
-  --primary:#2563eb;--primary-hover:#1d4ed8;--border:#1f2a44;
-}
-*{box-sizing:border-box}
-html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif}
-header{position:sticky;top:0;background:#0d1117;border-bottom:1px solid var(--border);padding:12px 16px;display:flex;gap:10px;align-items:center}
-.brand{font-weight:700;letter-spacing:.3px;color:#9abaff}
-.card{max-width:420px;margin:48px auto;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:20px}
-h1{margin:6px 0 18px 0;font-size:20px;color:#c7d2fe}
-.field{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
-input{background:#0b0f19;border:1px solid #243146;color:var(--text);border-radius:10px;padding:12px}
-button{border:1px solid #334155;background:#0b0f19;color:var(--text);padding:12px;border-radius:10px;cursor:pointer}
-button.primary{background:var(--primary);border-color:var(--primary)}
-button:hover{opacity:.95}
-pre{background:#0b1020;border:1px solid var(--border);padding:10px;border-radius:12px;overflow:auto;color:#9aa4b2}
-.note{color:#9aa4b2;font-size:.92rem}
-footer{padding:18px;color:#9aa4b2;text-align:center}
-</style>
+  <meta charset="UTF-8" />
+  <title>Romaneio • Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0d1117" />
+  <style>
+    :root {
+      --bg:#0b0f19;--panel:#0f172a;--muted:#8a94a6;--text:#e6edf3;
+      --primary:#2563eb;--primary-hover:#1d4ed8;--border:#1f2a44
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,Segoe UI,Roboto,Ubuntu,sans-serif}
+    main{min-height:100vh;display:grid;place-items:center;padding:20px}
+    .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:22px;width:100%;max-width:400px;box-shadow:0 10px 20px rgba(0,0,0,.4)}
+    h2{text-align:center;margin:0 0 14px}
+    label{display:block;margin-top:12px;font-size:.9rem;color:var(--muted)}
+    input{width:100%;padding:10px;margin-top:4px;border-radius:8px;border:1px solid var(--border);background:#0b0f19;color:var(--text)}
+    button{width:100%;margin-top:16px;padding:12px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:1rem;cursor:pointer}
+    button:hover{background:var(--primary-hover)}
+    .msg{margin-top:14px;font-size:.9rem;text-align:center}
+    .error{color:#f87171}
+    .success{color:#4ade80}
+    footer{text-align:center;margin-top:20px;font-size:.8rem;color:var(--muted)}
+  </style>
 </head>
 <body>
-  <header><div class="brand">🚚 Romaneio</div></header>
-  <main class="card">
-    <h1>Acesso</h1>
-    <div class="field">
-      <label>Usuário</label>
-      <input id="usuario" autocomplete="username" placeholder="admin">
+  <main>
+    <div class="card">
+      <h2>Acesso</h2>
+      <label>Usuário
+        <input id="usuario" type="text" placeholder="Usuário" />
+      </label>
+      <label>Senha
+        <input id="senha" type="password" placeholder="Senha" />
+      </label>
+      <button onclick="login()">Entrar</button>
+      <div class="msg" id="msg"></div>
     </div>
-    <div class="field">
-      <label>Senha</label>
-      <input id="senha" type="password" autocomplete="current-password" placeholder="••••••">
-    </div>
-    <div class="field">
-      <button id="btnLogin" class="primary">Entrar</button>
-    </div>
-    <p class="note">Admin cria/gerencia usuários via planilha. Precisa de acesso? Fale com o responsável.</p>
-    <pre id="out" style="display:none"></pre>
+    <footer>
+      v1 • PWA (instalável)
+    </footer>
   </main>
-  <footer>v1 • PWA (instalável)</footer>
 
-<script>
-const API_BASE = "https://script.google.com/macros/s/AKfycbyGZu5c4vTiXjQx5Ud45m0Ij3Dotejl_ziYTdFmjtWXU4cPRz1i2qWLPkVF4RzhuIMr/exec";
+  <script>
+    // 🚀 URL base da API (sua implantação Google Apps Script)
+    const API_BASE = "https://script.google.com/macros/s/AKfycbyGZu5c4vTiXjQx5Ud45m0Ij3Dotejl_ziYTdFmjtWXU4cPRz1i2qWLPkVF4RzhuIMr/exec";
 
-const $ = sel => document.querySelector(sel);
-const out = $("#out");
-
-function logBox(obj, ok=true){
-  out.style.display="block";
-  out.textContent = (ok?"✅ ":"❌ ") + (typeof obj==="string"?obj:JSON.stringify(obj,null,2));
-}
-function saveSession(s){ localStorage.setItem("rom.session", JSON.stringify(s)); }
-function getSession(){ try{return JSON.parse(localStorage.getItem("rom.session")||"null")}catch(_){return null} }
-
-async function api(path, data={}){
-  const sess = getSession();
-  const url = API_BASE + "?path=" + encodeURIComponent(path) + (sess && sess.token ? "&token="+encodeURIComponent(sess.token) : "");
-  const res = await fetch(url, {
-    method:"POST",
-    mode:"cors",
-    headers:{ "Content-Type":"application/json" },
-    body: JSON.stringify(data)
-  });
-  return await res.json();
-}
-
-async function boot(){
-  try{
-    // se já tem sessão, valida e vai pro app
-    const sess = getSession();
-    if (sess && sess.token){
-      const r = await api("/whoami", {});
-      if (r && r.session && r.session.token===sess.token) {
-        location.href = "app.html";
-        return;
-      } else {
-        localStorage.removeItem("rom.session");
+    // 🔧 Helper seguro para chamadas API
+    async function apiFetch(path, options = {}) {
+      try {
+        const res = await fetch(API_BASE + path, {
+          method: options.method || "POST",
+          headers: { "Content-Type": "application/json" },
+          body: options.body ? JSON.stringify(options.body) : null
+        });
+        if (!res.ok) throw new Error("Erro HTTP " + res.status);
+        return await res.json();
+      } catch (err) {
+        console.error("Erro ao chamar API:", err);
+        document.getElementById("msg").innerHTML = `<span class="error">❌ Erro: ${err.message}</span>`;
+        throw err;
       }
     }
-    // só pra feedback: ping
-    const ping = await fetch(API_BASE + "?path=/ping").then(r=>r.json()).catch(()=>({error:"ping falhou"}));
-    logBox({ ping }, true);
-  }catch(err){
-    logBox("Erro ao inicializar: "+err, false);
-  }
-}
 
-$("#btnLogin").addEventListener("click", async ()=>{
-  try{
-    out.style.display="none";
-    const usuario = $("#usuario").value.trim();
-    const senha = $("#senha").value;
-    if (!usuario || !senha) return logBox("Informe usuário e senha", false);
+    // 🔑 Função de login
+    async function login() {
+      const usuario = document.getElementById("usuario").value.trim();
+      const senha = document.getElementById("senha").value.trim();
+      const msg = document.getElementById("msg");
 
-    logBox("Fazendo login...");
-    const r = await api("/login", { usuario, senha });
-    if (!r || r.error) return logBox(r?.error || "Falha no login", false);
+      if (!usuario || !senha) {
+        msg.innerHTML = `<span class="error">❌ Preencha usuário e senha</span>`;
+        return;
+      }
 
-    saveSession(r.session);
-    logBox({ "Login OK": r.session }, true);
-    location.href = "app.html";
-  }catch(err){
-    logBox("Erro: "+err, false);
-  }
-});
+      msg.innerHTML = "⏳ Verificando...";
 
-boot();
+      try {
+        const data = await apiFetch("/login", { body: { usuario, senha } });
 
-// PWA
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", ()=> navigator.serviceWorker.register("./sw.js").catch(()=>{}));
-}
-</script>
+        if (data.ok) {
+          msg.innerHTML = `<span class="success">✅ Login OK! Redirecionando...</span>`;
+          // salva a sessão localmente
+          localStorage.setItem("session", JSON.stringify(data.session));
+          setTimeout(() => { window.location.href = "app.html"; }, 1000);
+        } else {
+          msg.innerHTML = `<span class="error">❌ ${data.error || "Falha no login"}</span>`;
+        }
+      } catch (err) {
+        console.log("Falha de comunicação:", err);
+      }
+    }
+  </script>
 </body>
 </html>
