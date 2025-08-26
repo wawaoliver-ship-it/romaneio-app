@@ -25,9 +25,9 @@
   </div>
 
   <script>
-    // 🚨 coloque aqui sua URL de implantação mais recente
-    const API_BASE = "https://script.google.com/macros/s/AKfycbwJwVO5VR138hBjVH07DkVqpmpz0-V7wh3FMTEjh7ey-tYaWWITKR37SJUvYxKSaEAB/exec";
-
+  // Use a SUA URL com /exec aqui:
+  const API_BASE = "https://script.google.com/macros/s/AKfycbwJwVO5VR138hBjVH07DkVqpmpz0-V7wh3FMTEjh7ey-tYaWWITKR37SJUvYxKSaEAB/exec";
+</script>
     async function api(path, body = {}, token = null) {
       try {
         const res = await fetch(API_BASE + "?path=" + encodeURIComponent(path), {
