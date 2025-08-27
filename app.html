@@ -123,3 +123,152 @@ async function api(path, body = {}, token = null) {
 </script>
 </body>
 </html>
+<!-- ===================== ROMANEIO – FORM ===================== -->
+<section id="rom-form" style="padding:16px;">
+  <h2>Romaneio</h2>
+
+  <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;max-width:920px">
+    <label>ROM
+      <input id="rom_rom" type="number" style="width:100%;padding:8px">
+    </label>
+    <label>Data
+      <input id="rom_data" type="date" style="width:100%;padding:8px">
+    </label>
+    <label>OBS
+      <textarea id="rom_obs" rows="2" style="width:100%;padding:8px" placeholder="Observações"></textarea>
+    </label>
+  </div>
+
+  <h3 style="margin-top:16px">Cliente</h3>
+  <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;max-width:920px">
+    <label>Telefone
+      <input id="cli_tel" style="width:100%;padding:8px" placeholder="ex: 81999999999">
+    </label>
+    <label>Nome
+      <input id="cli_nome" style="width:100%;padding:8px">
+    </label>
+    <label>Cidade/UF
+      <input id="cli_loc" style="width:100%;padding:8px" placeholder="Recife/PE">
+    </label>
+  </div>
+
+  <h3 style="margin-top:16px">Fornecedor</h3>
+  <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;max-width:920px">
+    <label>Telefone
+      <input id="for_tel" style="width:100%;padding:8px">
+    </label>
+    <label>Nome
+      <input id="for_nome" style="width:100%;padding:8px">
+    </label>
+    <label>Cidade/UF
+      <input id="for_loc" style="width:100%;padding:8px">
+    </label>
+  </div>
+
+  <h3 style="margin-top:16px">Itens</h3>
+  <table id="tblItens" style="width:100%;max-width:920px;border-collapse:collapse">
+    <thead>
+      <tr>
+        <th style="text-align:left;padding:6px;border-bottom:1px solid #ddd">Tipo</th>
+        <th style="text-align:left;padding:6px;border-bottom:1px solid #ddd">Tamanho</th>
+        <th style="text-align:left;padding:6px;border-bottom:1px solid #ddd">Qtd</th>
+        <th style="padding:6px;border-bottom:1px solid #ddd"></th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <button type="button" onclick="addItemRow()" style="margin-top:8px;padding:8px 12px">+ Item</button>
+  <div class="total" style="margin-top:8px"><b>Total:</b> <span id="rom_total">0</span></div>
+
+  <h3 style="margin-top:16px">Fotos</h3>
+  <input id="rom_fotos" type="file" accept="image/*" multiple capture="environment">
+  <div style="margin-top:6px;font-size:12px;color:#666">As fotos serão salvas no Drive e vinculadas ao código gerado.</div>
+
+  <div style="margin-top:18px">
+    <button onclick="enviarRomaneio()" style="padding:10px 16px">Enviar Romaneio</button>
+  </div>
+
+  <div id="rom_result" style="margin-top:12px"></div>
+</section>
+
+<script>
+const $ = (sel)=>document.querySelector(sel);
+function sess(){ try { return JSON.parse(localStorage.getItem("session"))||null; } catch(_) { return null; } }
+
+function addItemRow(){
+  const tb = $("#tblItens tbody");
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
+    <td style="padding:6px">
+      <select class="tipo" style="padding:6px;width:120px">
+        <option value="caixa">Caixa</option>
+        <option value="saco">Saco</option>
+      </select>
+    </td>
+    <td style="padding:6px">
+      <select class="tam" style="padding:6px;width:90px">
+        <option value="p">P</option>
+        <option value="m">M</option>
+        <option value="g">G</option>
+      </select>
+    </td>
+    <td style="padding:6px">
+      <input type="number" min="0" class="qtd" value="0" style="padding:6px;width:100px">
+    </td>
+    <td style="padding:6px"><button type="button" onclick="this.closest('tr').remove(); calcTotal()">x</button></td>
+  `;
+  tb.appendChild(tr);
+}
+function calcTotal(){
+  let tot=0;
+  document.querySelectorAll("#tblItens .qtd").forEach(i=> tot += Number(i.value||0));
+  $("#rom_total").textContent = tot;
+}
+document.addEventListener("input", (e)=>{ if (e.target.classList.contains("qtd")) calcTotal(); });
+
+function filesToBase64(input){
+  const files = Array.from(input.files||[]);
+  return Promise.all(files.map(f => new Promise(res=>{
+    const r=new FileReader();
+    r.onload=()=>res({ name:f.name, data:r.result });
+    r.readAsDataURL(f);
+  })));
+}
+
+async function enviarRomaneio(){
+  try{
+    const itens = Array.from(document.querySelectorAll("#tblItens tbody tr")).map(tr=>({
+      tipo: tr.querySelector(".tipo").value,
+      tamanho: tr.querySelector(".tam").value,
+      qtd: Number(tr.querySelector(".qtd").value||0)
+    })).filter(i=>i.qtd>0);
+
+    const fotos = await filesToBase64($("#rom_fotos"));
+
+    const body = {
+      rom: $("#rom_rom").value,
+      data: $("#rom_data").value,
+      obs : $("#rom_obs").value,
+      cliente: { tel: $("#cli_tel").value, nome: $("#cli_nome").value, local: $("#cli_loc").value },
+      fornecedor: { tel: $("#for_tel").value, nome: $("#for_nome").value, local: $("#for_loc").value },
+      itens, fotos
+    };
+
+    $("#rom_result").textContent = "Enviando...";
+    const s = sess();
+    const r = await api("/rom/create", body, s?.token);
+    if (r.error) throw new Error(r.error);
+
+    $("#rom_result").innerHTML = `
+      <div><b>Romaneio criado!</b></div>
+      <div>Código: <b>${r.cod}</b></div>
+      <div><a href="${r.pdfUrl}" target="_blank">Abrir PDF</a></div>
+      <div><a href="${r.whatsappUrl}" target="_blank">WhatsApp do cliente</a></div>
+    `;
+  }catch(err){
+    $("#rom_result").textContent = "Erro: " + err.message;
+  }
+}
+
+document.addEventListener("DOMContentLoaded", ()=> addItemRow());
+</script>
