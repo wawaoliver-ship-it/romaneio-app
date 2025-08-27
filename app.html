@@ -73,23 +73,18 @@
   // === TROQUE AQUI PELO SEU /exec ===
   const API_BASE = "https://script.google.com/macros/s/AKfycbwJwVO5VR138hBjVH07DkVqpmpz0-V7wh3FMTEjh7ey-tYaWWITKR37SJUvYxKSaEAB/exec";
 
-  function showTab(id){
-    document.querySelectorAll('.tab').forEach(el=>el.style.display='none');
-    document.getElementById(id).style.display='block';
-  }
-
-  async function api(path, body = {}, token = null) {
-    const session = JSON.parse(localStorage.getItem("session")||"null");
-    const url = API_BASE + "?path=" + encodeURIComponent(path);
-    const res = await fetch(url, {
-      method: "POST",
-      headers: {"Content-Type":"text/plain;charset=utf-8"},
-      body: JSON.stringify({...body, token: session?.token}),
-      cache: "no-store"
-    });
-    if(!res.ok) throw new Error("HTTP "+res.status);
-    return res.json();
-  }
+async function api(path, body = {}, token = null) {
+  const session = JSON.parse(localStorage.getItem("session")||"null");
+  const url = API_BASE + "?path=" + encodeURIComponent(path);
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {"Content-Type":"text/plain;charset=utf-8"},
+    body: JSON.stringify({...body, token: session?.token}),
+    cache: "no-store"
+  });
+  if(!res.ok) throw new Error("HTTP "+res.status);
+  return res.json();
+}
 
   async function carregarClientes(){
     const data = await api("/clientes");
