@@ -1,5 +1,5 @@
 // troque a versão para forçar atualização quando editar o app
-const CACHE = "romaneio-v19";
+const CACHE = "romaneio-v20";
 
 self.addEventListener("install", (e) => {
   e.waitUntil(
