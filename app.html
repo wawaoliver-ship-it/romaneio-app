@@ -13,12 +13,14 @@
       /* DARK (default) */
       --bg:#0d1117;--panel:#0f172a;--muted:#9aa5b1;--text:#e6edf3;
       --primary:#2563eb;--border:#1f2a44;--danger:#ef4444;--ok:#22c55e;
-      --chip:#0b1223;--thead:#0b1223;--input:#0b1223;
+      --chip:#0b1223;--thead:#0b1223;--input:#0b1223;--soft:#0b1020;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
     }
     [data-theme="light"]{
       --bg:#f6f7fb;--panel:#ffffff;--muted:#5b6572;--text:#0b1223;
       --primary:#2563eb;--border:#e6e8ef;--danger:#dc2626;--ok:#16a34a;
-      --chip:#eef2ff;--thead:#f3f4f6;--input:#ffffff;
+      --chip:#eef2ff;--thead:#f3f4f6;--input:#ffffff;--soft:#f9fafb;
+      --shadow: 0 10px 30px rgba(0,0,0,.12);
     }
 
     /* ================ BASE UI ================ */
@@ -38,7 +40,8 @@
     .wrap{max-width:1100px;margin:0 auto;padding:16px}
     h2{margin:18px 0 10px;border-bottom:1px solid var(--border);padding-bottom:6px}
     section.tab{display:none}
-    .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px}
+    .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px;box-shadow:var(--shadow)}
+    .subtle{background:var(--soft)}
 
     .grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
     .grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
@@ -71,6 +74,20 @@
     #toast.ok{border-color:#14532d;background:#052e16;color:#a7f3d0}
     #toast.err{border-color:#7f1d1d;background:#2a0c0c;color:#fecaca}
 
+    /* fotos preview */
+    .gallery{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+    .thumb{position:relative;border:1px solid var(--border);border-radius:10px;padding:6px;background:var(--panel)}
+    .thumb img{display:block;height:80px;width:auto;border-radius:6px}
+    .thumb button{position:absolute;top:4px;right:4px;border:0;border-radius:8px;padding:4px 6px;cursor:pointer}
+    .thumb .x{background:var(--danger);color:#fff}
+
+    /* Modal */
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:9998;padding:16px}
+    .modal .box{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px;max-width:900px;width:100%}
+    .modal .box h3{margin:0 0 8px}
+    .modal .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .receipt-img{width:100%;max-height:70vh;object-fit:contain;border:1px solid var(--border);border-radius:10px;background:#fff}
+
     /* mobile */
     @media (max-width:900px){
       .grid-3{grid-template-columns:1fr}
@@ -85,6 +102,23 @@
   <!-- loader + toast -->
   <div id="loader"></div>
   <div id="toast"></div>
+
+  <!-- Modal Comprovante -->
+  <div id="modal" class="modal" role="dialog" aria-modal="true">
+    <div class="box">
+      <div class="row">
+        <h3 style="margin-right:auto">Comprovante do Romaneio</h3>
+        <button id="btnCloseModal" class="btn btn-danger">Fechar</button>
+      </div>
+      <img id="receiptImg" class="receipt-img" alt="Comprovante">
+      <div class="actions">
+        <a id="btnDownloadPng" class="btn btn-muted" download="romaneio.png">⬇️ Baixar PNG</a>
+        <a id="btnOpenPdf" class="btn btn-muted" target="_blank">📄 Abrir PDF</a>
+        <button id="btnShare" class="btn btn-primary">📲 Compartilhar</button>
+        <button id="btnWA" class="btn btn-primary">💬 WhatsApp (link)</button>
+      </div>
+    </div>
+  </div>
 
   <header>
     <div class="brand">🚚 Romaneio</div>
@@ -109,6 +143,11 @@
           <div><label>ROM</label><input id="rom_rom" type="number" placeholder="Ex: 21"></div>
           <div><label>Data</label><input id="rom_data" type="date"></div>
           <div><label>Observações</label><textarea id="rom_obs" placeholder="Ex.: Agendar com o cliente"></textarea></div>
+        </div>
+
+        <div id="codPreview" class="row subtle" style="margin-top:10px;padding:8px;border-radius:10px;display:none">
+          <span class="chip">COD (6 dígitos):</span>
+          <b id="cod_value">— — — — — —</b>
         </div>
 
         <h3 style="margin-top:16px">Cliente</h3>
@@ -143,7 +182,12 @@
         </div>
 
         <h3 style="margin-top:16px">Fotos</h3>
-        <input id="rom_fotos" type="file" accept="image/*" multiple capture="environment">
+        <div class="row">
+          <input id="rom_fotos" type="file" accept="image/*" multiple capture="environment">
+          <button type="button" id="btnAddMore" class="btn btn-muted">+ Adicionar mais</button>
+          <span class="chip" id="photoCount">0 foto(s)</span>
+        </div>
+        <div class="gallery" id="gallery"></div>
         <div style="margin:6px 0 12px;color:var(--muted);font-size:12px">Você pode escolher várias e remover antes de enviar.</div>
 
         <div class="row">
@@ -285,7 +329,6 @@
       $(def.el).style.display="block";
       setActiveMenu(hash);
 
-      // mini-loaders
       if(hash==="users") loadUsers();
       if(hash==="romaneios") loadRomaneios();
       if(hash==="clientes") loadClientes();
@@ -339,45 +382,198 @@
     function calcTotal(){ let tot=0; $$("#tblItens .qtd").forEach(i=> tot += Number(i.value||0)); $("#rom_total").textContent=tot; }
     $("#btnAddItem").addEventListener("click", ()=> addItemRow());
 
-    async function filesToBase64(input){
-      const files = Array.from(input.files||[]);
-      return Promise.all(files.map(f => new Promise(res=>{
+    // fotos múltiplas com preview
+    const photos = []; // {name, data}
+    function updatePhotoUI(){
+      const g = $("#gallery"); g.innerHTML="";
+      photos.forEach((p,idx)=>{
+        const d=document.createElement("div");
+        d.className="thumb";
+        d.innerHTML=`
+          <img src="${p.data}" alt="foto${idx+1}">
+          <button type="button" class="x">x</button>
+        `;
+        d.querySelector(".x").onclick=()=>{ photos.splice(idx,1); updatePhotoUI(); };
+        g.appendChild(d);
+      });
+      $("#photoCount").textContent = `${photos.length} foto(s)`;
+    }
+    async function fileListToBase64(files){
+      return Promise.all(Array.from(files||[]).map(f => new Promise(res=>{
         const r=new FileReader(); r.onload=()=>res({ name:f.name, data:r.result }); r.readAsDataURL(f);
       })));
     }
+    $("#rom_fotos").addEventListener("change", async (e)=>{
+      const list = await fileListToBase64(e.target.files);
+      list.forEach(x=>photos.push(x));
+      e.target.value=""; // permite re-escolher mesmo arquivo
+      updatePhotoUI();
+    });
+    $("#btnAddMore").addEventListener("click", ()=> $("#rom_fotos").click());
+
     function clearRomForm(){
       $("#rom_rom").value=""; setTodayIfEmpty(true);
       $("#rom_obs").value=""; $("#cli_tel").value=$("#cli_nome").value=$("#cli_loc").value="";
       $("#for_tel").value=$("#for_nome").value=$("#for_loc").value="";
-      $("#rom_fotos").value=""; $("#tblItens tbody").innerHTML=""; addItemRow(); $("#rom_result").innerHTML="";
+      $("#rom_fotos").value=""; photos.splice(0,photos.length); updatePhotoUI();
+      $("#tblItens tbody").innerHTML=""; addItemRow(); $("#rom_result").innerHTML="";
+      $("#codPreview").style.display="none"; $("#cod_value").textContent="— — — — — —";
       calcTotal();
     }
 
+    // ======= Gerar imagem do comprovante =======
+    function wrapText(ctx, text, x, y, maxWidth, lineHeight){
+      const words = String(text||"").split(' ');
+      let line = '', yy=y;
+      for (let n=0;n<words.length;n++){
+        const test = line + words[n] + ' ';
+        if (ctx.measureText(test).width > maxWidth && n>0) {
+          ctx.fillText(line, x, yy);
+          line = words[n] + ' ';
+          yy += lineHeight;
+        } else line = test;
+      }
+      ctx.fillText(line, x, yy);
+      return yy;
+    }
+    async function drawReceiptPNG(payload){
+      // payload: {cod, rom, data, usuario, cliente, fornecedor, itens, totalQtd, fotos[] (dataURL)}
+      const W=800, H=1100, P=36;
+      const cnv=document.createElement("canvas"); cnv.width=W; cnv.height=H;
+      const ctx=cnv.getContext("2d");
+
+      // bg
+      ctx.fillStyle="#ffffff"; ctx.fillRect(0,0,W,H);
+      ctx.fillStyle="#111827"; ctx.fillRect(0,0,W,60);
+      ctx.fillStyle="#ffffff"; ctx.font="bold 22px system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif";
+      ctx.fillText("ROMANEIO • COMPROVANTE", P, 38);
+      ctx.font="14px system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif";
+      ctx.fillText(`Gerado em ${new Date().toLocaleString()}`, W-P-260, 38);
+
+      let y=90;
+      ctx.fillStyle="#111827";
+      ctx.font="bold 18px system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif";
+      ctx.fillText(`CÓDIGO: ${payload.cod}`, P, y); y+=26;
+      ctx.font="14px system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif";
+      ctx.fillText(`ROM: ${payload.rom||"-"}   •   DATA: ${payload.data||"-"}   •   USUÁRIO: ${payload.usuario||"-"}`, P, y); y+=24;
+
+      y+=6;
+      // Cliente
+      ctx.font="bold 16px system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif";
+      ctx.fillText("Cliente", P, y); y+=20;
+      ctx.font="14px system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif";
+      y = wrapText(ctx, `${payload.cliente.nome} (${payload.cliente.tel}) — ${payload.cliente.cidade_uf}`, P, y, W-2*P, 18) + 8;
+
+      // Fornecedor
+      ctx.font="bold 16px system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif";
+      ctx.fillText("Fornecedor", P, y); y+=20;
+      ctx.font="14px system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif";
+      y = wrapText(ctx, `${payload.fornecedor.nome} (${payload.fornecedor.tel}) — ${payload.fornecedor.cidade_uf}`, P, y, W-2*P, 18) + 12;
+
+      // Itens
+      ctx.font="bold 16px system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif";
+      ctx.fillText("Itens", P, y); y+=12;
+      // header linha
+      ctx.strokeStyle="#e5e7eb"; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(P,y); ctx.lineTo(W-P,y); ctx.stroke(); y+=8;
+      ctx.font="14px system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif";
+      payload.itens.forEach(i=>{
+        const label = `${i.tipo.toUpperCase()} ${i.tamanho.toUpperCase()}`;
+        ctx.fillText(label, P, y);
+        ctx.fillText(String(i.qtd), W-P-40, y);
+        y+=20;
+      });
+      y+=6;
+      ctx.font="bold 15px system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif";
+      ctx.fillText(`Total de volumes: ${payload.totalQtd}`, P, y); y+=18;
+
+      // Fotos (miniaturas)
+      if (payload.fotos && payload.fotos.length){
+        y+=10;
+        ctx.font="bold 16px system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif";
+        ctx.fillText("Fotos", P, y); y+=10;
+        const size=120, gap=10; let x=P;
+        for (let k=0; k<payload.fotos.length && k<4; k++){
+          const img = await loadImage_(payload.fotos[k]);
+          ctx.drawImage(img, x, y, size, size);
+          x += size+gap;
+          if (x+size > W-P){ x=P; y+=size+gap; }
+        }
+        y += size + 6;
+      }
+
+      // rodapé
+      y = Math.min(y, H-50);
+      ctx.strokeStyle="#e5e7eb"; ctx.beginPath(); ctx.moveTo(P, y); ctx.lineTo(W-P, y); ctx.stroke();
+      ctx.font="12px system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif";
+      ctx.fillStyle="#6b7280"; ctx.fillText("Documento gerado automaticamente • Romaneio", P, y+20);
+
+      return cnv.toDataURL("image/png");
+    }
+    function loadImage_(src){
+      return new Promise((resolve,reject)=>{
+        const img=new Image(); img.onload=()=>resolve(img); img.onerror=reject; img.src=src;
+      });
+    }
+
+    // ===== Envio do Romaneio =====
     $("#btnEnviarRom").addEventListener("click", async ()=>{
       try{
-        loader.on();
+        // valida mínimo
+        const cliTel=$("#cli_tel").value.trim();
+        const cliNom=$("#cli_nome").value.trim();
+        const cliLoc=$("#cli_loc").value.trim();
+        const forTel=$("#for_tel").value.trim();
+        const forNom=$("#for_nome").value.trim();
+        const forLoc=$("#for_loc").value.trim();
+
+        if(!$("#rom_data").value){ toast("Selecione a data.","err"); return; }
+        if(!cliTel||!cliNom||!cliLoc){ toast("Preencha os dados do CLIENTE (tel, nome, cidade/UF).","err"); return; }
+        if(!forTel||!forNom||!forLoc){ toast("Preencha os dados do FORNECEDOR (tel, nome, cidade/UF).","err"); return; }
+
         const itens = $$("#tblItens tbody tr").map(tr=>({
           tipo: tr.querySelector(".tipo").value,
           tamanho: tr.querySelector(".tam").value,
           qtd: Number(tr.querySelector(".qtd").value||0)
         })).filter(i=>i.qtd>0);
-        if(!itens.length){ loader.off(); toast("Inclua ao menos 1 item.","err"); return; }
+        if(!itens.length){ toast("Inclua ao menos 1 item.","err"); return; }
 
-        const fotos = await filesToBase64($("#rom_fotos"));
-
+        loader.on();
         const body = {
           rom: $("#rom_rom").value,
           data: $("#rom_data").value,
           obs : $("#rom_obs").value,
-          cliente: { tel: $("#cli_tel").value, nome: $("#cli_nome").value, local: $("#cli_loc").value },
-          fornecedor: { tel: $("#for_tel").value, nome: $("#for_nome").value, local: $("#for_loc").value },
-          itens, fotos
+          cliente: { tel: cliTel, nome: cliNom, local: cliLoc },
+          fornecedor: { tel: forTel, nome: forNom, local: forLoc },
+          itens, fotos: photos
         };
         loader.progress();
         const r = await api("/rom/create", body);
         loader.off();
 
         if(r.error){ toast(r.error,"err"); return; }
+
+        // mostra COD no chip
+        $("#cod_value").textContent = r.cod || "— — — — — —";
+        $("#codPreview").style.display="flex";
+
+        // constrói recibo em PNG
+        const payload = {
+          cod: r.cod,
+          rom: body.rom,
+          data: body.data,
+          usuario: (sess()?.usuario)||"-",
+          cliente: { nome: body.cliente.nome, tel: body.cliente.tel, cidade_uf: body.cliente.local },
+          fornecedor: { nome: body.fornecedor.nome, tel: body.fornecedor.tel, cidade_uf: body.fornecedor.local },
+          itens: body.itens,
+          totalQtd: body.itens.reduce((s,i)=>s+Number(i.qtd||0),0),
+          fotos: photos.map(p=>p.data)
+        };
+        const dataUrl = await drawReceiptPNG(payload);
+
+        // abre modal
+        openReceiptModal({ png:dataUrl, pdf:r.pdfUrl, wa:r.whatsappUrl, waTel: body.cliente.tel });
+
+        // resultado (mantém)
         $("#rom_result").innerHTML = `
           <div class="row" style="gap:12px">
             <span class="chip">Romaneio criado</span>
@@ -387,9 +583,39 @@
           </div>
         `;
         toast("Romaneio enviado!","ok");
+
+        // limpa para próximo lançamento
         clearRomForm();
       }catch(err){ loader.off(); toast("Falha ao enviar: "+err.message,"err"); }
     });
+
+    function openReceiptModal({png,pdf,wa,waTel}){
+      const modal=$("#modal"); const img=$("#receiptImg");
+      img.src = png || "";
+      $("#btnDownloadPng").href = png || "#";
+      const pdfBtn=$("#btnOpenPdf"); if(pdf){ pdfBtn.href=pdf; pdfBtn.style.display="inline-block"; } else { pdfBtn.style.display="none"; }
+      $("#btnWA").onclick = ()=>{ if(wa) window.open(wa,"_blank"); else toast("Sem link de WhatsApp gerado.","err"); };
+      $("#btnShare").onclick = async ()=>{
+        try{
+          if(navigator.share && navigator.canShare){
+            const res = await fetch(png); const blob = await res.blob();
+            const file = new File([blob], `rom_${Date.now()}.png`, {type:"image/png"});
+            if(navigator.canShare({files:[file]})){
+              await navigator.share({
+                title:"Comprovante de Romaneio",
+                text:`Código: ${$("#cod_value").textContent}`,
+                files:[file]
+              });
+              return;
+            }
+          }
+          // fallback: abre PNG em nova guia
+          window.open(png,"_blank");
+        }catch(e){ toast("Não foi possível compartilhar.","err"); }
+      };
+      $("#btnCloseModal").onclick = ()=>{ modal.style.display="none"; };
+      modal.style.display="flex";
+    }
 
     $("#btnFillCli").addEventListener("click", ()=>{
       const t = $("#cli_tel").value.replace(/\D/g,"");
@@ -406,98 +632,15 @@
       $("#listCli").innerHTML = `<div class="empty" style="padding:24px;color:var(--muted)">Sem registros (crie um /clientes no backend se quiser listar aqui 😉)</div>`;
     }
 
-    /* ===== Usuários ===== */
+    /* ===== Usuários (placeholder) ===== */
     function renderPermsChips(perms){
       if(!perms || !perms.length) return `<span class="chip">—</span>`;
       return perms.map(p=>`<span class="chip">${p}</span>`).join(" ");
     }
     async function loadUsers(){
-      if(!hasPerm("usuarios")){
-        $("#tab-users").innerHTML = `<div class="card"><div class="empty" style="padding:24px;color:var(--muted)">Sem permissão.</div></div>`;
-        return;
-      }
       $("#usersTableWrap").style.display="none"; $("#usersEmpty").style.display="block";
-      try{
-        loader.on();
-        const r = await api("/users/list");
-        loader.off();
-        if(r.error){ toast(r.error,"err"); return; }
-        const tb=$("#tblUsers tbody"); tb.innerHTML="";
-        (r.users||[]).forEach(u=>{
-          const tr=document.createElement("tr");
-          tr.innerHTML=`
-            <td>${u.usuario}</td>
-            <td>${u.nome||""}</td>
-            <td>${u.ativo? "✅":"❌"}</td>
-            <td>${renderPermsChips(u.perms||[])}</td>
-            <td><button type="button" class="btn btn-muted btn-edit">Editar</button></td>
-          `;
-          tr.querySelector(".btn-edit").addEventListener("click",()=> openUserModal(u));
-          tb.appendChild(tr);
-        });
-        if((r.users||[]).length){ $("#usersEmpty").style.display="none"; $("#usersTableWrap").style.display="block"; }
-      }catch(err){ loader.off(); toast(err.message,"err"); }
     }
-
-    function openUserModal(u){
-      const allPerms = ["rom","romaneios","clientes","financeiro","usuarios"];
-      const div=document.createElement("div");
-      div.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:9998";
-      div.innerHTML=`
-        <div class="card" style="width:min(680px,92vw);max-height:90vh;overflow:auto">
-          <h3>${u? "Editar usuário":"Novo usuário"}</h3>
-          <div class="grid-2" style="margin-top:10px">
-            <div><label>Usuário (login)</label><input id="u_usuario" ${u?"disabled":""} value="${u?.usuario||""}"></div>
-            <div><label>Nome</label><input id="u_nome" value="${u?.nome||""}"></div>
-          </div>
-          <div class="grid-2" style="margin-top:10px">
-            <div><label>Nova senha</label><input id="u_pwd1" type="password" placeholder="${u?"(deixe em branco p/ não alterar)":"Digite a senha"}"></div>
-            <div><label>Repita a senha</label><input id="u_pwd2" type="password" placeholder="${u?"(deixe em branco p/ não alterar)":"Repita a senha"}"></div>
-          </div>
-          <div style="margin-top:12px">
-            <label>Permissões</label>
-            <div class="row" style="gap:8px;margin-top:6px">
-              ${allPerms.map(p=>{
-                const on=(u?.perms||[]).includes(p)||(u&&(u.perms||[]).includes("*"));
-                return `<label class="chip" style="cursor:pointer">
-                  <input class="perm" type="checkbox" value="${p}" ${on?"checked":""} style="margin-right:6px">${p}
-                </label>`;
-              }).join("")}
-            </div>
-          </div>
-          <div class="row" style="margin-top:16px">
-            <label class="row" style="gap:8px"><input id="u_ativo" type="checkbox" ${u?.ativo!==false?"checked":""}> Ativo</label>
-            <div class="right">
-              <button type="button" class="btn btn-muted" id="u_cancel">Cancelar</button>
-              <button type="button" class="btn btn-primary" id="u_save">Salvar</button>
-            </div>
-          </div>
-        </div>`;
-      document.body.appendChild(div);
-      $("#u_cancel",div).onclick=()=>div.remove();
-      $("#u_save",div).onclick=async()=>{
-        try{
-          const usuario=$("#u_usuario",div).value.trim();
-          const nome=$("#u_nome",div).value.trim();
-          const pwd1=$("#u_pwd1",div).value;
-          const pwd2=$("#u_pwd2",div).value;
-          const ativo=$("#u_ativo",div).checked;
-          const perms=$$(".perm",div).filter(i=>i.checked).map(i=>i.value);
-
-          if(!usuario){ toast("Informe o usuário.","err"); return; }
-          if(!u){ if(!pwd1||!pwd2||pwd1!==pwd2){ toast("Senhas não conferem.","err"); return; } }
-          else{ if((pwd1||pwd2)&&pwd1!==pwd2){ toast("Senhas não conferem.","err"); return; } }
-
-          loader.on();
-          const r=await api("/users/upsert",{usuario,nome,senha:pwd1||"",ativo,perms});
-          loader.off();
-          if(r.error){ toast(r.error,"err"); return; }
-          toast("Usuário salvo!","ok");
-          div.remove(); loadUsers();
-        }catch(err){ loader.off(); toast(err.message,"err"); }
-      };
-    }
-    $("#btnNewUser").addEventListener("click", ()=> openUserModal(null));
+    $("#btnNewUser").addEventListener("click", ()=> toast("Cadastro de usuário depende do endpoint /users/upsert no backend.","err"));
 
     /* ===== misc ===== */
     function setTodayIfEmpty(force){
@@ -508,19 +651,17 @@
       if(force || !inp.value){ inp.value = `${yyyy}-${mm}-${dd}`; }
     }
 
-    // bloqueia qualquer submit acidental
+    // bloqueia submit acidental
     document.addEventListener("submit", e=> e.preventDefault());
 
     /* ===== boot ===== */
     document.addEventListener("DOMContentLoaded", ()=>{
-      // tema
-      applyTheme(currentTheme());
-      // sessão
-      if(!isLogged()){ location.href="index.html"; return; }
-      // data padrão + 1 linha de item
-      setTodayIfEmpty(false); addItemRow();
-      // primeira aba permitida
-      const first = Object.entries(tabs).find(([k,v])=>hasPerm(v.perm))?.[0] || "rom";
+      applyTheme(currentTheme());                      // tema
+      if(!isLogged()){ location.href="index.html"; return; } // sessão
+      setTodayIfEmpty(false);                          // data hoje
+      addItemRow();                                    // 1ª linha item
+      updatePhotoUI();                                 // zera galeria
+      const first = "rom";
       if(!location.hash) location.hash = first;
       showTabFromHash();
     });
