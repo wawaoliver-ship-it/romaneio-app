@@ -13,50 +13,41 @@
       --ok:#16a34a; --err:#dc2626;
     }
     *{box-sizing:border-box}
-    body{margin:0;min-height:100dvh;background:radial-gradient(1200px 600px at 20% -10%,rgba(37,99,235,.18),transparent 60%),var(--bg);color:var(--text);
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif;display:grid;place-items:center}
-    .card{width:min(560px,92vw);background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:22px 22px 18px}
-    h1{margin:.3rem 0 1rem;font-size:20px}
-    label{font-size:12px;color:var(--muted);display:block;margin:.25rem 0 .4rem}
-    input{width:100%;background:#0b1220;border:1px solid var(--border);color:var(--text);border-radius:10px;padding:12px 12px}
-    .row{margin:.65rem 0}
-    .btn{width:100%;padding:.75rem 1rem;background:var(--primary);border:0;border-radius:10px;color:#fff;font-weight:800;cursor:pointer}
+    body{margin:0;background:radial-gradient(1200px 600px at 20% -10%,rgba(37,99,235,.18),transparent 60%),var(--bg);color:var(--text);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif;min-height:100dvh;display:grid;place-items:center}
+    .card{width:min(520px,92vw);background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:22px 20px}
+    h1{margin:0 0 10px 0;font-size:18px}
+    label{font-size:12px;color:var(--muted);display:block;margin:.25rem 0 .35rem}
+    input{width:100%;background:#0b1220;border:1px solid var(--border);color:var(--text);border-radius:10px;padding:12px}
+    .btn{width:100%;padding:.8rem 1rem;background:var(--primary);border:0;border-radius:10px;color:#fff;font-weight:800;cursor:pointer;margin-top:12px}
     .btn:hover{background:var(--primary-2)}
-    .muted{color:var(--muted);font-size:12px;margin-top:.75rem}
-    .brand{display:flex;gap:8px;align-items:center;margin-bottom:.25rem}
-    .brand b{font-size:18px}
+    .muted{color:var(--muted);font-size:12px;margin-top:10px}
+    .brand{display:flex;gap:8px;align-items:center;margin-bottom:10px;font-weight:800}
     .overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);backdrop-filter:saturate(120%) blur(2px);display:none;align-items:center;justify-content:center;z-index:50}
-    .bar{width:200px;height:8px;background:#0b1220;border:1px solid var(--border);border-radius:999px;overflow:hidden}
+    .bar{width:220px;height:8px;background:#0b1220;border:1px solid var(--border);border-radius:999px;overflow:hidden}
     .bar>span{display:block;height:100%;width:0;background:linear-gradient(90deg,#2563eb,#60a5fa);animation:load 1.2s infinite}
     @keyframes load{0%{width:0}50%{width:90%}100%{width:0;transform:translateX(100%)}}
     .toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
       background:#0b1220;border:1px solid var(--border);padding:10px 14px;border-radius:10px;display:none;z-index:60}
     .toast.ok{border-color:rgba(22,163,74,.5)}
     .toast.err{border-color:rgba(220,38,38,.5)}
-    .ver{margin-top:22px;text-align:center;color:var(--muted);font-size:12px}
   </style>
 </head>
 <body>
   <div class="card">
-    <div class="brand">🚚 <b>Romaneio</b></div>
+    <div class="brand">🚚 Romaneio</div>
     <h1>Acesso</h1>
-
     <div class="row">
       <label>Usuário</label>
-      <input id="user" placeholder="admin" autocomplete="username"/>
+      <input id="usuario" placeholder="admin" autocomplete="username">
     </div>
-    <div class="row">
+    <div class="row" style="margin-top:8px">
       <label>Senha</label>
-      <input id="pass" type="password" placeholder="••••••" autocomplete="current-password"/>
+      <input id="senha" type="password" placeholder="••••••" autocomplete="current-password">
     </div>
-    <div class="row">
-      <button class="btn" id="btnLogin">Entrar</button>
-    </div>
-
-    <div class="muted">
-      Admin cria/gerencia usuários via planilha. Precisa de acesso? Fale com o responsável.
-    </div>
-    <div class="ver">v1 • PWA (instalável)</div>
+    <button class="btn" onclick="doLogin()">Entrar</button>
+    <div class="muted">Admin cria/gerencia usuários via planilha. Precisa de acesso? Fale com o responsável.</div>
+    <div class="muted" style="text-align:center;margin-top:10px">v1 • PWA (instalável)</div>
   </div>
 
   <div id="overlay" class="overlay"><div class="bar"><span></span></div></div>
@@ -64,75 +55,56 @@
 
 <script>
 /* ====== CONFIG ====== */
-const API_BASE = "https://script.google.com/macros/s/AKfycbwJwVO5VR138hBjVH07DkVqpmpz0-V7wh3FMTEjh7ey-tYaWWITKR37SJUvYxKSaEAB/exec";
+const API_BASE = "https://script.google.com/macros/s/AKfycbWJwVO5VR138hBjVH07DkVqpmpz0-V7wh3FMTEjh7ey-tYaWWITKR37SJUvYxKSaEAB/exec";
 
-/* ====== UI helpers ====== */
+/* ====== helpers ====== */
 const $ = (s)=>document.querySelector(s);
 function setLoading(v){ $("#overlay").style.display = v ? "flex" : "none"; }
-function toast(msg, kind="ok"){ const t=$("#toast"); t.textContent=msg; t.className="toast "+kind; t.style.display="block"; setTimeout(()=>t.style.display="none", 3200); }
+function toast(msg, kind="ok"){ const t=$("#toast"); t.textContent=msg; t.className="toast "+kind; t.style.display="block"; setTimeout(()=>t.style.display="none", 3000); }
+function saveSession(s){ localStorage.setItem("session", JSON.stringify(s)); }
 
-/* ====== já tem sessão? valida e redireciona ====== */
-(async function autoRedirectIfSession(){
-  try{
-    const s = JSON.parse(localStorage.getItem("session")||"null");
-    if (!s?.token) return; // nada a fazer
-    setLoading(true);
-    const r = await fetch(API_BASE+"?path=whoami", {
-      method:"POST",
-      headers:{ "Content-Type":"text/plain;charset=utf-8" },
-      body: JSON.stringify({ token: s.token }),
-      cache: "no-store"
-    }).then(x=>x.json()).catch(()=>null);
-    setLoading(false);
-    if (r?.session?.token) {
-      location.replace("app.html");
-    } else {
-      localStorage.removeItem("session");
-    }
-  } catch(_){ setLoading(false); }
-})();
+/* normaliza o path pra SEMPRE começar com “/” */
+function urlWithPath(path){
+  const p = path.startsWith("/") ? path : "/"+path;
+  return API_BASE + "?path=" + encodeURIComponent(p);
+}
 
-/* ====== login ====== */
 async function doLogin(){
-  const usuario = $("#user").value.trim();
-  const senha   = $("#pass").value.trim();
-  if(!usuario || !senha){ toast("Preencha usuário e senha.", "err"); return; }
+  const usuario = $("#usuario").value.trim();
+  const senha   = $("#senha").value.trim();
+  if(!usuario || !senha){ toast("Informe usuário e senha.", "err"); return; }
 
-  setLoading(true);
-  let res;
   try{
-    res = await fetch(API_BASE+"?path=login", {
+    setLoading(true);
+    const res = await fetch(urlWithPath("/login"), {
       method:"POST",
       headers:{ "Content-Type":"text/plain;charset=utf-8" },
       body: JSON.stringify({ usuario, senha }),
       cache:"no-store"
     });
+    setLoading(false);
+
+    if(!res.ok){ toast("Erro HTTP "+res.status, "err"); return; }
+    const r = await res.json();
+
+    if(r.error){ toast(r.error, "err"); return; }
+    if(r.session?.token){
+      saveSession(r.session);
+      toast("Login concluído.", "ok");
+      location.replace("app.html");
+    }else{
+      toast("Resposta inválida da API.", "err");
+    }
   }catch(err){
     setLoading(false);
-    toast("Sem conexão com a API. Verifique sua internet.", "err");
-    return;
+    toast("Falha de rede: "+(err?.message||err), "err");
   }
-  setLoading(false);
-
-  if (!res.ok){ toast("Falha (HTTP "+res.status+").", "err"); return; }
-
-  let json = {};
-  try{ json = await res.json(); }catch(_){}
-  if (json.error){
-    if (/inativo/i.test(json.error)) toast("Usuário inativo.", "err");
-    else if (/credenciais/i.test(json.error)) toast("Credenciais inválidas.", "err");
-    else toast(json.error, "err");
-    return;
-  }
-  if (!json.session?.token){ toast("Resposta inesperada da API.", "err"); return; }
-
-  localStorage.setItem("session", JSON.stringify(json.session));
-  toast("Login concluído. Redirecionando…", "ok");
-  setTimeout(()=> location.replace("app.html"), 600);
 }
 
-$("#btnLogin").addEventListener("click", doLogin);
-document.addEventListener("keydown", (e)=>{ if(e.key==="Enter") doLogin(); });
+/* UX: enter pra logar */
+document.addEventListener("keydown", (e)=>{
+  if(e.key==="Enter") doLogin();
+});
 </script>
 </body>
 </html>
