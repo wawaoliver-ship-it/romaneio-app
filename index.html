@@ -5,111 +5,136 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Romaneio • Login</title>
   <meta name="theme-color" content="#0d1117" />
-  <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icon-192.png" />
   <style>
     :root{
-      --bg:#0d1117;--panel:#0f172a;--muted:#8a94a6;--text:#e6edf3;
-      --primary:#2563eb;--primary-hover:#1d4ed8;--border:#1f2a44;
+      --bg:#0d1117; --panel:#0f172a; --muted:#95a0b4; --text:#e6edf3;
+      --primary:#2563eb; --primary-2:#1d4ed8; --border:#1f2a44;
+      --ok:#16a34a; --warn:#f59e0b; --danger:#ef4444;
     }
     *{box-sizing:border-box}
-    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif}
-    header{padding:.75rem;background:#0b0f1a;border-bottom:1px solid var(--border)}
-    .wrap{max-width:1100px;margin:0 auto;padding:16px}
-    .card{max-width:480px;margin:48px auto;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:24px;box-shadow:0 10px 40px rgba(0,0,0,.2)}
-    h1{margin:0 0 8px;font-size:22px}
-    label{display:block;margin:.5rem 0 .25rem;color:var(--muted)}
+    html,body{height:100%}
+    body{
+      margin:0;background:var(--bg);color:var(--text);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif;
+      display:flex;align-items:center;justify-content:center;
+      padding:16px
+    }
+    .card{
+      width:100%;max-width:420px;background:#0b0f1a;border:1px solid var(--border);
+      border-radius:14px;padding:20px 18px 16px
+    }
+    h1{margin:0 0 14px;font-size:20px}
+    label{font-size:12px;color:var(--muted);display:block;margin:10px 0 6px}
     input{
-      width:100%;padding:.9rem .95rem;border-radius:10px;background:#0b0f1a;
-      border:1px solid var(--border);color:var(--text);outline:none
+      width:100%;padding:12px;background:#0b1220;border:1px solid var(--border);
+      border-radius:10px;color:var(--text);outline:none
     }
-    input:focus{border-color:var(--primary)}
     .btn{
-      display:inline-flex;gap:8px;align-items:center;justify-content:center;
-      padding:.9rem 1rem;border-radius:10px;background:#2563eb;color:#fff;border:0;
-      font-weight:600;cursor:pointer;width:100%
+      width:100%;margin-top:14px;padding:12px;background:var(--primary);
+      border:0;border-radius:10px;color:#fff;font-weight:700;cursor:pointer
     }
-    .btn:hover{background:#1d4ed8}
-    .msg{margin-top:12px;padding:.6rem .8rem;border-radius:8px;border:1px solid var(--border)}
-    .ok{color:#22c55e;border-color:#164e2e;background:#052e1a}
-    .err{color:#fca5a5;border-color:#4c1d1d;background:#1b0a0a}
-    footer{color:#7f8ea3;text-align:center;margin:32px 0}
+    .btn[disabled]{opacity:.7;cursor:not-allowed}
+    .hint{margin-top:10px;font-size:12px;color:var(--muted);line-height:1.4}
+    .status{margin-top:10px;font-size:13px}
+    .status.ok{color:#86efac}
+    .status.err{color:#fecaca}
+    .topbar{position:fixed;top:0;left:0;height:3px;width:0%;
+      background:linear-gradient(90deg,var(--primary),#60a5fa);
+      transition:width .25s ease;z-index:5}
+    .small{margin-top:16px;text-align:center;color:#677189;font-size:12px}
   </style>
 </head>
 <body>
-  <header><div class="wrap">🚚 Romaneio</div></header>
+  <div id="topbar" class="topbar"></div>
 
-  <main class="wrap">
-    <div class="card">
-      <h1>Acesso</h1>
+  <main class="card">
+    <h1>🔐 Acesso</h1>
 
-      <label>Usuário</label>
-      <input id="usuario" value="admin" autocomplete="username" />
+    <label for="user">Usuário</label>
+    <input id="user" autocomplete="username" placeholder="admin" />
 
-      <label>Senha</label>
-      <input id="senha" type="password" autocomplete="current-password" />
+    <label for="pass">Senha</label>
+    <input id="pass" type="password" autocomplete="current-password" placeholder="••••••" />
 
-      <div style="height:12px"></div>
-      <button class="btn" id="btnEntrar">Entrar</button>
+    <button id="btn" class="btn">Entrar</button>
 
-      <div id="out" class="msg err" style="display:none"></div>
+    <div id="status" class="status"></div>
 
-      <p style="color:#8aa; margin-top:14px">
-        Admin cria/gerencia usuários via planilha. Precisa de acesso? Fale com o responsável.
-      </p>
+    <div class="hint">
+      Admin cria/gerencia usuários via planilha. Precisa de acesso? Fale com o responsável.
     </div>
+
+    <div class="small">v1 • PWA (instalável)</div>
   </main>
 
-  <footer>v1 • PWA (instalável)</footer>
+  <script>
+    // ======== CONFIG ========
+    const API_BASE = "https://script.google.com/macros/s/AKfycbwJwVO5VR138hBjVH07DkVqpmpz0-V7wh3FMTEjh7ey-tYaWWITKR37SJUvYxKSaEAB/exec";
+    const $ = (s)=>document.querySelector(s);
+    const top = $('#topbar'), btn = $('#btn'), st = $('#status');
 
-<script>
-  // === TROQUE AQUI PELO SEU /exec ===
-  const API_BASE = "https://script.google.com/macros/s/AKfycbzahPVwksRN4y6WnYZ6sXfCWftB_YDiL2nfyTw0QPMelz_A_3GKmrtMV-4QysIhTu8R/exec";
+    function barStart(){ top.style.width='0%'; setTimeout(()=> top.style.width='65%', 0); }
+    function barEnd(){ top.style.width='100%'; setTimeout(()=> top.style.width='0%', 300); }
+    function setStatus(msg, type=''){ st.className='status '+(type||''); st.textContent=msg||''; }
+    function saveSession(sess){ localStorage.setItem('session', JSON.stringify(sess)); }
+    function disableForm(dis){ btn.disabled=dis; btn.textContent = dis ? 'Carregando…' : 'Entrar'; }
+    function timeout(ms){ return new Promise((_,rej)=> setTimeout(()=> rej(new Error('Tempo esgotado')), ms)); }
 
-  function setMsg(el, text, ok=false){
-    el.style.display = 'block';
-    el.className = 'msg ' + (ok?'ok':'err');
-    el.textContent = text;
-  }
+    async function login(){
+      const usuario = $('#user').value.trim();
+      const senha   = $('#pass').value.trim();
+      if(!usuario || !senha){ setStatus('Informe usuário e senha.', 'err'); return; }
 
-  async function api(path, body = {}, token = null) {
-    const url = API_BASE + "?path=" + encodeURIComponent(path) + (token ? "&token=" + encodeURIComponent(token) : "");
-    const res = await fetch(url, {
-      method: "POST",
-      headers: {"Content-Type": "text/plain;charset=utf-8"},
-      body: JSON.stringify(body),
-      cache: "no-store",
-    });
-    if (!res.ok) throw new Error("HTTP " + res.status);
-    return res.json();
-  }
+      setStatus(''); disableForm(true); barStart();
+      try{
+        const res = await Promise.race([
+          fetch(API_BASE + "?path=login", {
+            method:"POST",
+            headers:{"Content-Type":"text/plain;charset=utf-8"},
+            body: JSON.stringify({ usuario, senha }),
+            cache:"no-store"
+          }),
+          timeout(15000)
+        ]);
+        if(!res.ok) throw new Error('HTTP '+res.status);
+        const data = await res.json();
 
-  async function login(){
-    const out = document.getElementById('out');
-    out.style.display='none';
+        if(data.error){
+          if (data.error.includes('inativo')) throw new Error('Usuário inativo. Fale com o responsável.');
+          if (data.error.includes('Usuário/senha')) throw new Error('Preencha usuário e senha.');
+          if (data.error.includes('Credenciais')) throw new Error('Credenciais inválidas. Verifique usuário/senha.');
+          throw new Error(data.error);
+        }
+        if(!data.session?.token) throw new Error('Resposta inválida da API.');
 
-    try{
-      const usuario = document.getElementById('usuario').value.trim();
-      const senha   = document.getElementById('senha').value.trim();
-      if(!usuario || !senha){ setMsg(out,"Informe usuário e senha"); return; }
-
-      const data = await api("/login", {usuario, senha});
-      if (data.error){ setMsg(out,"Erro: "+data.error); return; }
-
-      localStorage.setItem("session", JSON.stringify(data.session));
-      location.href = "app.html";
-    }catch(e){
-      setMsg(out, "Erro: "+e.message);
-      console.error(e);
+        saveSession(data.session);
+        setStatus('Login concluído! Redirecionando…', 'ok');
+        location.replace('app.html');
+      }catch(err){
+        if(!navigator.onLine) setStatus('Sem conexão com a internet.', 'err');
+        else setStatus(err.message || 'Falha ao entrar.', 'err');
+      }finally{
+        disableForm(false); barEnd();
+      }
     }
-  }
 
-  document.getElementById('btnEntrar').addEventListener('click', login);
-  document.getElementById('senha').addEventListener('keydown', (ev)=>{ if(ev.key==='Enter') login(); });
+    btn.addEventListener('click', login);
+    document.addEventListener('keydown', e=>{ if(e.key==='Enter') login(); });
+    $('#user').focus();
 
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js').catch(()=>{});
-  }
-</script>
+    // Já logado? tenta whoami e pula pro app
+    (async ()=>{
+      const sess = JSON.parse(localStorage.getItem('session')||'null');
+      if(!sess?.token) return;
+      try{
+        const r = await fetch(API_BASE+"?path=whoami", {
+          method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"},
+          body: JSON.stringify({ token: sess.token }), cache:"no-store"
+        }).then(x=>x.json());
+        if(r?.session?.token) location.replace('app.html');
+      }catch(_){}
+    })();
+  </script>
 </body>
 </html>
