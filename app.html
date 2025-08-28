@@ -160,7 +160,7 @@ function showTab(id){
   const section = $("#tab-"+id);
   if (section) section.hidden=false;
   document.querySelectorAll("nav a").forEach(a=>a.classList.remove("active"));
-  const nav = document.querySelector(nav a[href="#${id}"]);
+  const nav = document.querySelector(`nav a[href="#${id}"]`);
   if (nav) nav.classList.add("active");
   history.replaceState({}, "", "#"+id);
 }
@@ -177,7 +177,7 @@ function guardTabsByPerms(perms){
     return can(map[h]) || (h==="roms" && can("rom:send"));
   });
   const current = (location.hash||"#send").slice(1);
-  if (!document.querySelector(#nav-${current}) || document.querySelector(#nav-${current}).hidden){
+  if (!document.querySelector(`#nav-${current}`) || document.querySelector(`#nav-${current}`).hidden){
     showTab(preferred || "send");
   } else {
     showTab(current);
