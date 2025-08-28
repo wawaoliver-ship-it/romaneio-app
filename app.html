@@ -1,670 +1,321 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
+<!doctype html>
+<html lang="pt-BR" data-theme="dark">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Romaneio • Painel</title>
-  <meta name="theme-color" content="#0d1117"/>
-  <link rel="icon" href="icon-192.png"/>
-
+  <meta name="theme-color" content="#0d1117" />
   <style>
-    /* ================== THEMES ================== */
     :root{
-      /* DARK (default) */
-      --bg:#0d1117;--panel:#0f172a;--muted:#9aa5b1;--text:#e6edf3;
-      --primary:#2563eb;--border:#1f2a44;--danger:#ef4444;--ok:#22c55e;
-      --chip:#0b1223;--thead:#0b1223;--input:#0b1223;--soft:#0b1020;
-      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --bg:#0d1117;--panel:#0f172a;--text:#e6edf3;--muted:#8a94a6;--primary:#2563eb;--ok:#16a34a;--err:#ef4444;--border:#1f2a44
+      ;--chip:#1f2a44
     }
     [data-theme="light"]{
-      --bg:#f6f7fb;--panel:#ffffff;--muted:#5b6572;--text:#0b1223;
-      --primary:#2563eb;--border:#e6e8ef;--danger:#dc2626;--ok:#16a34a;
-      --chip:#eef2ff;--thead:#f3f4f6;--input:#ffffff;--soft:#f9fafb;
-      --shadow: 0 10px 30px rgba(0,0,0,.12);
+      --bg:#f7f7fb;--panel:#ffffff;--text:#0b1020;--muted:#56617a;--primary:#2563eb;--ok:#15803d;--err:#dc2626;--border:#e5e7eb;--chip:#eef2ff
     }
-
-    /* ================ BASE UI ================ */
     *{box-sizing:border-box}
-    html,body{height:100%}
-    body{margin:0;background:var(--bg);color:var(--text);
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif}
-
-    header{position:sticky;top:0;z-index:8;
-      padding:.75rem 1rem;background:var(--panel);
-      border-bottom:1px solid var(--border);
-      display:flex;align-items:center;gap:14px}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif}
+    header{position:sticky;top:0;z-index:5;padding:.75rem 1rem;background:var(--panel);border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:center}
     .brand{font-weight:800}
-    nav{margin-left:auto;display:flex;gap:14px;flex-wrap:wrap}
-    nav a{color:var(--muted);text-decoration:none;font-weight:700}
-    nav a.active,nav a:hover{color:var(--text)}
-    .wrap{max-width:1100px;margin:0 auto;padding:16px}
-    h2{margin:18px 0 10px;border-bottom:1px solid var(--border);padding-bottom:6px}
-    section.tab{display:none}
-    .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px;box-shadow:var(--shadow)}
-    .subtle{background:var(--soft)}
-
-    .grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-    .grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-    label{font-size:12px;color:var(--muted);display:block;margin-bottom:4px}
-    input,select,textarea{
-      width:100%;padding:10px;border-radius:10px;border:1px solid var(--border);
-      background:var(--input);color:var(--text);outline:none
-    }
-    textarea{resize:vertical;min-height:72px}
-
-    .table-wrap{width:100%;overflow:auto;border:1px solid var(--border);border-radius:10px}
-    table{width:100%;border-collapse:collapse;min-width:640px}
-    th,td{padding:.65rem .75rem;border-bottom:1px solid var(--border);text-align:left}
-    th{background:var(--thead);color:var(--text)}
-    .btn{padding:.6rem 1rem;border:0;border-radius:10px;font-weight:800;cursor:pointer}
-    .btn-primary{background:var(--primary);color:#fff}
-    .btn-muted{background:var(--thead);color:var(--text)}
-    .btn-danger{background:var(--danger);color:#fff}
-    .chip{background:var(--chip);border:1px solid var(--border);
-      padding:.35rem .6rem;border-radius:999px;font-size:12px}
-    .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-    .right{margin-left:auto}
-
-    /* loader + toast */
-    #loader{position:fixed;left:0;top:0;height:3px;background:var(--primary);
-      width:0%;z-index:9999;transition:width .25s ease}
-    #toast{position:fixed;left:50%;transform:translateX(-50%);
-      bottom:12px;background:var(--panel);color:var(--text);
-      border:1px solid var(--border);padding:.6rem .9rem;border-radius:10px;display:none;z-index:9999}
-    #toast.ok{border-color:#14532d;background:#052e16;color:#a7f3d0}
-    #toast.err{border-color:#7f1d1d;background:#2a0c0c;color:#fecaca}
-
-    /* fotos preview */
-    .gallery{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
-    .thumb{position:relative;border:1px solid var(--border);border-radius:10px;padding:6px;background:var(--panel)}
-    .thumb img{display:block;height:80px;width:auto;border-radius:6px}
-    .thumb button{position:absolute;top:4px;right:4px;border:0;border-radius:8px;padding:4px 6px;cursor:pointer}
-    .thumb .x{background:var(--danger);color:#fff}
-
+    nav{display:flex;flex-wrap:wrap;gap:6px;margin-left:auto}
+    nav button{padding:.55rem .8rem;border:1px solid var(--border);background:transparent;color:var(--text);border-radius:10px;cursor:pointer;font-weight:600}
+    nav button.primary{background:var(--primary);border-color:var(--primary);color:#fff}
+    nav .chip{background:var(--chip);border:1px solid var(--border);padding:.3rem .55rem;border-radius:999px;font-size:.85rem}
+    main{max-width:1100px;margin:0 auto;padding:16px}
+    .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:14px}
+    h2{margin:6px 0 10px 0}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:.6rem .75rem;border-bottom:1px solid var(--border);text-align:left}
+    th{background:rgba(0,0,0,.06)}
+    input,select,textarea{width:100%;padding:.65rem;border:1px solid var(--border);border-radius:10px;background:transparent;color:var(--text)}
+    .grid{display:grid;gap:12px}
+    .g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+    @media (max-width:900px){.g2,.g3,.g4{grid-template-columns:1fr}}
+    .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .btn{padding:.65rem 1rem;border:1px solid var(--primary);background:var(--primary);color:#fff;border-radius:10px;font-weight:700;cursor:pointer}
+    .ghost{background:transparent;border:1px solid var(--border);color:var(--text)}
+    .muted{color:var(--muted);font-size:.9rem}
+    .status{margin-top:10px;height:36px;border-radius:8px;display:flex;align-items:center;padding:0 10px;font-weight:600}
+    .ok{background:rgba(22,163,74,.12);color:var(--ok);border:1px solid rgba(22,163,74,.4)}
+    .err{background:rgba(239,68,68,.12);color:var(--err);border:1px solid rgba(239,68,68,.4)}
+    .progress{height:6px;background:linear-gradient(90deg,var(--primary),transparent);border-radius:999px;animation:load 1.2s linear infinite;margin:8px 0}
+    @keyframes load{from{background-position-x:0}to{background-position-x:200%}}
     /* Modal */
-    .modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:9998;padding:16px}
-    .modal .box{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px;max-width:900px;width:100%}
-    .modal .box h3{margin:0 0 8px}
-    .modal .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-    .receipt-img{width:100%;max-height:70vh;object-fit:contain;border:1px solid var(--border);border-radius:10px;background:#fff}
-
-    /* mobile */
-    @media (max-width:900px){
-      .grid-3{grid-template-columns:1fr}
-      .grid-2{grid-template-columns:1fr}
-      nav{gap:10px}
-      .btn{width:100%}
-    }
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;padding:16px}
+    .modal .box{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px;max-width:520px;width:100%}
+    .ticket{border:1px dashed var(--border);border-radius:12px;padding:12px;margin-top:8px}
+    canvas{max-width:100%;border:1px solid var(--border);border-radius:8px}
   </style>
 </head>
 <body>
+  <header>
+    <div class="brand">🚚 <b>Romaneio</b></div>
+    <span id="userChip" class="chip"></span>
+    <nav>
+      <button class="primary" onclick="showTab('rom')">Enviar Romaneio</button>
+      <button class="ghost" onclick="showTab('clientes')">Clientes</button>
+      <button class="ghost" onclick="showTab('roms')">Romaneios</button>
+      <button class="ghost" onclick="showTab('fin')">Financeiro</button>
+      <button class="ghost" onclick="toggleTheme()">🌙/☀️</button>
+      <button class="ghost" onclick="logout()">Sair</button>
+    </nav>
+  </header>
 
-  <!-- loader + toast -->
-  <div id="loader"></div>
-  <div id="toast"></div>
-
-  <!-- Modal Comprovante -->
-  <div id="modal" class="modal" role="dialog" aria-modal="true">
-    <div class="box">
-      <div class="row">
-        <h3 style="margin-right:auto">Comprovante do Romaneio</h3>
-        <button id="btnCloseModal" class="btn btn-danger">Fechar</button>
+  <main>
+    <!-- TAB: Romaneio -->
+    <section id="tab-rom" class="card">
+      <h2>Enviar Romaneio</h2>
+      <div class="grid g4">
+        <label>ROM <input id="rom_rom" type="number" placeholder="Ex.: 21" /></label>
+        <label>Data <input id="rom_data" type="date" /></label>
+        <label>Observações <input id="rom_obs" placeholder="Ex.: Doca 3, até 16h" /></label>
+        <div></div>
       </div>
-      <img id="receiptImg" class="receipt-img" alt="Comprovante">
-      <div class="actions">
-        <a id="btnDownloadPng" class="btn btn-muted" download="romaneio.png">⬇️ Baixar PNG</a>
-        <a id="btnOpenPdf" class="btn btn-muted" target="_blank">📄 Abrir PDF</a>
-        <button id="btnShare" class="btn btn-primary">📲 Compartilhar</button>
-        <button id="btnWA" class="btn btn-primary">💬 WhatsApp (link)</button>
+
+      <h3>Cliente</h3>
+      <div class="grid g3">
+        <label>Telefone <input id="cli_tel" placeholder="85999999999" /></label>
+        <label>Nome <input id="cli_nome" placeholder="Nome do cliente" /></label>
+        <label>Cidade/UF <input id="cli_loc" placeholder="Fortaleza/CE" /></label>
+      </div>
+
+      <h3>Fornecedor</h3>
+      <div class="grid g3">
+        <label>Telefone <input id="for_tel" placeholder="85988888888" /></label>
+        <label>Nome <input id="for_nome" placeholder="Nome do fornecedor" /></label>
+        <label>Cidade/UF <input id="for_loc" placeholder="Maracanaú/CE" /></label>
+      </div>
+
+      <h3>Itens</h3>
+      <table id="tblItens">
+        <thead><tr><th>Tipo</th><th>Tamanho</th><th>Qtd</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <button class="ghost" type="button" onclick="addItemRow()">+ Item</button>
+      <div class="row"><b>Total:</b> <span id="rom_total">0</span></div>
+
+      <h3>Fotos</h3>
+      <input id="rom_fotos" type="file" accept="image/*" multiple capture="environment" />
+      <div class="muted">Você pode selecionar múltiplas imagens.</div>
+
+      <div class="progress" id="progress" style="display:none"></div>
+      <div id="status" class="status" style="display:none"></div>
+
+      <div class="row" style="margin-top:10px">
+        <button class="btn" onclick="enviarRomaneio()">Enviar</button>
+        <button class="ghost" onclick="limparForm()">Limpar</button>
+      </div>
+    </section>
+
+    <!-- Outras tabs (placeholders) -->
+    <section id="tab-clientes" class="card" style="display:none"><h2>Clientes</h2><div class="muted">Em breve…</div></section>
+    <section id="tab-roms" class="card" style="display:none"><h2>Romaneios</h2><div class="muted">Em breve…</div></section>
+    <section id="tab-fin" class="card" style="display:none"><h2>Financeiro</h2><div class="muted">Em breve…</div></section>
+  </main>
+
+  <!-- Modal comprovante -->
+  <div class="modal" id="modal">
+    <div class="box">
+      <h3>Romaneio criado ✅</h3>
+      <div class="ticket">
+        <div><b>Código:</b> <span id="m_cod"></span></div>
+        <div><b>ROM:</b> <span id="m_rom"></span> • <b>Data:</b> <span id="m_data"></span></div>
+        <div><b>Cliente:</b> <span id="m_cli"></span></div>
+        <div><b>Total:</b> <span id="m_tot"></span></div>
+      </div>
+      <canvas id="ticketCanvas" width="600" height="360"></canvas>
+      <div class="row" style="margin-top:10px">
+        <a id="m_pdf" class="btn" target="_blank">Abrir PDF</a>
+        <a id="m_wa"  class="ghost" target="_blank">WhatsApp</a>
+        <a id="m_img" class="ghost" download>Baixar imagem</a>
+        <button class="ghost" onclick="closeModal()">Fechar</button>
       </div>
     </div>
   </div>
 
-  <header>
-    <div class="brand">🚚 Romaneio</div>
-    <nav id="menu">
-      <a href="#rom" data-tab="rom">Enviar Romaneio</a>
-      <a href="#romaneios" data-tab="romaneios">Romaneios</a>
-      <a href="#clientes" data-tab="clientes">Clientes</a>
-      <a href="#financeiro" data-tab="financeiro">Financeiro</a>
-      <a href="#users" data-tab="users">Usuários</a>
-      <a href="#" id="btnTheme" title="Alternar tema">🌙</a>
-      <a href="#" id="btnSair">Sair</a>
-    </nav>
-  </header>
+<script>
+const APP_VERSION = "v2025-08-28-1";
+// Tema
+function toggleTheme(){
+  const root = document.documentElement;
+  const cur = root.getAttribute("data-theme") || "dark";
+  const next = cur === "dark" ? "light" : "dark";
+  root.setAttribute("data-theme", next);
+  localStorage.setItem("theme", next);
+}
+(function bootTheme(){
+  const saved = localStorage.getItem("theme");
+  if (saved) document.documentElement.setAttribute("data-theme", saved);
+})();
 
-  <main class="wrap">
+// Guard de sessão (sem loop)
+(function guard(){
+  const s = JSON.parse(localStorage.getItem("session")||"null");
+  if (!s || !s.token) {
+    location.replace("index.html?v=" + Date.now());
+  } else {
+    document.getElementById("userChip").textContent = (s.usuario || s.nome || "Usuário");
+  }
+})();
 
-    <!-- ROM (form) -->
-    <section id="tab-rom" class="tab">
-      <h2>Enviar Romaneio</h2>
-      <div class="card">
-        <div class="grid-3">
-          <div><label>ROM</label><input id="rom_rom" type="number" placeholder="Ex: 21"></div>
-          <div><label>Data</label><input id="rom_data" type="date"></div>
-          <div><label>Observações</label><textarea id="rom_obs" placeholder="Ex.: Agendar com o cliente"></textarea></div>
-        </div>
+const API_BASE = "https://script.google.com/macros/s/AKfycbzahPVwksRN4y6WnYZ6sXfCWftB_YDiL2nfyTw0QPMelz_A_3GKmrtMV-4QysIhTu8R/exec";
 
-        <div id="codPreview" class="row subtle" style="margin-top:10px;padding:8px;border-radius:10px;display:none">
-          <span class="chip">COD (6 dígitos):</span>
-          <b id="cod_value">— — — — — —</b>
-        </div>
+function showTab(id){
+  ["rom","clientes","roms","fin"].forEach(t=>{
+    document.getElementById("tab-"+t).style.display = (t===id) ? "block" : "none";
+  });
+}
+showTab("rom");
 
-        <h3 style="margin-top:16px">Cliente</h3>
-        <div class="grid-3">
-          <div><label>Telefone</label><input id="cli_tel" placeholder="(DDD) 90000-0000"></div>
-          <div><label>Nome</label><input id="cli_nome" placeholder="Nome do cliente"></div>
-          <div><label>Cidade/UF</label><input id="cli_loc" placeholder="Fortaleza/CE"></div>
-        </div>
+// Data hoje auto
+(function setToday(){
+  const d = new Date();
+  const iso = d.toISOString().slice(0,10);
+  document.getElementById("rom_data").value = iso;
+})();
 
-        <div class="row" style="margin:6px 0 10px">
-          <button type="button" class="btn btn-muted" id="btnFillCli">Preencher pelo telefone</button>
-          <span class="chip">Fornecedor <b>Opcional</b></span>
-        </div>
+function logout(){
+  try {
+    const s = JSON.parse(localStorage.getItem("session")||"null");
+    // opcional chamar /logout
+    fetch(API_BASE+"?path=/logout&nocache="+Date.now(), {
+      method:"POST", headers:{ "Content-Type":"text/plain" },
+      body: JSON.stringify({ token: s?.token })
+    }).catch(()=>{});
+  } finally {
+    localStorage.clear(); sessionStorage.clear();
+    location.href = "index.html?v=" + Date.now();
+  }
+}
 
-        <div class="grid-3">
-          <div><label>Telefone</label><input id="for_tel" placeholder="(DDD) 90000-0000"></div>
-          <div><label>Nome</label><input id="for_nome" placeholder="Nome do fornecedor"></div>
-          <div><label>Cidade/UF</label><input id="for_loc" placeholder="Maracanaú/CE"></div>
-        </div>
+function $(sel){ return document.querySelector(sel); }
+function addItemRow(pref={}){
+  const tb = $("#tblItens tbody");
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
+    <td><select class="tipo"><option value="caixa"${pref.tipo==="caixa"?" selected":""}>Caixa</option><option value="saco"${pref.tipo==="saco"?" selected":""}>Saco</option></select></td>
+    <td><select class="tam"><option value="p"${pref.tamanho==="p"?" selected":""}>P</option><option value="m"${pref.tamanho==="m"?" selected":""}>M</option><option value="g"${pref.tamanho==="g"?" selected":""}>G</option></select></td>
+    <td><input type="number" min="0" class="qtd" value="${pref.qtd||0}"></td>
+    <td><button class="ghost" type="button" onclick="this.closest('tr').remove(); calcTotal()">x</button></td>`;
+  tb.appendChild(tr); calcTotal();
+}
+function calcTotal(){
+  let tot=0; document.querySelectorAll("#tblItens .qtd").forEach(i=> tot += Number(i.value||0));
+  $("#rom_total").textContent = tot;
+}
+document.addEventListener("input", (e)=>{ if(e.target.classList.contains("qtd")) calcTotal(); });
+addItemRow();
 
-        <h3 style="margin-top:16px">Itens</h3>
-        <div class="row" style="margin-bottom:6px">
-          <button type="button" class="btn btn-muted" id="btnAddItem">+ Item</button>
-          <div class="right"><b>Total: <span id="rom_total">0</span></b></div>
-        </div>
+function filesToBase64(input){
+  const files = Array.from(input.files||[]);
+  return Promise.all(files.map(f => new Promise(res=>{
+    const r=new FileReader(); r.onload=()=>res({ name:f.name, data:r.result }); r.readAsDataURL(f);
+  })));
+}
 
-        <div class="table-wrap">
-          <table id="tblItens">
-            <thead><tr><th>Tipo</th><th>Tamanho</th><th>Qtd</th><th></th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
+function showStatus(kind,msg){ const s=$("#status"); s.className="status "+(kind||""); s.textContent=msg; s.style.display="flex"; }
+function showProgress(on){ $("#progress").style.display = on ? "block" : "none"; }
 
-        <h3 style="margin-top:16px">Fotos</h3>
-        <div class="row">
-          <input id="rom_fotos" type="file" accept="image/*" multiple capture="environment">
-          <button type="button" id="btnAddMore" class="btn btn-muted">+ Adicionar mais</button>
-          <span class="chip" id="photoCount">0 foto(s)</span>
-        </div>
-        <div class="gallery" id="gallery"></div>
-        <div style="margin:6px 0 12px;color:var(--muted);font-size:12px">Você pode escolher várias e remover antes de enviar.</div>
+function limparForm(){
+  $("#rom_obs").value="";
+  $("#cli_tel").value=""; $("#cli_nome").value=""; $("#cli_loc").value="";
+  $("#for_tel").value=""; $("#for_nome").value=""; $("#for_loc").value="";
+  $("#tblItens tbody").innerHTML=""; addItemRow(); $("#rom_total").textContent="0";
+  $("#rom_fotos").value="";
+}
 
-        <div class="row">
-          <button type="button" id="btnEnviarRom" class="btn btn-primary">Enviar Romaneio</button>
-        </div>
+async function api(path, body={}){
+  const s = JSON.parse(localStorage.getItem("session")||"null");
+  const url = API_BASE + "?path=" + encodeURIComponent(path) + "&nocache=" + Date.now();
+  const res = await fetch(url,{
+    method:"POST", headers:{ "Content-Type":"text/plain;charset=utf-8" },
+    body: JSON.stringify({ ...body, token: s?.token })
+  });
+  if(!res.ok) throw new Error("HTTP "+res.status);
+  return res.json();
+}
 
-        <div id="rom_result" style="margin-top:12px"></div>
-      </div>
-    </section>
+function drawTicketPNG({cod, rom, data, cliNome, total}){
+  const c = document.getElementById("ticketCanvas");
+  const ctx = c.getContext("2d");
+  // bg
+  ctx.fillStyle = (document.documentElement.getAttribute("data-theme")==="light") ? "#ffffff" : "#0f172a";
+  ctx.fillRect(0,0,c.width,c.height);
+  ctx.fillStyle = (document.documentElement.getAttribute("data-theme")==="light") ? "#0b1020" : "#e6edf3";
+  ctx.font = "bold 22px system-ui";
+  ctx.fillText("Comprovante de Romaneio", 20, 40);
+  ctx.font = "16px system-ui";
+  ctx.fillText("Código: "+cod, 20, 80);
+  ctx.fillText("ROM: "+rom, 20, 110);
+  ctx.fillText("Data: "+data, 20, 140);
+  ctx.fillText("Cliente: "+cliNome, 20, 170);
+  ctx.fillText("Total de volumes: "+total, 20, 200);
+  // “destacar” código
+  ctx.strokeStyle = "#2563eb"; ctx.lineWidth=2;
+  ctx.strokeRect(16,60, c.width-32,28);
+  const url = c.toDataURL("image/png");
+  const a = document.getElementById("m_img");
+  a.href = url; a.download = "ROM_"+cod+".png";
+}
 
-    <!-- Romaneios -->
-    <section id="tab-romaneios" class="tab">
-      <h2>Romaneios</h2>
-      <div class="card">
-        <div class="row"><button type="button" id="btnLoadRom" class="btn btn-muted">🔄 Atualizar</button></div>
-        <div id="listRom" class="empty" style="padding:24px;color:var(--muted)">Sem registros por enquanto.</div>
-      </div>
-    </section>
+function openModal(dados){
+  $("#m_cod").textContent = dados.cod;
+  $("#m_rom").textContent = dados.rom;
+  $("#m_data").textContent = dados.data;
+  $("#m_cli").textContent = dados.cliNome;
+  $("#m_tot").textContent = dados.total;
+  $("#m_pdf").href = dados.pdfUrl;
+  $("#m_wa").href  = dados.whatsappUrl;
+  drawTicketPNG(dados);
+  $("#modal").style.display = "flex";
+}
+function closeModal(){ $("#modal").style.display = "none"; }
 
-    <!-- Clientes -->
-    <section id="tab-clientes" class="tab">
-      <h2>Clientes</h2>
-      <div class="card">
-        <div class="row"><button type="button" id="btnLoadCli" class="btn btn-muted">🔄 Atualizar</button></div>
-        <div id="listCli" class="empty" style="padding:24px;color:var(--muted)">Sem registros por enquanto.</div>
-      </div>
-    </section>
+async function enviarRomaneio(){
+  try{
+    showProgress(true); showStatus("",""); $("#status").style.display="none";
 
-    <!-- Financeiro -->
-    <section id="tab-financeiro" class="tab">
-      <h2>Financeiro</h2>
-      <div class="card"><div class="empty" style="padding:24px;color:var(--muted)">Em breve.</div></div>
-    </section>
+    const itens = Array.from(document.querySelectorAll("#tblItens tbody tr")).map(tr=>({
+      tipo: tr.querySelector(".tipo").value,
+      tamanho: tr.querySelector(".tam").value,
+      qtd: Number(tr.querySelector(".qtd").value||0)
+    })).filter(i=>i.qtd>0);
+    if(!itens.length){ showStatus("err","Inclua pelo menos 1 item."); showProgress(false); return; }
 
-    <!-- Usuários -->
-    <section id="tab-users" class="tab">
-      <h2>Usuários</h2>
-      <div class="card">
-        <div class="row" style="margin-bottom:10px">
-          <button type="button" id="btnNewUser" class="btn btn-primary">+ Novo usuário</button>
-        </div>
-        <div class="table-wrap" id="usersTableWrap" style="display:none">
-          <table id="tblUsers">
-            <thead><tr><th>Usuário</th><th>Nome</th><th>Ativo</th><th>Permissões</th><th></th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
-        <div id="usersEmpty" class="empty" style="padding:24px;color:var(--muted)">Sem usuários.</div>
-      </div>
-    </section>
+    const fotos = await filesToBase64($("#rom_fotos"));
 
-  </main>
-
-  <!-- ======== SCRIPTS ======== -->
-  <script>
-    /* ===== CONFIG ===== */
-    const API_BASE = "https://script.google.com/macros/s/AKfycbzahPVwksRN4y6WnYZ6sXfCWftB_YDiL2nfyTw0QPMelz_A_3GKmrtMV-4QysIhTu8R/exec";
-    const PERM_ALL = "*";
-
-    /* ===== helpers UI ===== */
-    const $  = (q,root=document)=>root.querySelector(q);
-    const $$ = (q,root=document)=>Array.from(root.querySelectorAll(q));
-    const toast = (msg, kind="")=>{
-      const el=$("#toast");
-      el.textContent=msg; el.className=kind?kind:"";
-      el.style.display="block";
-      clearTimeout(el._t); el._t=setTimeout(()=>el.style.display="none", 3000);
-    };
-    const loader = {
-      on(){ $("#loader").style.width="55%"; },
-      progress(p){ $("#loader").style.width=(p||90)+"%"; },
-      off(){ $("#loader").style.width="100%"; setTimeout(()=>$("#loader").style.width="0%",220); }
-    };
-
-    /* ===== THEME ===== */
-    function applyTheme(t){
-      document.body.setAttribute("data-theme", t);
-      $("#btnTheme").textContent = (t==="light" ? "🌙" : "☀️");
-    }
-    function currentTheme(){ return localStorage.getItem("theme") || "dark"; }
-    $("#btnTheme").addEventListener("click",(e)=>{
-      e.preventDefault();
-      const t = currentTheme()==="dark" ? "light" : "dark";
-      localStorage.setItem("theme", t);
-      applyTheme(t);
-    });
-
-    /* ===== session ===== */
-    function sess(){
-      try{ return JSON.parse(localStorage.getItem("session")||"null"); }catch(_){ return null; }
-    }
-    function isLogged(){ const s=sess(); return !!(s && s.token); }
-
-    /* ===== API ===== */
-    async function api(path, body={}){
-      const s = sess();
-      const url = API_BASE + "?path=" + encodeURIComponent(path);
-      const res = await fetch(url,{
-        method:"POST",
-        headers: {"Content-Type":"text/plain;charset=utf-8"},
-        body: JSON.stringify({...body, token: s?.token}),
-        cache:"no-store"
-      });
-      if(!res.ok) throw new Error("HTTP "+res.status);
-      return res.json();
-    }
-
-    /* ===== Router & permissions ===== */
-    const tabs = {
-      rom       : { el:"#tab-rom",        perm:"rom" },
-      romaneios : { el:"#tab-romaneios",  perm:"romaneios" },
-      clientes  : { el:"#tab-clientes",   perm:"clientes" },
-      financeiro: { el:"#tab-financeiro", perm:"financeiro" },
-      users     : { el:"#tab-users",      perm:"usuarios" },
+    const body = {
+      rom: $("#rom_rom").value,
+      data: $("#rom_data").value,
+      obs : $("#rom_obs").value,
+      cliente: { tel: $("#cli_tel").value, nome: $("#cli_nome").value, local: $("#cli_loc").value },
+      fornecedor: { tel: $("#for_tel").value, nome: $("#for_nome").value, local: $("#for_loc").value },
+      itens, fotos
     };
 
-    function hasPerm(p){
-      const s = sess();
-      const perms = (s && Array.isArray(s.perms) ? s.perms : [PERM_ALL]);
-      return perms.includes(PERM_ALL) || perms.includes(p);
-    }
-    function setActiveMenu(hash){
-      $$("#menu a[data-tab]").forEach(a=>{
-        a.classList.toggle("active", a.getAttribute("data-tab")===hash);
-      });
-    }
-    async function showTabFromHash(){
-      if(!isLogged()){ location.href="index.html"; return; }
-      const hash = (location.hash.replace("#","") || "rom");
-      const def  = tabs[hash] || tabs.rom;
+    const r = await api("/rom/create", body);
+    if (r.error){ showStatus("err", r.error); showProgress(false); return; }
 
-      if(!hasPerm(def.perm)){
-        toast("Você não tem acesso a esta área.","err");
-        const first = Object.entries(tabs).find(([k,v])=>hasPerm(v.perm))?.[0] || "rom";
-        location.hash = first;
-        return;
-      }
-      $$(".tab").forEach(s=>s.style.display="none");
-      $(def.el).style.display="block";
-      setActiveMenu(hash);
+    showStatus("ok","Romaneio enviado!");
+    // limpa formulário
+    limparForm();
 
-      if(hash==="users") loadUsers();
-      if(hash==="romaneios") loadRomaneios();
-      if(hash==="clientes") loadClientes();
-    }
-    window.addEventListener("hashchange", showTabFromHash);
-
-    // menu: evita navegações indevidas
-    $$("#menu a[data-tab]").forEach(a=>{
-      a.addEventListener("click",(e)=>{
-        e.preventDefault();
-        const t = a.getAttribute("data-tab");
-        location.hash = t;
-      });
+    // abre modal comprovante
+    const dataIso = $("#rom_data").value || new Date().toISOString().slice(0,10);
+    openModal({
+      cod: r.cod, rom: body.rom||"", data: dataIso,
+      cliNome: body.cliente?.nome||"", total: document.getElementById("rom_total").textContent,
+      pdfUrl: r.pdfUrl, whatsappUrl: r.whatsappUrl
     });
 
-    /* ===== sair ===== */
-    $("#btnSair").addEventListener("click", async (e)=>{
-      e.preventDefault();
-      try{ await api("/logout"); }catch(_){}
-      localStorage.removeItem("session");
-      try{ sessionStorage.clear(); caches && caches.keys().then(ks=>ks.forEach(k=>caches.delete(k))); }catch(_){}
-      location.href="index.html";
-    });
-
-    /* ===== ROM (form) ===== */
-    function addItemRow(tipo="caixa", tam="p", qtd=1){
-      const tb = $("#tblItens tbody");
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>
-          <select class="tipo">
-            <option value="caixa"${tipo==="caixa"?" selected":""}>Caixa</option>
-            <option value="saco"${tipo==="saco"?" selected":""}>Saco</option>
-          </select>
-        </td>
-        <td>
-          <select class="tam">
-            <option value="p"${tam==="p"?" selected":""}>P</option>
-            <option value="m"${tam==="m"?" selected":""}>M</option>
-            <option value="g"${tam==="g"?" selected":""}>G</option>
-          </select>
-        </td>
-        <td><input type="number" min="0" class="qtd" value="${qtd}"></td>
-        <td><button type="button" class="btn btn-danger btn-xs">Remover</button></td>
-      `;
-      tr.querySelector(".btn").addEventListener("click", ()=>{ tr.remove(); calcTotal(); });
-      tr.querySelector(".qtd").addEventListener("input", calcTotal);
-      tb.appendChild(tr);
-      calcTotal();
-    }
-    function calcTotal(){ let tot=0; $$("#tblItens .qtd").forEach(i=> tot += Number(i.value||0)); $("#rom_total").textContent=tot; }
-    $("#btnAddItem").addEventListener("click", ()=> addItemRow());
-
-    // fotos múltiplas com preview
-    const photos = []; // {name, data}
-    function updatePhotoUI(){
-      const g = $("#gallery"); g.innerHTML="";
-      photos.forEach((p,idx)=>{
-        const d=document.createElement("div");
-        d.className="thumb";
-        d.innerHTML=`
-          <img src="${p.data}" alt="foto${idx+1}">
-          <button type="button" class="x">x</button>
-        `;
-        d.querySelector(".x").onclick=()=>{ photos.splice(idx,1); updatePhotoUI(); };
-        g.appendChild(d);
-      });
-      $("#photoCount").textContent = `${photos.length} foto(s)`;
-    }
-    async function fileListToBase64(files){
-      return Promise.all(Array.from(files||[]).map(f => new Promise(res=>{
-        const r=new FileReader(); r.onload=()=>res({ name:f.name, data:r.result }); r.readAsDataURL(f);
-      })));
-    }
-    $("#rom_fotos").addEventListener("change", async (e)=>{
-      const list = await fileListToBase64(e.target.files);
-      list.forEach(x=>photos.push(x));
-      e.target.value=""; // permite re-escolher mesmo arquivo
-      updatePhotoUI();
-    });
-    $("#btnAddMore").addEventListener("click", ()=> $("#rom_fotos").click());
-
-    function clearRomForm(){
-      $("#rom_rom").value=""; setTodayIfEmpty(true);
-      $("#rom_obs").value=""; $("#cli_tel").value=$("#cli_nome").value=$("#cli_loc").value="";
-      $("#for_tel").value=$("#for_nome").value=$("#for_loc").value="";
-      $("#rom_fotos").value=""; photos.splice(0,photos.length); updatePhotoUI();
-      $("#tblItens tbody").innerHTML=""; addItemRow(); $("#rom_result").innerHTML="";
-      $("#codPreview").style.display="none"; $("#cod_value").textContent="— — — — — —";
-      calcTotal();
-    }
-
-    // ======= Gerar imagem do comprovante =======
-    function wrapText(ctx, text, x, y, maxWidth, lineHeight){
-      const words = String(text||"").split(' ');
-      let line = '', yy=y;
-      for (let n=0;n<words.length;n++){
-        const test = line + words[n] + ' ';
-        if (ctx.measureText(test).width > maxWidth && n>0) {
-          ctx.fillText(line, x, yy);
-          line = words[n] + ' ';
-          yy += lineHeight;
-        } else line = test;
-      }
-      ctx.fillText(line, x, yy);
-      return yy;
-    }
-    async function drawReceiptPNG(payload){
-      // payload: {cod, rom, data, usuario, cliente, fornecedor, itens, totalQtd, fotos[] (dataURL)}
-      const W=800, H=1100, P=36;
-      const cnv=document.createElement("canvas"); cnv.width=W; cnv.height=H;
-      const ctx=cnv.getContext("2d");
-
-      // bg
-      ctx.fillStyle="#ffffff"; ctx.fillRect(0,0,W,H);
-      ctx.fillStyle="#111827"; ctx.fillRect(0,0,W,60);
-      ctx.fillStyle="#ffffff"; ctx.font="bold 22px system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif";
-      ctx.fillText("ROMANEIO • COMPROVANTE", P, 38);
-      ctx.font="14px system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif";
-      ctx.fillText(`Gerado em ${new Date().toLocaleString()}`, W-P-260, 38);
-
-      let y=90;
-      ctx.fillStyle="#111827";
-      ctx.font="bold 18px system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif";
-      ctx.fillText(`CÓDIGO: ${payload.cod}`, P, y); y+=26;
-      ctx.font="14px system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif";
-      ctx.fillText(`ROM: ${payload.rom||"-"}   •   DATA: ${payload.data||"-"}   •   USUÁRIO: ${payload.usuario||"-"}`, P, y); y+=24;
-
-      y+=6;
-      // Cliente
-      ctx.font="bold 16px system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif";
-      ctx.fillText("Cliente", P, y); y+=20;
-      ctx.font="14px system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif";
-      y = wrapText(ctx, `${payload.cliente.nome} (${payload.cliente.tel}) — ${payload.cliente.cidade_uf}`, P, y, W-2*P, 18) + 8;
-
-      // Fornecedor
-      ctx.font="bold 16px system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif";
-      ctx.fillText("Fornecedor", P, y); y+=20;
-      ctx.font="14px system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif";
-      y = wrapText(ctx, `${payload.fornecedor.nome} (${payload.fornecedor.tel}) — ${payload.fornecedor.cidade_uf}`, P, y, W-2*P, 18) + 12;
-
-      // Itens
-      ctx.font="bold 16px system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif";
-      ctx.fillText("Itens", P, y); y+=12;
-      // header linha
-      ctx.strokeStyle="#e5e7eb"; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(P,y); ctx.lineTo(W-P,y); ctx.stroke(); y+=8;
-      ctx.font="14px system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif";
-      payload.itens.forEach(i=>{
-        const label = `${i.tipo.toUpperCase()} ${i.tamanho.toUpperCase()}`;
-        ctx.fillText(label, P, y);
-        ctx.fillText(String(i.qtd), W-P-40, y);
-        y+=20;
-      });
-      y+=6;
-      ctx.font="bold 15px system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif";
-      ctx.fillText(`Total de volumes: ${payload.totalQtd}`, P, y); y+=18;
-
-      // Fotos (miniaturas)
-      if (payload.fotos && payload.fotos.length){
-        y+=10;
-        ctx.font="bold 16px system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif";
-        ctx.fillText("Fotos", P, y); y+=10;
-        const size=120, gap=10; let x=P;
-        for (let k=0; k<payload.fotos.length && k<4; k++){
-          const img = await loadImage_(payload.fotos[k]);
-          ctx.drawImage(img, x, y, size, size);
-          x += size+gap;
-          if (x+size > W-P){ x=P; y+=size+gap; }
-        }
-        y += size + 6;
-      }
-
-      // rodapé
-      y = Math.min(y, H-50);
-      ctx.strokeStyle="#e5e7eb"; ctx.beginPath(); ctx.moveTo(P, y); ctx.lineTo(W-P, y); ctx.stroke();
-      ctx.font="12px system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif";
-      ctx.fillStyle="#6b7280"; ctx.fillText("Documento gerado automaticamente • Romaneio", P, y+20);
-
-      return cnv.toDataURL("image/png");
-    }
-    function loadImage_(src){
-      return new Promise((resolve,reject)=>{
-        const img=new Image(); img.onload=()=>resolve(img); img.onerror=reject; img.src=src;
-      });
-    }
-
-    // ===== Envio do Romaneio =====
-    $("#btnEnviarRom").addEventListener("click", async ()=>{
-      try{
-        // valida mínimo
-        const cliTel=$("#cli_tel").value.trim();
-        const cliNom=$("#cli_nome").value.trim();
-        const cliLoc=$("#cli_loc").value.trim();
-        const forTel=$("#for_tel").value.trim();
-        const forNom=$("#for_nome").value.trim();
-        const forLoc=$("#for_loc").value.trim();
-
-        if(!$("#rom_data").value){ toast("Selecione a data.","err"); return; }
-        if(!cliTel||!cliNom||!cliLoc){ toast("Preencha os dados do CLIENTE (tel, nome, cidade/UF).","err"); return; }
-        if(!forTel||!forNom||!forLoc){ toast("Preencha os dados do FORNECEDOR (tel, nome, cidade/UF).","err"); return; }
-
-        const itens = $$("#tblItens tbody tr").map(tr=>({
-          tipo: tr.querySelector(".tipo").value,
-          tamanho: tr.querySelector(".tam").value,
-          qtd: Number(tr.querySelector(".qtd").value||0)
-        })).filter(i=>i.qtd>0);
-        if(!itens.length){ toast("Inclua ao menos 1 item.","err"); return; }
-
-        loader.on();
-        const body = {
-          rom: $("#rom_rom").value,
-          data: $("#rom_data").value,
-          obs : $("#rom_obs").value,
-          cliente: { tel: cliTel, nome: cliNom, local: cliLoc },
-          fornecedor: { tel: forTel, nome: forNom, local: forLoc },
-          itens, fotos: photos
-        };
-        loader.progress();
-        const r = await api("/rom/create", body);
-        loader.off();
-
-        if(r.error){ toast(r.error,"err"); return; }
-
-        // mostra COD no chip
-        $("#cod_value").textContent = r.cod || "— — — — — —";
-        $("#codPreview").style.display="flex";
-
-        // constrói recibo em PNG
-        const payload = {
-          cod: r.cod,
-          rom: body.rom,
-          data: body.data,
-          usuario: (sess()?.usuario)||"-",
-          cliente: { nome: body.cliente.nome, tel: body.cliente.tel, cidade_uf: body.cliente.local },
-          fornecedor: { nome: body.fornecedor.nome, tel: body.fornecedor.tel, cidade_uf: body.fornecedor.local },
-          itens: body.itens,
-          totalQtd: body.itens.reduce((s,i)=>s+Number(i.qtd||0),0),
-          fotos: photos.map(p=>p.data)
-        };
-        const dataUrl = await drawReceiptPNG(payload);
-
-        // abre modal
-        openReceiptModal({ png:dataUrl, pdf:r.pdfUrl, wa:r.whatsappUrl, waTel: body.cliente.tel });
-
-        // resultado (mantém)
-        $("#rom_result").innerHTML = `
-          <div class="row" style="gap:12px">
-            <span class="chip">Romaneio criado</span>
-            <span class="chip">Código: <b>${r.cod||"-"}</b></span>
-            ${r.pdfUrl?`<a class="btn btn-muted" target="_blank" href="${r.pdfUrl}">Abrir PDF</a>`:""}
-            ${r.whatsappUrl?`<a class="btn btn-primary" target="_blank" href="${r.whatsappUrl}">WhatsApp do cliente</a>`:""}
-          </div>
-        `;
-        toast("Romaneio enviado!","ok");
-
-        // limpa para próximo lançamento
-        clearRomForm();
-      }catch(err){ loader.off(); toast("Falha ao enviar: "+err.message,"err"); }
-    });
-
-    function openReceiptModal({png,pdf,wa,waTel}){
-      const modal=$("#modal"); const img=$("#receiptImg");
-      img.src = png || "";
-      $("#btnDownloadPng").href = png || "#";
-      const pdfBtn=$("#btnOpenPdf"); if(pdf){ pdfBtn.href=pdf; pdfBtn.style.display="inline-block"; } else { pdfBtn.style.display="none"; }
-      $("#btnWA").onclick = ()=>{ if(wa) window.open(wa,"_blank"); else toast("Sem link de WhatsApp gerado.","err"); };
-      $("#btnShare").onclick = async ()=>{
-        try{
-          if(navigator.share && navigator.canShare){
-            const res = await fetch(png); const blob = await res.blob();
-            const file = new File([blob], `rom_${Date.now()}.png`, {type:"image/png"});
-            if(navigator.canShare({files:[file]})){
-              await navigator.share({
-                title:"Comprovante de Romaneio",
-                text:`Código: ${$("#cod_value").textContent}`,
-                files:[file]
-              });
-              return;
-            }
-          }
-          // fallback: abre PNG em nova guia
-          window.open(png,"_blank");
-        }catch(e){ toast("Não foi possível compartilhar.","err"); }
-      };
-      $("#btnCloseModal").onclick = ()=>{ modal.style.display="none"; };
-      modal.style.display="flex";
-    }
-
-    $("#btnFillCli").addEventListener("click", ()=>{
-      const t = $("#cli_tel").value.replace(/\D/g,"");
-      if(!t){ toast("Informe o telefone do cliente.","err"); return; }
-      $("#cli_nome").value = $("#cli_nome").value || "Cliente";
-      $("#cli_loc").value  = $("#cli_loc").value  || "Fortaleza/CE";
-    });
-
-    /* ===== Listas (placeholders) ===== */
-    async function loadRomaneios(){
-      $("#listRom").innerHTML = `<div class="empty" style="padding:24px;color:var(--muted)">Sem registros (crie um /rom/list no backend se quiser listar aqui 😉)</div>`;
-    }
-    async function loadClientes(){
-      $("#listCli").innerHTML = `<div class="empty" style="padding:24px;color:var(--muted)">Sem registros (crie um /clientes no backend se quiser listar aqui 😉)</div>`;
-    }
-
-    /* ===== Usuários (placeholder) ===== */
-    function renderPermsChips(perms){
-      if(!perms || !perms.length) return `<span class="chip">—</span>`;
-      return perms.map(p=>`<span class="chip">${p}</span>`).join(" ");
-    }
-    async function loadUsers(){
-      $("#usersTableWrap").style.display="none"; $("#usersEmpty").style.display="block";
-    }
-    $("#btnNewUser").addEventListener("click", ()=> toast("Cadastro de usuário depende do endpoint /users/upsert no backend.","err"));
-
-    /* ===== misc ===== */
-    function setTodayIfEmpty(force){
-      const inp=$("#rom_data");
-      const today=new Date(); const yyyy=today.getFullYear();
-      const mm=String(today.getMonth()+1).padStart(2,"0");
-      const dd=String(today.getDate()).padStart(2,"0");
-      if(force || !inp.value){ inp.value = `${yyyy}-${mm}-${dd}`; }
-    }
-
-    // bloqueia submit acidental
-    document.addEventListener("submit", e=> e.preventDefault());
-
-    /* ===== boot ===== */
-    document.addEventListener("DOMContentLoaded", ()=>{
-      applyTheme(currentTheme());                      // tema
-      if(!isLogged()){ location.href="index.html"; return; } // sessão
-      setTodayIfEmpty(false);                          // data hoje
-      addItemRow();                                    // 1ª linha item
-      updatePhotoUI();                                 // zera galeria
-      const first = "rom";
-      if(!location.hash) location.hash = first;
-      showTabFromHash();
-    });
-  </script>
+  }catch(err){
+    showStatus("err", "Erro: " + err.message);
+  }finally{
+    showProgress(false);
+  }
+}
+</script>
 </body>
 </html>
