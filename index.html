@@ -1,110 +1,113 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
+<!doctype html>
+<html lang="pt-BR" data-theme="dark">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Romaneio • Login</title>
   <meta name="theme-color" content="#0d1117" />
-  <link rel="icon" href="icon-192.png" />
   <style>
-    :root{
-      --bg:#0b1220; --panel:#0f172a; --muted:#98a2b3; --text:#e6edf3;
-      --primary:#2563eb; --primary-2:#1d4ed8; --border:#1f2a44;
-      --ok:#16a34a; --err:#dc2626;
-    }
-    *{box-sizing:border-box}
-    body{margin:0;background:radial-gradient(1200px 600px at 20% -10%,rgba(37,99,235,.18),transparent 60%),var(--bg);color:var(--text);
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif;min-height:100dvh;display:grid;place-items:center}
-    .card{width:min(520px,92vw);background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:22px 20px}
-    h1{margin:0 0 10px 0;font-size:18px}
-    label{font-size:12px;color:var(--muted);display:block;margin:.25rem 0 .35rem}
-    input{width:100%;background:#0b1220;border:1px solid var(--border);color:var(--text);border-radius:10px;padding:12px}
-    .btn{width:100%;padding:.8rem 1rem;background:var(--primary);border:0;border-radius:10px;color:#fff;font-weight:800;cursor:pointer;margin-top:12px}
-    .btn:hover{background:var(--primary-2)}
-    .muted{color:var(--muted);font-size:12px;margin-top:10px}
-    .brand{display:flex;gap:8px;align-items:center;margin-bottom:10px;font-weight:800}
-    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);backdrop-filter:saturate(120%) blur(2px);display:none;align-items:center;justify-content:center;z-index:50}
-    .bar{width:220px;height:8px;background:#0b1220;border:1px solid var(--border);border-radius:999px;overflow:hidden}
-    .bar>span{display:block;height:100%;width:0;background:linear-gradient(90deg,#2563eb,#60a5fa);animation:load 1.2s infinite}
-    @keyframes load{0%{width:0}50%{width:90%}100%{width:0;transform:translateX(100%)}}
-    .toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
-      background:#0b1220;border:1px solid var(--border);padding:10px 14px;border-radius:10px;display:none;z-index:60}
-    .toast.ok{border-color:rgba(22,163,74,.5)}
-    .toast.err{border-color:rgba(220,38,38,.5)}
+    :root{--bg:#0d1117;--panel:#0f172a;--text:#e6edf3;--muted:#8a94a6;--primary:#2563eb;--ok:#16a34a;--err:#ef4444;--border:#1f2a44}
+    [data-theme="light"]{--bg:#f7f7fb;--panel:#ffffff;--text:#0b1020;--muted:#56617a;--primary:#2563eb;--ok:#15803d;--err:#dc2626;--border:#e5e7eb}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif}
+    .wrap{min-height:100dvh;display:grid;place-items:center;padding:16px}
+    .card{width:min(420px,100%);background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px 16px}
+    h1{margin:0 0 10px 0;font-size:1.3rem}
+    label{display:block;margin:10px 0 6px;font-weight:600}
+    input{width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;background:transparent;color:var(--text)}
+    .row{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:12px}
+    button{padding:.75rem 1rem;border:1px solid var(--primary);background:var(--primary);color:#fff;border-radius:10px;font-weight:700;cursor:pointer}
+    .muted{color:var(--muted);font-size:.9rem}
+    .status{margin-top:10px;height:36px;border-radius:8px;display:flex;align-items:center;padding:0 10px;font-weight:600}
+    .status.ok{background:rgba(22,163,74,.12);color:var(--ok);border:1px solid rgba(22,163,74,.4)}
+    .status.err{background:rgba(239,68,68,.12);color:var(--err);border:1px solid rgba(239,68,68,.4)}
+    .progress{height:6px;background:linear-gradient(90deg,var(--primary),transparent);border-radius:999px;animation:load 1.2s linear infinite;margin-top:10px}
+    @keyframes load{from{background-position-x:0}to{background-position-x:200%}}
+    .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+    .theme{background:transparent;border:1px solid var(--border);color:var(--text)}
   </style>
 </head>
 <body>
-  <div class="card">
-    <div class="brand">🚚 Romaneio</div>
-    <h1>Acesso</h1>
-    <div class="row">
+  <div class="wrap">
+    <div class="card">
+      <div class="toolbar">
+        <div>🚚 <b>Romaneio</b></div>
+        <button class="theme" id="btnTheme" type="button">🌙/☀️</button>
+      </div>
+      <h1>Login</h1>
+      <p class="muted">Use seu usuário e senha. Admin gerencia acessos.</p>
+
       <label>Usuário</label>
-      <input id="usuario" placeholder="admin" autocomplete="username">
-    </div>
-    <div class="row" style="margin-top:8px">
+      <input id="usuario" placeholder="ex: admin" autocomplete="username" />
+
       <label>Senha</label>
-      <input id="senha" type="password" placeholder="••••••" autocomplete="current-password">
+      <input id="senha" type="password" placeholder="••••••••" autocomplete="current-password" />
+
+      <div class="row">
+        <button id="btnLogin">Entrar</button>
+        <small class="muted">v<span id="ver"></span></small>
+      </div>
+
+      <div id="progress" class="progress" style="display:none"></div>
+      <div id="status" class="status" style="display:none"></div>
     </div>
-    <button class="btn" onclick="doLogin()">Entrar</button>
-    <div class="muted">Admin cria/gerencia usuários via planilha. Precisa de acesso? Fale com o responsável.</div>
-    <div class="muted" style="text-align:center;margin-top:10px">v1 • PWA (instalável)</div>
   </div>
 
-  <div id="overlay" class="overlay"><div class="bar"><span></span></div></div>
-  <div id="toast" class="toast"></div>
-
 <script>
-/* ====== CONFIG ====== */
+const APP_VERSION = "v2025-08-28-1";
+document.getElementById("ver").textContent = APP_VERSION;
+
+// Tema
+function toggleTheme(){
+  const root = document.documentElement;
+  const cur = root.getAttribute("data-theme") || "dark";
+  const next = cur === "dark" ? "light" : "dark";
+  root.setAttribute("data-theme", next);
+  localStorage.setItem("theme", next);
+}
+document.getElementById("btnTheme").onclick = toggleTheme;
+(function bootTheme(){
+  const saved = localStorage.getItem("theme");
+  if (saved) document.documentElement.setAttribute("data-theme", saved);
+})();
+
 const API_BASE = "https://script.google.com/macros/s/AKfycbzahPVwksRN4y6WnYZ6sXfCWftB_YDiL2nfyTw0QPMelz_A_3GKmrtMV-4QysIhTu8R/exec";
 
-/* ====== helpers ====== */
-const $ = (s)=>document.querySelector(s);
-function setLoading(v){ $("#overlay").style.display = v ? "flex" : "none"; }
-function toast(msg, kind="ok"){ const t=$("#toast"); t.textContent=msg; t.className="toast "+kind; t.style.display="block"; setTimeout(()=>t.style.display="none", 3000); }
-function saveSession(s){ localStorage.setItem("session", JSON.stringify(s)); }
+function showStatus(kind,msg){ const s=document.getElementById("status"); s.className="status "+kind; s.textContent=msg; s.style.display="flex"; }
+function showProgress(on){ document.getElementById("progress").style.display = on ? "block" : "none"; }
 
-/* normaliza o path pra SEMPRE começar com “/” */
-function urlWithPath(path){
-  const p = path.startsWith("/") ? path : "/"+path;
-  return API_BASE + "?path=" + encodeURIComponent(p);
+async function api(path, body={}){
+  const url = API_BASE + "?path=" + encodeURIComponent(path) + "&nocache=" + Date.now();
+  const res = await fetch(url,{ method:"POST", headers:{ "Content-Type":"text/plain;charset=utf-8" }, body: JSON.stringify(body) });
+  if (!res.ok) throw new Error("HTTP "+res.status);
+  return res.json();
 }
 
-async function doLogin(){
-  const usuario = $("#usuario").value.trim();
-  const senha   = $("#senha").value.trim();
-  if(!usuario || !senha){ toast("Informe usuário e senha.", "err"); return; }
-
+document.getElementById("btnLogin").addEventListener("click", async ()=>{
   try{
-    setLoading(true);
-    const res = await fetch(urlWithPath("/login"), {
-      method:"POST",
-      headers:{ "Content-Type":"text/plain;charset=utf-8" },
-      body: JSON.stringify({ usuario, senha }),
-      cache:"no-store"
-    });
-    setLoading(false);
+    showProgress(true); showStatus("",""); document.getElementById("status").style.display="none";
+    const usuario = document.getElementById("usuario").value.trim();
+    const senha   = document.getElementById("senha").value;
+    if(!usuario || !senha){ showStatus("err","Preencha usuário e senha."); showProgress(false); return; }
 
-    if(!res.ok){ toast("Erro HTTP "+res.status, "err"); return; }
-    const r = await res.json();
+    const r = await api("/login", {usuario, senha});
+    if (r.error){ showStatus("err", r.error); showProgress(false); return; }
 
-    if(r.error){ toast(r.error, "err"); return; }
-    if(r.session?.token){
-      saveSession(r.session);
-      toast("Login concluído.", "ok");
-      location.replace("app.html");
-    }else{
-      toast("Resposta inválida da API.", "err");
-    }
+    localStorage.setItem("session", JSON.stringify(r.session||null));
+    showStatus("ok","Login concluído!");
+    // redireciona bustando cache
+    location.href = "app.html?v=" + Date.now();
   }catch(err){
-    setLoading(false);
-    toast("Falha de rede: "+(err?.message||err), "err");
+    showStatus("err", "Falha: " + err.message);
+  }finally{
+    showProgress(false);
   }
-}
-
-/* UX: enter pra logar */
-document.addEventListener("keydown", (e)=>{
-  if(e.key==="Enter") doLogin();
 });
+
+// Se já tiver sessão válida e vier pra cá, limpamos tudo para evitar saltar login
+(function forceLogin(){
+  localStorage.removeItem("session");
+  sessionStorage.clear();
+})();
 </script>
 </body>
 </html>
