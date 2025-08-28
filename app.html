@@ -8,52 +8,76 @@
   <link rel="icon" href="icon-192.png"/>
 
   <style>
+    /* ================== THEMES ================== */
     :root{
+      /* DARK (default) */
       --bg:#0d1117;--panel:#0f172a;--muted:#9aa5b1;--text:#e6edf3;
       --primary:#2563eb;--border:#1f2a44;--danger:#ef4444;--ok:#22c55e;
-      --chip:#0b1223;
+      --chip:#0b1223;--thead:#0b1223;--input:#0b1223;
     }
-    /* layout base */
+    [data-theme="light"]{
+      --bg:#f6f7fb;--panel:#ffffff;--muted:#5b6572;--text:#0b1223;
+      --primary:#2563eb;--border:#e6e8ef;--danger:#dc2626;--ok:#16a34a;
+      --chip:#eef2ff;--thead:#f3f4f6;--input:#ffffff;
+    }
+
+    /* ================ BASE UI ================ */
     *{box-sizing:border-box}
+    html,body{height:100%}
     body{margin:0;background:var(--bg);color:var(--text);
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif}
-    header{padding:.75rem 1rem;background:#0b0f1a;border-bottom:1px solid var(--border);
+
+    header{position:sticky;top:0;z-index:8;
+      padding:.75rem 1rem;background:var(--panel);
+      border-bottom:1px solid var(--border);
       display:flex;align-items:center;gap:14px}
-    .brand{font-weight:700}
-    nav{margin-left:auto;display:flex;gap:16px}
-    nav a{color:var(--muted);text-decoration:none;font-weight:600}
-    nav a.active,nav a:hover{color:#fff}
-    .wrap{max-width:1100px;margin:0 auto;padding:18px}
+    .brand{font-weight:800}
+    nav{margin-left:auto;display:flex;gap:14px;flex-wrap:wrap}
+    nav a{color:var(--muted);text-decoration:none;font-weight:700}
+    nav a.active,nav a:hover{color:var(--text)}
+    .wrap{max-width:1100px;margin:0 auto;padding:16px}
     h2{margin:18px 0 10px;border-bottom:1px solid var(--border);padding-bottom:6px}
     section.tab{display:none}
-    .card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px}
+    .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px}
+
     .grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
     .grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
     label{font-size:12px;color:var(--muted);display:block;margin-bottom:4px}
-    input,select,textarea{width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);
-      background:#0b1223;color:#e6edf3;outline:none}
-    textarea{resize:vertical}
-    table{width:100%;border-collapse:collapse}
+    input,select,textarea{
+      width:100%;padding:10px;border-radius:10px;border:1px solid var(--border);
+      background:var(--input);color:var(--text);outline:none
+    }
+    textarea{resize:vertical;min-height:72px}
+
+    .table-wrap{width:100%;overflow:auto;border:1px solid var(--border);border-radius:10px}
+    table{width:100%;border-collapse:collapse;min-width:640px}
     th,td{padding:.65rem .75rem;border-bottom:1px solid var(--border);text-align:left}
-    th{background:#0b1223;color:#cbd5e1}
-    .btn{padding:.55rem 1rem;border:0;border-radius:8px;font-weight:700;cursor:pointer}
+    th{background:var(--thead);color:var(--text)}
+    .btn{padding:.6rem 1rem;border:0;border-radius:10px;font-weight:800;cursor:pointer}
     .btn-primary{background:var(--primary);color:#fff}
-    .btn-muted{background:#122036;color:#cbd5e1}
+    .btn-muted{background:var(--thead);color:var(--text)}
     .btn-danger{background:var(--danger);color:#fff}
-    .chip{background:var(--chip);border:1px solid var(--border);padding:.35rem .6rem;border-radius:999px;font-size:12px}
-    .row{display:flex;gap:8px;align-items:center}
+    .chip{background:var(--chip);border:1px solid var(--border);
+      padding:.35rem .6rem;border-radius:999px;font-size:12px}
+    .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
     .right{margin-left:auto}
-    /* top loader */
-    #loader{position:fixed;left:0;top:0;height:3px;background:var(--primary);width:0%;z-index:9999;transition:width .25s ease}
-    /* toast */
-    #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:12px;background:#111827;color:#e5e7eb;
-      border:1px solid var(--border);padding:.6rem .9rem;border-radius:8px;display:none;z-index:9999}
+
+    /* loader + toast */
+    #loader{position:fixed;left:0;top:0;height:3px;background:var(--primary);
+      width:0%;z-index:9999;transition:width .25s ease}
+    #toast{position:fixed;left:50%;transform:translateX(-50%);
+      bottom:12px;background:var(--panel);color:var(--text);
+      border:1px solid var(--border);padding:.6rem .9rem;border-radius:10px;display:none;z-index:9999}
     #toast.ok{border-color:#14532d;background:#052e16;color:#a7f3d0}
     #toast.err{border-color:#7f1d1d;background:#2a0c0c;color:#fecaca}
-    /* empty state */
-    .empty{padding:30px;text-align:center;color:var(--muted)}
-    /* small */
-    @media (max-width:900px){.grid-3{grid-template-columns:1fr}}
+
+    /* mobile */
+    @media (max-width:900px){
+      .grid-3{grid-template-columns:1fr}
+      .grid-2{grid-template-columns:1fr}
+      nav{gap:10px}
+      .btn{width:100%}
+    }
   </style>
 </head>
 <body>
@@ -70,6 +94,7 @@
       <a href="#clientes" data-tab="clientes">Clientes</a>
       <a href="#financeiro" data-tab="financeiro">Financeiro</a>
       <a href="#users" data-tab="users">Usuários</a>
+      <a href="#" id="btnTheme" title="Alternar tema">🌙</a>
       <a href="#" id="btnSair">Sair</a>
     </nav>
   </header>
@@ -83,7 +108,7 @@
         <div class="grid-3">
           <div><label>ROM</label><input id="rom_rom" type="number" placeholder="Ex: 21"></div>
           <div><label>Data</label><input id="rom_data" type="date"></div>
-          <div><label>Observações</label><textarea id="rom_obs" rows="2" placeholder="Ex.: Agendar com o cliente"></textarea></div>
+          <div><label>Observações</label><textarea id="rom_obs" placeholder="Ex.: Agendar com o cliente"></textarea></div>
         </div>
 
         <h3 style="margin-top:16px">Cliente</h3>
@@ -94,7 +119,7 @@
         </div>
 
         <div class="row" style="margin:6px 0 10px">
-          <button class="btn btn-muted" id="btnFillCli">Preencher pelo telefone</button>
+          <button type="button" class="btn btn-muted" id="btnFillCli">Preencher pelo telefone</button>
           <span class="chip">Fornecedor <b>Opcional</b></span>
         </div>
 
@@ -106,20 +131,23 @@
 
         <h3 style="margin-top:16px">Itens</h3>
         <div class="row" style="margin-bottom:6px">
-          <button class="btn btn-muted" id="btnAddItem">+ Item</button>
+          <button type="button" class="btn btn-muted" id="btnAddItem">+ Item</button>
           <div class="right"><b>Total: <span id="rom_total">0</span></b></div>
         </div>
-        <table id="tblItens">
-          <thead><tr><th>Tipo</th><th>Tamanho</th><th>Qtd</th><th></th></tr></thead>
-          <tbody></tbody>
-        </table>
+
+        <div class="table-wrap">
+          <table id="tblItens">
+            <thead><tr><th>Tipo</th><th>Tamanho</th><th>Qtd</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
 
         <h3 style="margin-top:16px">Fotos</h3>
         <input id="rom_fotos" type="file" accept="image/*" multiple capture="environment">
         <div style="margin:6px 0 12px;color:var(--muted);font-size:12px">Você pode escolher várias e remover antes de enviar.</div>
 
         <div class="row">
-          <button id="btnEnviarRom" class="btn btn-primary">Enviar Romaneio</button>
+          <button type="button" id="btnEnviarRom" class="btn btn-primary">Enviar Romaneio</button>
         </div>
 
         <div id="rom_result" style="margin-top:12px"></div>
@@ -130,8 +158,8 @@
     <section id="tab-romaneios" class="tab">
       <h2>Romaneios</h2>
       <div class="card">
-        <div class="row"><button id="btnLoadRom" class="btn btn-muted">🔄 Atualizar</button></div>
-        <div id="listRom" class="empty">Sem registros por enquanto.</div>
+        <div class="row"><button type="button" id="btnLoadRom" class="btn btn-muted">🔄 Atualizar</button></div>
+        <div id="listRom" class="empty" style="padding:24px;color:var(--muted)">Sem registros por enquanto.</div>
       </div>
     </section>
 
@@ -139,17 +167,15 @@
     <section id="tab-clientes" class="tab">
       <h2>Clientes</h2>
       <div class="card">
-        <div class="row"><button id="btnLoadCli" class="btn btn-muted">🔄 Atualizar</button></div>
-        <div id="listCli" class="empty">Sem registros por enquanto.</div>
+        <div class="row"><button type="button" id="btnLoadCli" class="btn btn-muted">🔄 Atualizar</button></div>
+        <div id="listCli" class="empty" style="padding:24px;color:var(--muted)">Sem registros por enquanto.</div>
       </div>
     </section>
 
     <!-- Financeiro -->
     <section id="tab-financeiro" class="tab">
       <h2>Financeiro</h2>
-      <div class="card">
-        <div class="empty">Em breve.</div>
-      </div>
+      <div class="card"><div class="empty" style="padding:24px;color:var(--muted)">Em breve.</div></div>
     </section>
 
     <!-- Usuários -->
@@ -157,18 +183,15 @@
       <h2>Usuários</h2>
       <div class="card">
         <div class="row" style="margin-bottom:10px">
-          <button id="btnNewUser" class="btn btn-primary">+ Novo usuário</button>
+          <button type="button" id="btnNewUser" class="btn btn-primary">+ Novo usuário</button>
         </div>
-
-        <table id="tblUsers" style="display:none">
-          <thead>
-          <tr>
-            <th>Usuário</th><th>Nome</th><th>Ativo</th><th>Permissões</th><th></th>
-          </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-        <div id="usersEmpty" class="empty">Sem usuários.</div>
+        <div class="table-wrap" id="usersTableWrap" style="display:none">
+          <table id="tblUsers">
+            <thead><tr><th>Usuário</th><th>Nome</th><th>Ativo</th><th>Permissões</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div id="usersEmpty" class="empty" style="padding:24px;color:var(--muted)">Sem usuários.</div>
       </div>
     </section>
 
@@ -181,7 +204,7 @@
     const PERM_ALL = "*";
 
     /* ===== helpers UI ===== */
-    const $ = (q,root=document)=>root.querySelector(q);
+    const $  = (q,root=document)=>root.querySelector(q);
     const $$ = (q,root=document)=>Array.from(root.querySelectorAll(q));
     const toast = (msg, kind="")=>{
       const el=$("#toast");
@@ -191,24 +214,28 @@
     };
     const loader = {
       on(){ $("#loader").style.width="55%"; },
-      progress(p){ $("#loader").style.width = (p||90)+"%"; },
-      off(){ $("#loader").style.width="100%"; setTimeout(()=>$("#loader").style.width="0%", 220); }
+      progress(p){ $("#loader").style.width=(p||90)+"%"; },
+      off(){ $("#loader").style.width="100%"; setTimeout(()=>$("#loader").style.width="0%",220); }
     };
+
+    /* ===== THEME ===== */
+    function applyTheme(t){
+      document.body.setAttribute("data-theme", t);
+      $("#btnTheme").textContent = (t==="light" ? "🌙" : "☀️");
+    }
+    function currentTheme(){ return localStorage.getItem("theme") || "dark"; }
+    $("#btnTheme").addEventListener("click",(e)=>{
+      e.preventDefault();
+      const t = currentTheme()==="dark" ? "light" : "dark";
+      localStorage.setItem("theme", t);
+      applyTheme(t);
+    });
 
     /* ===== session ===== */
     function sess(){
       try{ return JSON.parse(localStorage.getItem("session")||"null"); }catch(_){ return null; }
     }
-    function requireLogin(){
-      const s = sess();
-      if(!s || !s.token){ location.href="index.html"; return false; }
-      return true;
-    }
-    function hasPerm(p){
-      const s = sess();
-      const perms = (s && Array.isArray(s.perms) ? s.perms : [PERM_ALL]);
-      return perms.includes(PERM_ALL) || perms.includes(p);
-    }
+    function isLogged(){ const s=sess(); return !!(s && s.token); }
 
     /* ===== API ===== */
     async function api(path, body={}){
@@ -226,51 +253,60 @@
 
     /* ===== Router & permissions ===== */
     const tabs = {
-      rom      : { el: "#tab-rom",         perm: "rom" },
-      romaneios: { el: "#tab-romaneios",   perm: "romaneios" },
-      clientes : { el: "#tab-clientes",    perm: "clientes" },
-      financeiro:{ el:"#tab-financeiro",   perm: "financeiro" },
-      users    : { el: "#tab-users",       perm: "usuarios" },
+      rom       : { el:"#tab-rom",        perm:"rom" },
+      romaneios : { el:"#tab-romaneios",  perm:"romaneios" },
+      clientes  : { el:"#tab-clientes",   perm:"clientes" },
+      financeiro: { el:"#tab-financeiro", perm:"financeiro" },
+      users     : { el:"#tab-users",      perm:"usuarios" },
     };
 
+    function hasPerm(p){
+      const s = sess();
+      const perms = (s && Array.isArray(s.perms) ? s.perms : [PERM_ALL]);
+      return perms.includes(PERM_ALL) || perms.includes(p);
+    }
     function setActiveMenu(hash){
       $$("#menu a[data-tab]").forEach(a=>{
         a.classList.toggle("active", a.getAttribute("data-tab")===hash);
       });
     }
-
     async function showTabFromHash(){
-      if(!requireLogin()) return;
+      if(!isLogged()){ location.href="index.html"; return; }
       const hash = (location.hash.replace("#","") || "rom");
       const def  = tabs[hash] || tabs.rom;
 
-      // permissões
       if(!hasPerm(def.perm)){
         toast("Você não tem acesso a esta área.","err");
-        location.hash = Object.keys(tabs).find(k=>hasPerm(tabs[k].perm)) || "rom";
+        const first = Object.entries(tabs).find(([k,v])=>hasPerm(v.perm))?.[0] || "rom";
+        location.hash = first;
         return;
       }
-
-      // esconde/mostra
       $$(".tab").forEach(s=>s.style.display="none");
       $(def.el).style.display="block";
       setActiveMenu(hash);
 
-      // carregamentos rápidos por aba
-      if(hash==="users")      loadUsers();
-      if(hash==="romaneios")  loadRomaneios();
-      if(hash==="clientes")   loadClientes();
+      // mini-loaders
+      if(hash==="users") loadUsers();
+      if(hash==="romaneios") loadRomaneios();
+      if(hash==="clientes") loadClientes();
     }
-
     window.addEventListener("hashchange", showTabFromHash);
 
-    /* ===== menu sair ===== */
+    // menu: evita navegações indevidas
+    $$("#menu a[data-tab]").forEach(a=>{
+      a.addEventListener("click",(e)=>{
+        e.preventDefault();
+        const t = a.getAttribute("data-tab");
+        location.hash = t;
+      });
+    });
+
+    /* ===== sair ===== */
     $("#btnSair").addEventListener("click", async (e)=>{
       e.preventDefault();
       try{ await api("/logout"); }catch(_){}
       localStorage.removeItem("session");
-      // tentar limpar storage do app
-      try{ localStorage.clear(); sessionStorage.clear(); caches && caches.keys().then(ks=>ks.forEach(k=>caches.delete(k))); }catch(_){}
+      try{ sessionStorage.clear(); caches && caches.keys().then(ks=>ks.forEach(k=>caches.delete(k))); }catch(_){}
       location.href="index.html";
     });
 
@@ -293,17 +329,14 @@
           </select>
         </td>
         <td><input type="number" min="0" class="qtd" value="${qtd}"></td>
-        <td><button class="btn btn-danger btn-xs">Remover</button></td>
+        <td><button type="button" class="btn btn-danger btn-xs">Remover</button></td>
       `;
       tr.querySelector(".btn").addEventListener("click", ()=>{ tr.remove(); calcTotal(); });
       tr.querySelector(".qtd").addEventListener("input", calcTotal);
       tb.appendChild(tr);
       calcTotal();
     }
-    function calcTotal(){
-      let tot=0; $$("#tblItens .qtd").forEach(i=> tot += Number(i.value||0));
-      $("#rom_total").textContent = tot;
-    }
+    function calcTotal(){ let tot=0; $$("#tblItens .qtd").forEach(i=> tot += Number(i.value||0)); $("#rom_total").textContent=tot; }
     $("#btnAddItem").addEventListener("click", ()=> addItemRow());
 
     async function filesToBase64(input){
@@ -312,17 +345,11 @@
         const r=new FileReader(); r.onload=()=>res({ name:f.name, data:r.result }); r.readAsDataURL(f);
       })));
     }
-
     function clearRomForm(){
-      $("#rom_rom").value = "";
-      $("#rom_data").value = "";
-      $("#rom_obs").value  = "";
-      $("#cli_tel").value = $("#cli_nome").value = $("#cli_loc").value = "";
-      $("#for_tel").value = $("#for_nome").value = $("#for_loc").value = "";
-      $("#rom_fotos").value = "";
-      $("#tblItens tbody").innerHTML = "";
-      addItemRow();
-      $("#rom_result").innerHTML = "";
+      $("#rom_rom").value=""; setTodayIfEmpty(true);
+      $("#rom_obs").value=""; $("#cli_tel").value=$("#cli_nome").value=$("#cli_loc").value="";
+      $("#for_tel").value=$("#for_nome").value=$("#for_loc").value="";
+      $("#rom_fotos").value=""; $("#tblItens tbody").innerHTML=""; addItemRow(); $("#rom_result").innerHTML="";
       calcTotal();
     }
 
@@ -334,7 +361,7 @@
           tamanho: tr.querySelector(".tam").value,
           qtd: Number(tr.querySelector(".qtd").value||0)
         })).filter(i=>i.qtd>0);
-        if(!itens.length){ toast("Inclua ao menos 1 item.","err"); return; }
+        if(!itens.length){ loader.off(); toast("Inclua ao menos 1 item.","err"); return; }
 
         const fotos = await filesToBase64($("#rom_fotos"));
 
@@ -346,30 +373,24 @@
           fornecedor: { tel: $("#for_tel").value, nome: $("#for_nome").value, local: $("#for_loc").value },
           itens, fotos
         };
-
         loader.progress();
         const r = await api("/rom/create", body);
         loader.off();
 
         if(r.error){ toast(r.error,"err"); return; }
-
         $("#rom_result").innerHTML = `
-          <div class="row" style="gap:12px;flex-wrap:wrap">
+          <div class="row" style="gap:12px">
             <span class="chip">Romaneio criado</span>
-            <span class="chip">Código: <b>${r.cod}</b></span>
+            <span class="chip">Código: <b>${r.cod||"-"}</b></span>
             ${r.pdfUrl?`<a class="btn btn-muted" target="_blank" href="${r.pdfUrl}">Abrir PDF</a>`:""}
             ${r.whatsappUrl?`<a class="btn btn-primary" target="_blank" href="${r.whatsappUrl}">WhatsApp do cliente</a>`:""}
           </div>
         `;
         toast("Romaneio enviado!","ok");
         clearRomForm();
-      }catch(err){
-        loader.off();
-        toast("Falha ao enviar: "+err.message,"err");
-      }
+      }catch(err){ loader.off(); toast("Falha ao enviar: "+err.message,"err"); }
     });
 
-    // exemplo bobo para “preencher pelo tel” (lado cliente)
     $("#btnFillCli").addEventListener("click", ()=>{
       const t = $("#cli_tel").value.replace(/\D/g,"");
       if(!t){ toast("Informe o telefone do cliente.","err"); return; }
@@ -377,59 +398,52 @@
       $("#cli_loc").value  = $("#cli_loc").value  || "Fortaleza/CE";
     });
 
-    /* ===== Listagens simples (placeholders) ===== */
+    /* ===== Listas (placeholders) ===== */
     async function loadRomaneios(){
-      $("#listRom").innerHTML = `<div class="empty">Carregando…</div>`;
-      // (se quiser, crie no backend /rom/list)
-      $("#listRom").innerHTML = `<div class="empty">Sem registros (crie um /rom/list no backend se quiser listar aqui 😉)</div>`;
+      $("#listRom").innerHTML = `<div class="empty" style="padding:24px;color:var(--muted)">Sem registros (crie um /rom/list no backend se quiser listar aqui 😉)</div>`;
     }
     async function loadClientes(){
-      $("#listCli").innerHTML = `<div class="empty">Carregando…</div>`;
-      $("#listCli").innerHTML = `<div class="empty">Sem registros (crie um /clientes no backend se quiser listar aqui 😉)</div>`;
+      $("#listCli").innerHTML = `<div class="empty" style="padding:24px;color:var(--muted)">Sem registros (crie um /clientes no backend se quiser listar aqui 😉)</div>`;
     }
 
-    /* ===== Usuários (lista + modal) ===== */
+    /* ===== Usuários ===== */
     function renderPermsChips(perms){
       if(!perms || !perms.length) return `<span class="chip">—</span>`;
       return perms.map(p=>`<span class="chip">${p}</span>`).join(" ");
     }
-
     async function loadUsers(){
       if(!hasPerm("usuarios")){
-        $("#tab-users").innerHTML = `<div class="card"><div class="empty">Sem permissão.</div></div>`;
+        $("#tab-users").innerHTML = `<div class="card"><div class="empty" style="padding:24px;color:var(--muted)">Sem permissão.</div></div>`;
         return;
       }
-      $("#usersEmpty").style.display="block";
-      $("#tblUsers").style.display="none";
+      $("#usersTableWrap").style.display="none"; $("#usersEmpty").style.display="block";
       try{
         loader.on();
         const r = await api("/users/list");
         loader.off();
         if(r.error){ toast(r.error,"err"); return; }
-        const tb = $("#tblUsers tbody"); tb.innerHTML="";
+        const tb=$("#tblUsers tbody"); tb.innerHTML="";
         (r.users||[]).forEach(u=>{
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
+          const tr=document.createElement("tr");
+          tr.innerHTML=`
             <td>${u.usuario}</td>
             <td>${u.nome||""}</td>
             <td>${u.ativo? "✅":"❌"}</td>
             <td>${renderPermsChips(u.perms||[])}</td>
-            <td><button class="btn btn-muted btn-edit">Editar</button></td>
+            <td><button type="button" class="btn btn-muted btn-edit">Editar</button></td>
           `;
           tr.querySelector(".btn-edit").addEventListener("click",()=> openUserModal(u));
           tb.appendChild(tr);
         });
-        if((r.users||[]).length){ $("#usersEmpty").style.display="none"; $("#tblUsers").style.display="table"; }
-      }catch(err){
-        loader.off(); toast(err.message,"err");
-      }
+        if((r.users||[]).length){ $("#usersEmpty").style.display="none"; $("#usersTableWrap").style.display="block"; }
+      }catch(err){ loader.off(); toast(err.message,"err"); }
     }
 
     function openUserModal(u){
       const allPerms = ["rom","romaneios","clientes","financeiro","usuarios"];
-      const div = document.createElement("div");
+      const div=document.createElement("div");
       div.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:9998";
-      div.innerHTML = `
+      div.innerHTML=`
         <div class="card" style="width:min(680px,92vw);max-height:90vh;overflow:auto">
           <h3>${u? "Editar usuário":"Novo usuário"}</h3>
           <div class="grid-2" style="margin-top:10px">
@@ -442,9 +456,9 @@
           </div>
           <div style="margin-top:12px">
             <label>Permissões</label>
-            <div class="row" style="flex-wrap:wrap;gap:8px;margin-top:6px">
+            <div class="row" style="gap:8px;margin-top:6px">
               ${allPerms.map(p=>{
-                const on = (u?.perms||[]).includes(p) || (u && (u.perms||[]).includes("*"));
+                const on=(u?.perms||[]).includes(p)||(u&&(u.perms||[]).includes("*"));
                 return `<label class="chip" style="cursor:pointer">
                   <input class="perm" type="checkbox" value="${p}" ${on?"checked":""} style="margin-right:6px">${p}
                 </label>`;
@@ -454,52 +468,60 @@
           <div class="row" style="margin-top:16px">
             <label class="row" style="gap:8px"><input id="u_ativo" type="checkbox" ${u?.ativo!==false?"checked":""}> Ativo</label>
             <div class="right">
-              <button class="btn btn-muted" id="u_cancel">Cancelar</button>
-              <button class="btn btn-primary" id="u_save">Salvar</button>
+              <button type="button" class="btn btn-muted" id="u_cancel">Cancelar</button>
+              <button type="button" class="btn btn-primary" id="u_save">Salvar</button>
             </div>
           </div>
-        </div>
-      `;
+        </div>`;
       document.body.appendChild(div);
       $("#u_cancel",div).onclick=()=>div.remove();
       $("#u_save",div).onclick=async()=>{
         try{
-          const usuario = $("#u_usuario",div).value.trim();
-          const nome = $("#u_nome",div).value.trim();
-          const pwd1 = $("#u_pwd1",div).value;
-          const pwd2 = $("#u_pwd2",div).value;
-          const ativo = $("#u_ativo",div).checked;
-          const perms = $$(".perm",div).filter(i=>i.checked).map(i=>i.value);
+          const usuario=$("#u_usuario",div).value.trim();
+          const nome=$("#u_nome",div).value.trim();
+          const pwd1=$("#u_pwd1",div).value;
+          const pwd2=$("#u_pwd2",div).value;
+          const ativo=$("#u_ativo",div).checked;
+          const perms=$$(".perm",div).filter(i=>i.checked).map(i=>i.value);
 
           if(!usuario){ toast("Informe o usuário.","err"); return; }
-          if(!u){ // novo -> senha obrigatória
-            if(!pwd1 || !pwd2 || pwd1!==pwd2){ toast("Senhas não conferem.","err"); return; }
-          }else{
-            if((pwd1||pwd2) && pwd1!==pwd2){ toast("Senhas não conferem.","err"); return; }
-          }
+          if(!u){ if(!pwd1||!pwd2||pwd1!==pwd2){ toast("Senhas não conferem.","err"); return; } }
+          else{ if((pwd1||pwd2)&&pwd1!==pwd2){ toast("Senhas não conferem.","err"); return; } }
 
           loader.on();
-          const r = await api("/users/upsert", { usuario, nome, senha: pwd1||"", ativo, perms });
+          const r=await api("/users/upsert",{usuario,nome,senha:pwd1||"",ativo,perms});
           loader.off();
           if(r.error){ toast(r.error,"err"); return; }
           toast("Usuário salvo!","ok");
-          div.remove();
-          loadUsers();
-        }catch(err){
-          loader.off(); toast(err.message,"err");
-        }
+          div.remove(); loadUsers();
+        }catch(err){ loader.off(); toast(err.message,"err"); }
       };
     }
     $("#btnNewUser").addEventListener("click", ()=> openUserModal(null));
 
+    /* ===== misc ===== */
+    function setTodayIfEmpty(force){
+      const inp=$("#rom_data");
+      const today=new Date(); const yyyy=today.getFullYear();
+      const mm=String(today.getMonth()+1).padStart(2,"0");
+      const dd=String(today.getDate()).padStart(2,"0");
+      if(force || !inp.value){ inp.value = `${yyyy}-${mm}-${dd}`; }
+    }
+
+    // bloqueia qualquer submit acidental
+    document.addEventListener("submit", e=> e.preventDefault());
+
     /* ===== boot ===== */
     document.addEventListener("DOMContentLoaded", ()=>{
-      if(!requireLogin()) return;
-      // se não houver hash, define a primeira aba permitida
-      const firstAllowed = Object.entries(tabs).find(([k,v])=>hasPerm(v.perm))?.[0] || "rom";
-      if(!location.hash) location.hash = firstAllowed;
-      // pelo menos 1 linha no ROM
-      addItemRow();
+      // tema
+      applyTheme(currentTheme());
+      // sessão
+      if(!isLogged()){ location.href="index.html"; return; }
+      // data padrão + 1 linha de item
+      setTodayIfEmpty(false); addItemRow();
+      // primeira aba permitida
+      const first = Object.entries(tabs).find(([k,v])=>hasPerm(v.perm))?.[0] || "rom";
+      if(!location.hash) location.hash = first;
       showTabFromHash();
     });
   </script>
