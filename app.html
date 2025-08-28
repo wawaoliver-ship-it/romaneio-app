@@ -8,544 +8,364 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icon-192.png" />
 
-  <!-- jsPDF para PDF local (download/compartilhar) -->
-  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <!-- ========== GUARD DE SESSÃO ==========
+       Esconde a página, valida o token com a API e só mostra se estiver ok.
+       Caso contrário, limpa a sessão e volta para index.html               -->
+  <script>
+    document.documentElement.style.visibility = 'hidden';
+    (async () => {
+      const API_BASE = "SUA_URL_DO_EXEC_AQUI"; // ← MESMO /exec do index.html
+      const sess = JSON.parse(localStorage.getItem("session") || "null");
+      if (!sess || !sess.token) {
+        localStorage.removeItem("session");
+        location.replace("index.html");
+        return;
+      }
+      try {
+        const res = await fetch(API_BASE + "?path=whoami", {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ token: sess.token }),
+          cache: "no-store"
+        }).then(r => r.json());
+        if (!res || !res.session || !res.session.token) {
+          localStorage.removeItem("session");
+          location.replace("index.html");
+          return;
+        }
+      } catch (e) {
+        localStorage.removeItem("session");
+        location.replace("index.html");
+        return;
+      }
+      document.documentElement.style.visibility = '';
+    })();
+  </script>
+  <!-- ========== /GUARD ========== -->
 
   <style>
     :root{
-      --bg:#0d1117;--panel:#0f172a;--muted:#8a94a6;--text:#e6edf3;
-      --primary:#2563eb;--border:#1f2a44;--panel-soft:#0b1220;
-      --success:#22c55e;--danger:#ef4444;--info:#93c5fd;
+      --bg:#0d1117; --panel:#0f172a; --muted:#95a0b4; --text:#e6edf3;
+      --primary:#2563eb; --primary-2:#1d4ed8; --border:#1f2a44;
+      --ok:#16a34a; --warn:#f59e0b; --danger:#ef4444;
+      --chip:#111827;
     }
     *{box-sizing:border-box}
-    body{margin:0;background:var(--bg);color:var(--text);
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif}
-    header{padding:.75rem 1rem;background:#0b0f1a;border-bottom:1px solid var(--border);
-      display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10}
+    html,body{height:100%}
+    body{
+      margin:0;background:var(--bg);color:var(--text);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif
+    }
+    header{
+      padding:.75rem 1rem;background:#0b0f1a;border-bottom:1px solid var(--border);
+      display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:5
+    }
     header .title{font-weight:700;letter-spacing:.2px}
-    nav a{margin-left:14px;color:var(--muted);text-decoration:none;font-weight:600}
-    nav a:hover{color:var(--primary)}
-    nav a.active{color:#fff}
-    .wrap{max-width:1100px;margin:0 auto;padding:16px}
-    h2{margin:12px 0 10px 0;font-size:1.2rem}
-    .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px}
-    .card.soft{background:var(--panel-soft)}
+    nav a{
+      margin-left:16px;color:var(--muted);text-decoration:none;font-weight:600
+    }
+    nav a:hover,nav a.active{color:#fff}
+    .wrap{max-width:1100px;margin:0 auto;padding:18px}
+    h2{margin:10px 0 16px;border-bottom:1px solid var(--border);padding-bottom:8px}
+    .card{
+      background:var(--panel);border:1px solid var(--border);
+      border-radius:12px;padding:14px
+    }
     .grid{display:grid;gap:12px}
-    .g2{grid-template-columns:repeat(2,minmax(0,1fr))}
-    .g3{grid-template-columns:repeat(3,minmax(0,1fr))}
-    @media (max-width:900px){.g2,.g3{grid-template-columns:1fr}}
-    .input{width:100%;background:#0b0f1a;color:var(--text);border:1px solid #24334d;border-radius:10px;padding:10px}
-    .input:focus{outline:none;border-color:#3b82f6}
-    .btn{padding:.6rem 1rem;background:var(--primary);border:0;border-radius:10px;color:#fff;cursor:pointer;font-weight:700}
-    .btn:hover{opacity:.95}
-    .btn.ghost{background:#0b0f1a;border:1px solid #24334d}
-    .btn.sm{padding:.45rem .7rem;border-radius:8px;font-weight:600}
-    .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-    table{width:100%;border-collapse:collapse}
-    th,td{padding:.6rem .75rem;border-bottom:1px solid var(--border);text-align:left}
-    th{background:#111827}
-    .muted{color:var(--muted)}
-    .ok{color:var(--success)} .err{color:var(--danger)} .info{color:var(--info)}
-    .filelist{font-size:.9rem;opacity:.85;margin-top:6px}
-    .fileitem{display:flex;align-items:center;gap:8px;margin:4px 0}
-    .pill{display:inline-block;padding:.2rem .5rem;border:1px solid var(--border);border-radius:999px;font-size:.8rem}
-    .right{ text-align:right }
-    /* Loader overlay */
-    #loader{position:fixed;inset:0;background:rgba(2,6,23,.6);
-      backdrop-filter:saturate(1.2) blur(2px);
-      display:none;align-items:center;justify-content:center;z-index:9999}
-    #loader .box{width:min(380px,92vw);background:#0b1220;border:1px solid #1e293b;border-radius:16px;padding:16px}
-    #loader .barwrap{height:10px;background:#0f172a;border:1px solid #24334d;border-radius:9999px;overflow:hidden}
-    #loader .bar{height:100%;width:30%;background:#3b82f6;transition:width .2s}
-    .hint{font-size:.8rem;color:var(--muted)}
+    .g-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .g-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+    label{font-size:12px;color:var(--muted);display:block;margin-bottom:4px}
+    input,select,textarea{
+      width:100%;background:#0b1220;border:1px solid var(--border);color:var(--text);
+      border-radius:8px;padding:10px 12px;outline:none
+    }
+    textarea{resize:vertical}
+    .row{display:flex;gap:10px;align-items:center}
+    .btn{
+      padding:.65rem 1rem;background:var(--primary);border:0;border-radius:10px;
+      color:#fff;font-weight:700;cursor:pointer
+    }
+    .btn:hover{background:var(--primary-2)}
+    .btn-ghost{background:#111827;border:1px solid var(--border);color:#e6edf3}
+    .btn-danger{background:var(--danger)}
+    .muted{color:var(--muted);font-size:12px}
+    .table{width:100%;border-collapse:collapse}
+    .table th,.table td{padding:.6rem .75rem;border-bottom:1px solid var(--border);text-align:left}
+    .table th{background:#111827}
+    .items-head{display:grid;grid-template-columns:200px 140px 120px 110px;gap:10px;padding:8px 0;color:var(--muted);font-size:12px}
+    .item-row{display:grid;grid-template-columns:200px 140px 120px 110px;gap:10px;align-items:center;margin:8px 0}
+    .chip{background:var(--chip);padding:2px 8px;border-radius:999px;border:1px solid var(--border);font-size:12px;color:var(--muted)}
+    .right{display:flex;justify-content:flex-end}
+    .hidden{display:none}
+    /* loading bar */
+    .loading-bar{height:3px;background:linear-gradient(90deg,var(--primary),#60a5fa);width:0%;transition:width .25s ease;border-radius:999px}
+    .mb8{margin-bottom:8px}
   </style>
 </head>
 <body>
   <header>
     <div class="title">🚚 Romaneio</div>
-    <nav id="topnav">
-      <a href="#" data-tab="rom-form" class="active">Enviar Romaneio</a>
-      <a href="#" data-tab="clientes">Clientes</a>
-      <a href="#" data-tab="romaneios">Romaneios</a>
-      <a href="#" data-tab="financeiro">Financeiro</a>
-      <a href="#" id="btnSair">Sair</a>
+    <nav>
+      <a href="#" id="mEnviar" class="active" onclick="showTab('enviar')">Enviar Romaneio</a>
+      <a href="#" id="mClientes" onclick="showTab('clientes')">Clientes</a>
+      <a href="#" id="mRoms" onclick="showTab('roms')">Romaneios</a>
+      <a href="#" id="mFin" onclick="showTab('fin')">Financeiro</a>
+      <a href="#" onclick="logout()">Sair</a>
     </nav>
   </header>
 
-  <main class="wrap">
-    <!-- ====== ENVIAR ROMANEIO (principal) ====== -->
-    <section id="rom-form" class="tab">
-      <div class="card">
-        <div class="toolbar" style="justify-content:space-between">
-          <h2>Enviar Romaneio</h2>
-          <span id="userChip" class="pill"></span>
+  <div class="wrap">
+    <!-- barra de carregamento fina -->
+    <div id="topLoading" class="loading-bar mb8"></div>
+
+    <!-- ========= ENVIAR ========= -->
+    <section id="tab-enviar" class="card">
+      <h2>Enviar Romaneio</h2>
+
+      <div class="grid g-3">
+        <div>
+          <label>ROM</label>
+          <input id="rom_rom" placeholder="Ex.: 21" type="number">
         </div>
-
-        <div class="grid g3">
-          <div>
-            <label class="muted">ROM</label>
-            <input id="rom_rom" class="input" type="number" min="1" placeholder="Ex.: 21" />
-          </div>
-          <div>
-            <label class="muted">Data</label>
-            <input id="rom_data" class="input" type="date" />
-          </div>
-          <div>
-            <label class="muted">Observações</label>
-            <textarea id="rom_obs" class="input" rows="1" placeholder="Ex.: Agendar com o cliente"></textarea>
-          </div>
+        <div>
+          <label>Data</label>
+          <input id="rom_data" type="date">
         </div>
+        <div>
+          <label>Observações</label>
+          <textarea id="rom_obs" rows="1" placeholder="Ex.: Agendar com o cliente"></textarea>
+        </div>
+      </div>
 
-        <div class="grid g2" style="margin-top:14px">
-          <div class="card soft">
-            <div class="toolbar" style="justify-content:space-between">
-              <div class="muted" style="font-weight:700">Cliente</div>
-              <span class="pill">Preencha pelo telefone</span>
-            </div>
-            <div class="grid g3" style="margin-top:8px">
-              <div>
-                <label class="muted">Telefone</label>
-                <input id="cli_tel" class="input" placeholder="(DDD) 90000-0000" />
-              </div>
-              <div>
-                <label class="muted">Nome</label>
-                <input id="cli_nome" class="input" placeholder="Nome do cliente" />
-              </div>
-              <div>
-                <label class="muted">Cidade/UF</label>
-                <input id="cli_loc" class="input" placeholder="Fortaleza-CE" />
-              </div>
-            </div>
+      <div class="grid g-2" style="margin-top:14px">
+        <div class="card" style="padding:12px">
+          <div class="row" style="justify-content:space-between">
+            <div class="chip">Cliente</div>
+            <button class="btn-ghost" onclick="preencherPeloTelefone('cli')">Preencha pelo telefone</button>
           </div>
-
-          <div class="card soft">
-            <div class="toolbar" style="justify-content:space-between">
-              <div class="muted" style="font-weight:700">Fornecedor</div>
-              <span class="pill">Opcional</span>
+          <div class="grid g-3" style="margin-top:10px">
+            <div>
+              <label>Telefone</label>
+              <input id="cli_tel" placeholder="(DDD) 90000-0000" inputmode="numeric">
             </div>
-            <div class="grid g3" style="margin-top:8px">
-              <div>
-                <label class="muted">Telefone</label>
-                <input id="for_tel" class="input" placeholder="(DDD) 90000-0000" />
-              </div>
-              <div>
-                <label class="muted">Nome</label>
-                <input id="for_nome" class="input" placeholder="Nome do fornecedor" />
-              </div>
-              <div>
-                <label class="muted">Cidade/UF</label>
-                <input id="for_loc" class="input" placeholder="Cidade-UF" />
-              </div>
+            <div>
+              <label>Nome</label>
+              <input id="cli_nome" placeholder="Nome do cliente">
+            </div>
+            <div>
+              <label>Cidade/UF</label>
+              <input id="cli_loc" placeholder="Fortaleza-CE">
             </div>
           </div>
         </div>
 
-        <div class="card soft" style="margin-top:14px">
-          <div class="toolbar" style="justify-content:space-between">
-            <div style="font-weight:700">Itens</div>
-            <button class="btn sm ghost" id="btnAddItem">+ Item</button>
+        <div class="card" style="padding:12px">
+          <div class="row" style="justify-content:space-between">
+            <div class="chip">Fornecedor</div>
+            <div class="muted">Opcional</div>
           </div>
-          <div style="margin-top:8px;overflow:auto">
-            <table>
-              <thead>
-                <tr><th>Tipo</th><th>Tamanho</th><th>Qtd</th><th class="right">Ação</th></tr>
-              </thead>
-              <tbody id="itensBody"></tbody>
-            </table>
-            <div class="right muted" style="margin-top:8px">Total: <span id="rom_total">0</span></div>
+          <div class="grid g-3" style="margin-top:10px">
+            <div>
+              <label>Telefone</label>
+              <input id="for_tel" placeholder="(DDD) 90000-0000" inputmode="numeric">
+            </div>
+            <div>
+              <label>Nome</label>
+              <input id="for_nome" placeholder="Nome do fornecedor">
+            </div>
+            <div>
+              <label>Cidade/UF</label>
+              <input id="for_loc" placeholder="Cidade-UF">
+            </div>
           </div>
-        </div>
-
-        <div class="card soft" style="margin-top:14px">
-          <div class="toolbar" style="justify-content:space-between">
-            <div style="font-weight:700">Fotos</div>
-            <div class="hint">Você pode escolher várias e remover antes de enviar.</div>
-          </div>
-          <div class="toolbar" style="margin-top:8px">
-            <input id="inFotos" type="file" accept="image/*" multiple capture="environment" style="display:none">
-            <button class="btn sm ghost" id="btnAddFotos">Adicionar fotos</button>
-            <div id="fotosCount" class="muted"></div>
-          </div>
-          <div id="listaFotos" class="filelist"></div>
-        </div>
-
-        <div class="toolbar" style="margin-top:14px">
-          <button id="btnEnviarRom" class="btn">Enviar Romaneio</button>
-          <div id="romMsg" class="muted"></div>
         </div>
       </div>
-    </section>
 
-    <!-- ====== Clientes (separado) ====== -->
-    <section id="clientes" class="tab" style="display:none">
-      <div class="card">
-        <div class="toolbar" style="justify-content:space-between">
-          <h2>Clientes</h2>
-          <button class="btn sm ghost" onclick="carregarClientes()">🔄 Atualizar</button>
+      <div class="card" style="margin-top:14px">
+        <div class="row" style="justify-content:space-between">
+          <div class="chip">Itens</div>
+          <button class="btn-ghost" onclick="addItemRow()">+ Item</button>
         </div>
-        <div style="overflow:auto;margin-top:8px">
-          <table id="tblClientes">
-            <thead><tr><th>Telefone</th><th>Nome</th><th>Cidade/UF</th><th>Criado em</th></tr></thead>
-            <tbody></tbody>
-          </table>
+
+        <div class="items-head" style="margin-top:8px">
+          <div>Tipo</div><div>Tamanho</div><div>Qtd</div><div>Ação</div>
         </div>
-        <div class="hint" style="margin-top:6px">Obs.: esta aba só atualiza quando você clicar.</div>
+        <div id="itemsBody"></div>
+
+        <div class="right" style="margin-top:6px">
+          <div class="chip">Total: <b id="rom_total" style="margin-left:6px;color:#fff">0</b></div>
+        </div>
       </div>
+
+      <div class="card" style="margin-top:14px">
+        <div class="chip">Fotos</div>
+        <div class="row" style="margin-top:8px;align-items:flex-start;gap:12px">
+          <input id="rom_fotos" type="file" accept="image/*" multiple capture="environment">
+          <div class="muted">Você pode escolher várias e remover antes de enviar.</div>
+        </div>
+      </div>
+
+      <div class="right" style="margin-top:16px;gap:10px">
+        <button class="btn" onclick="enviarRomaneio()">Enviar Romaneio</button>
+      </div>
+
+      <div id="rom_result" class="muted" style="margin-top:10px"></div>
     </section>
 
-    <!-- ====== Romaneios / Financeiro (placeholders) ====== -->
-    <section id="romaneios" class="tab" style="display:none">
-      <div class="card">
-        <h2>Romaneios</h2>
-        <div class="muted">Lista/relatórios entram aqui numa próxima etapa.</div>
-      </div>
+    <!-- ========= CLIENTES (placeholder para futuro) ========= -->
+    <section id="tab-clientes" class="card hidden">
+      <h2>Clientes</h2>
+      <div class="muted">Em breve…</div>
     </section>
 
-    <section id="financeiro" class="tab" style="display:none">
-      <div class="card">
-        <h2>Financeiro</h2>
-        <div class="muted">Visão financeira entrará na etapa 2.</div>
-      </div>
+    <!-- ========= ROMANEIOS (placeholder) ========= -->
+    <section id="tab-roms" class="card hidden">
+      <h2>Romaneios</h2>
+      <div class="muted">Em breve…</div>
     </section>
-  </main>
 
-  <!-- Loader/Overlay -->
-  <div id="loader">
-    <div class="box">
-      <div id="loaderText" style="color:#e5e7eb;font:600 14px system-ui;margin-bottom:10px">Processando...</div>
-      <div class="barwrap"><div id="loaderBar" class="bar"></div></div>
-    </div>
+    <!-- ========= FINANCEIRO (placeholder) ========= -->
+    <section id="tab-fin" class="card hidden">
+      <h2>Financeiro</h2>
+      <div class="muted">Em breve…</div>
+    </section>
   </div>
 
-<script>
-/* ================== CONFIG & SESSION ================== */
-// TROQUE AQUI PELO SEU /exec
-const API_BASE = "https://script.google.com/macros/s/AKfycbzahPVwksRN4y6WnYZ6sXfCWftB_YDiL2nfyTw0QPMelz_A_3GKmrtMV-4QysIhTu8R/exec";
+  <script>
+    // ========= CONFIG =========
+    const API_BASE = "SUA_URL_DO_EXEC_AQUI"; // MESMO /exec do index.html
+    const $ = sel => document.querySelector(sel);
 
-const $ = (sel, ctx=document)=> ctx.querySelector(sel);
-const $$ = (sel, ctx=document)=> Array.from(ctx.querySelectorAll(sel));
+    function showTab(id){
+      document.querySelectorAll('[id^="tab-"]').forEach(s=>s.classList.add('hidden'));
+      $('#tab-'+id).classList.remove('hidden');
+      document.querySelectorAll('nav a').forEach(a=>a.classList.remove('active'));
+      (id==='enviar') && $('#mEnviar').classList.add('active');
+      (id==='clientes') && $('#mClientes').classList.add('active');
+      (id==='roms') && $('#mRoms').classList.add('active');
+      (id==='fin') && $('#mFin').classList.add('active');
+    }
+    function logout(){
+      localStorage.removeItem("session");
+      location.replace("index.html");
+    }
+    function sess(){ try { return JSON.parse(localStorage.getItem("session"))||null; } catch(_) { return null; } }
 
-function sess(){
-  try { return JSON.parse(localStorage.getItem("session"))||null; } catch(_) { return null; }
-}
+    // ========= UI helpers =========
+    const topBar = $('#topLoading');
+    function startLoading(){ topBar.style.width='0%'; setTimeout(()=> topBar.style.width='60%', 0); }
+    function endLoading(){ topBar.style.width='100%'; setTimeout(()=> topBar.style.width='0%', 300); }
 
-/* ================== NAV/TABS ================== */
-function showTab(id){
-  $$(".tab").forEach(s=> s.style.display = (s.id===id ? "" : "none"));
-  $$("#topnav a[data-tab]").forEach(a=> a.classList.toggle("active", a.dataset.tab===id));
-}
-$("#topnav").addEventListener("click", (e)=>{
-  const a = e.target.closest("a[data-tab]");
-  if(!a) return;
-  e.preventDefault();
-  showTab(a.dataset.tab);
-});
+    // ========= API helper =========
+    async function api(path, body = {}){
+      const s = sess();
+      const res = await fetch(API_BASE + "?path=" + encodeURIComponent(path), {
+        method: "POST",
+        headers: {"Content-Type":"text/plain;charset=utf-8"},
+        body: JSON.stringify({...body, token: s?.token}),
+        cache: "no-store"
+      });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const data = await res.json();
+      if (data && data.error === "unauth") {
+        localStorage.removeItem("session");
+        location.replace("index.html");
+        return Promise.reject(new Error("Sessão expirada"));
+      }
+      return data;
+    }
 
-/* ================== LOADER (GLOBAL) ================== */
-function showLoader(txt="Processando...", pct=null){
-  $("#loaderText").textContent = txt;
-  $("#loaderBar").style.width = (pct==null ? "30%" : Math.max(3, Math.min(100, pct))+"%");
-  $("#loader").style.display = "flex";
-}
-function updateLoader(p){ $("#loaderBar").style.width = Math.max(3, Math.min(100, p))+"%"; }
-function hideLoader(){ $("#loader").style.display = "none"; }
-
-/* ================== API WRAPPER ================== */
-async function api(path, body = {}, token = null){
-  const url = API_BASE + "?path=" + encodeURIComponent(path);
-  const session = sess();
-  const payload = { ...body, token: token || session?.token };
-
-  showLoader("Comunicando com o servidor...", null);
-  try{
-    const res = await fetch(url, {
-      method: "POST",
-      headers: {"Content-Type":"text/plain;charset=utf-8"},
-      body: JSON.stringify(payload),
-      cache: "no-store"
-    });
-    if(!res.ok) throw new Error("HTTP "+res.status);
-    updateLoader(70);
-    const json = await res.json();
-    updateLoader(100);
-    return json;
-  }finally{
-    setTimeout(hideLoader,150);
-  }
-}
-
-/* ================== UI HELPERS ================== */
-function setMsg(txt, kind="info"){
-  const el = $("#romMsg");
-  el.className = kind;
-  el.textContent = txt;
-}
-function normalizePhone(t){
-  return String(t||"").replace(/\D/g,"").replace(/^55/,"");
-}
-
-/* ================== ITENS (dinâmico) ================== */
-const tipos = ["Caixa","Saco"];
-const tams  = ["P","M","G"];
-function addItemRow(tipo="Caixa", tam="P", qtd=1){
-  const tb = $("#itensBody");
-  const tr = document.createElement("tr");
-  tr.innerHTML = `
-    <td>
-      <select class="input tipo">${tipos.map(v=>`<option ${v===tipo?'selected':''}>${v}</option>`).join('')}</select>
-    </td>
-    <td>
-      <select class="input tam">${tams.map(v=>`<option ${v===tam?'selected':''}>${v}</option>`).join('')}</select>
-    </td>
-    <td><input type="number" min="1" value="${qtd}" class="input qtd" style="max-width:120px"></td>
-    <td class="right"><button class="btn sm ghost rm">Remover</button></td>
-  `;
-  tb.appendChild(tr);
-  tr.querySelector(".rm").onclick = ()=>{ tr.remove(); recalcTotal(); };
-  tr.querySelector(".qtd").oninput = recalcTotal;
-  recalcTotal();
-}
-function recalcTotal(){
-  let tot=0;
-  $$("#itensBody .qtd").forEach(i=> tot += Number(i.value||0));
-  $("#rom_total").textContent = tot;
-}
-$("#btnAddItem").addEventListener("click", (e)=>{ e.preventDefault(); addItemRow(); });
-
-/* ================== FOTOS (multi + preview/remover) ================== */
-const inFotos = $("#inFotos");
-const listaFotos = $("#listaFotos");
-const fotosCount = $("#fotosCount");
-$("#btnAddFotos").addEventListener("click",(e)=>{ e.preventDefault(); inFotos.click(); });
-
-let fotosQueue = []; // [{file, name, dataUrl}]
-inFotos.addEventListener("change", async ()=>{
-  const files = Array.from(inFotos.files||[]);
-  for (const f of files){
-    const dataUrl = await fileToDataUrl(f);
-    fotosQueue.push({ file:f, name:f.name, dataUrl });
-  }
-  renderFotosList();
-  inFotos.value = ""; // permite re-selecionar as mesmas
-});
-function renderFotosList(){
-  listaFotos.innerHTML = "";
-  fotosQueue.forEach((f,idx)=>{
-    const div = document.createElement("div");
-    div.className = "fileitem";
-    div.innerHTML = `
-      <span>📷</span>
-      <span style="flex:1">${f.name}</span>
-      <button class="btn sm ghost">remover</button>`;
-    div.querySelector("button").onclick = ()=>{ fotosQueue.splice(idx,1); renderFotosList(); };
-    listaFotos.appendChild(div);
-  });
-  fotosCount.textContent = fotosQueue.length ? `${fotosQueue.length} selecionada(s)` : "";
-}
-function fileToDataUrl(file){
-  return new Promise((resolve,reject)=>{
-    const fr = new FileReader();
-    fr.onload = ()=> resolve(fr.result);
-    fr.onerror = reject;
-    fr.readAsDataURL(file);
-  });
-}
-
-/* ================== PDF LOCAL (jsPDF) ================== */
-async function makeRomaneioPDF({cod, rom, data, obs, cliente, fornecedor, itens, usuario}){
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit:"pt", format:"a4" });
-
-  const line = y => doc.line(40, y, 555, y);
-
-  doc.setFont("helvetica","bold"); doc.setFontSize(16);
-  doc.text("ROMANEIO", 40, 50);
-  doc.setFont("helvetica","normal"); doc.setFontSize(10);
-  doc.text(`Gerado em ${new Date().toLocaleString()} por ${usuario||"-"}`, 40, 68);
-
-  line(80);
-  doc.setFont("helvetica","bold"); doc.setFontSize(12);
-  doc.text(`CÓDIGO: ${cod}`, 40, 105);
-  doc.setFont("helvetica","normal");
-  doc.text(`ROM: ${rom||"-"}`, 220, 105);
-  doc.text(`DATA: ${data||"-"}`, 360, 105);
-
-  line(120);
-  doc.setFont("helvetica","bold");
-  doc.text("Cliente", 40, 145);
-  doc.setFont("helvetica","normal");
-  doc.text(`Tel.: ${cliente?.tel||"-"}  |  Nome: ${cliente?.nome||"-"}`, 40, 162);
-  doc.text(`Cidade/UF: ${cliente?.local||cliente?.cidadeUF||"-"}`, 40, 178);
-
-  doc.setFont("helvetica","bold");
-  doc.text("Fornecedor", 40, 206);
-  doc.setFont("helvetica","normal");
-  doc.text(`Tel.: ${fornecedor?.tel||"-"}  |  Nome: ${fornecedor?.nome||"-"}`, 40, 222);
-  doc.text(`Cidade/UF: ${fornecedor?.local||fornecedor?.cidadeUF||"-"}`, 40, 238);
-
-  line(252);
-  doc.setFont("helvetica","bold");
-  doc.text("Itens", 40, 275);
-  doc.setFont("helvetica","normal");
-  let y = 295;
-  doc.setFont("helvetica","bold");
-  doc.text("Tipo", 40, y); doc.text("Tam", 180, y); doc.text("Qtd", 260, y);
-  doc.setFont("helvetica","normal"); y+=16;
-  let total = 0;
-  (itens||[]).forEach(it=>{
-    doc.text(String(it.tipo||"-"), 40, y);
-    doc.text(String(it.tam||it.tamanho||"-"), 180, y);
-    doc.text(String(it.qtd||"0"), 260, y);
-    total += Number(it.qtd||0); y += 16;
-    if (y > 720) { doc.addPage(); y = 60; }
-  });
-  y += 10; doc.setFont("helvetica","bold"); doc.text(`TOTAL: ${total}`, 40, y);
-
-  y += 24; doc.setFont("helvetica","bold"); doc.text("Observações", 40, y);
-  y += 16; doc.setFont("helvetica","normal");
-  const obsLines = doc.splitTextToSize(String(obs||"-"), 515);
-  doc.text(obsLines, 40, y);
-
-  const fileName = `ROM_${cod}.pdf`;
-  const blob = doc.output("blob");
-  const url = URL.createObjectURL(blob);
-  return { blob, url, fileName };
-}
-
-/* ================== ENVIAR ================== */
-$("#btnEnviarRom").addEventListener("click", enviarRomaneio);
-async function enviarRomaneio(){
-  try{
-    setMsg("Validando...", "info");
-
-    const session = sess();
-    if(!session){ setMsg("Sessão expirada. Faça login novamente.", "err"); return; }
-
-    const itens = $$("#itensBody tr").map(tr=>({
-      tipo: tr.querySelector(".tipo").value.toLowerCase(),
-      tamanho: tr.querySelector(".tam").value.toLowerCase(),
-      qtd: Number(tr.querySelector(".qtd").value||0)
-    })).filter(i=>i.qtd>0);
-
-    if (!itens.length){ setMsg("Adicione pelo menos 1 item.", "err"); return; }
-
-    const fotos = fotosQueue.map(f => ({ name: f.name, data: f.dataUrl }));
-
-    const body = {
-      rom: $("#rom_rom").value,
-      data: $("#rom_data").value,
-      obs : $("#rom_obs").value,
-      cliente: {
-        tel: $("#cli_tel").value,
-        nome: $("#cli_nome").value,
-        local: $("#cli_loc").value
-      },
-      fornecedor: {
-        tel: $("#for_tel").value,
-        nome: $("#for_nome").value,
-        local: $("#for_loc").value
-      },
-      itens, fotos
-    };
-
-    setMsg("Enviando romaneio...", "info");
-    const r = await api("/rom/create", body, session.token);
-    if (r.error) { setMsg("Erro: "+r.error, "err"); return; }
-
-    // PDF local (sem Drive)
-    const pdf = await makeRomaneioPDF({
-      cod: r.cod, rom: body.rom, data: body.data,
-      obs: body.obs, cliente: body.cliente, fornecedor: body.fornecedor,
-      itens: body.itens, usuario: session.usuario
+    // ========= Itens =========
+    function addItemRow(){
+      const wrap = document.createElement('div');
+      wrap.className = 'item-row';
+      wrap.innerHTML = `
+        <select class="tipo">
+          <option value="caixa">Caixa</option>
+          <option value="saco">Saco</option>
+        </select>
+        <select class="tam">
+          <option value="p">P</option>
+          <option value="m">M</option>
+          <option value="g">G</option>
+        </select>
+        <input class="qtd" type="number" min="0" value="1">
+        <button class="btn-ghost" onclick="this.closest('.item-row').remove(); calcTotal()">Remover</button>
+      `;
+      $('#itemsBody').appendChild(wrap);
+      calcTotal();
+    }
+    function calcTotal(){
+      let tot = 0;
+      document.querySelectorAll('.item-row .qtd').forEach(i => tot += Number(i.value||0));
+      $('#rom_total').textContent = tot;
+    }
+    document.addEventListener('input', (e)=>{
+      if (e.target.classList.contains('qtd')) calcTotal();
     });
 
-    // UI de resultado
-    const wrap = document.createElement("div");
-    wrap.innerHTML = `
-      <div class="ok" style="margin-top:6px"><b>Romaneio criado!</b> Código: <b>${r.cod}</b></div>
-      <div class="grid g2" style="margin-top:8px">
-        <div class="card soft">
-          <div class="muted" style="margin-bottom:6px">PDF do servidor (Drive)</div>
-          <a class="btn sm" target="_blank" href="${r.pdfUrl}">Abrir PDF</a>
-          <a class="btn sm ghost" target="_blank" href="${r.whatsappUrl}" style="margin-left:6px">WhatsApp do cliente</a>
-        </div>
-        <div class="card soft">
-          <div class="muted" style="margin-bottom:6px">PDF local (navegador)</div>
-          <a class="btn sm" id="btnDownLocal">Baixar PDF</a>
-          <button class="btn sm ghost" id="btnShareLocal" style="margin-left:6px">Compartilhar (WhatsApp)</button>
-        </div>
-      </div>
-      <div class="hint" style="margin-top:6px">No desktop, o WhatsApp Web não recebe anexos automaticamente — abra a conversa e anexe o PDF baixado. No celular Android, o botão "Compartilhar" envia o arquivo direto.</div>
-    `;
-    const result = $("#romMsg");
-    result.className = ""; result.innerHTML = ""; result.appendChild(wrap);
+    // Preencher pelo telefone (apenas mascara/extra; o cadastro real é no backend)
+    function preencherPeloTelefone(prefix){
+      const tel = $('#'+prefix+'_tel').value.trim();
+      if (!tel) return;
+      if (!$('#'+prefix+'_nome').value) $('#'+prefix+'_nome').value = 'Contato ' + tel.slice(-4);
+    }
 
-    // Botão: baixar PDF local
-    $("#btnDownLocal").onclick = ()=>{
-      const a = document.createElement("a");
-      a.href = pdf.url; a.download = pdf.fileName; a.click();
-    };
+    // Converter arquivos para base64 (fotos)
+    function filesToBase64(input){
+      const files = Array.from((input.files||[]));
+      return Promise.all(files.map(f => new Promise(res => {
+        const r = new FileReader();
+        r.onload = () => res({ name:f.name, data:r.result });
+        r.readAsDataURL(f);
+      })));
+    }
 
-    // Botão: compartilhar (mobile)
-    $("#btnShareLocal").onclick = async ()=>{
+    // Enviar romaneio
+    async function enviarRomaneio(){
       try{
-        if (navigator.canShare && navigator.canShare({ files: [ new File([pdf.blob], pdf.fileName, {type:"application/pdf"}) ] })) {
-          await navigator.share({
-            title: `Romaneio ${r.cod}`,
-            text: `Romaneio ${r.cod} - ${body.cliente?.nome||""}`,
-            files: [ new File([pdf.blob], pdf.fileName, {type:"application/pdf"}) ]
-          });
-        } else {
-          // fallback: abre WhatsApp Web só com texto
-          const tel = normalizePhone(body.cliente?.tel);
-          const texto = encodeURIComponent(`Romaneio ${r.cod} enviado. Vou anexar o PDF.`);
-          const url = tel ? `https://wa.me/55${tel}?text=${texto}` : `https://web.whatsapp.com/send?text=${texto}`;
-          window.open(url, "_blank");
-        }
-      }catch(e){}
-    };
+        startLoading();
+        const itens = Array.from(document.querySelectorAll('#itemsBody .item-row')).map(row => ({
+          tipo: row.querySelector('.tipo').value,
+          tamanho: row.querySelector('.tam').value,
+          qtd: Number(row.querySelector('.qtd').value||0)
+        })).filter(i => i.qtd > 0);
 
-    // limpa formulário leve
-    fotosQueue = []; renderFotosList();
-    $$("#itensBody tr").forEach(tr=>tr.remove()); addItemRow();
-    recalcTotal();
-  }catch(err){
-    setMsg("Falha ao enviar: "+(err.message||err), "err");
-  }
-}
+        const fotos = await filesToBase64($('#rom_fotos'));
 
-/* ================== CLIENTES (placeholder seguro) ================== */
-async function carregarClientes(){
-  try{
-    setMsg("Carregando clientes...", "info");
-    // Se não houver endpoint específico, leia direto da planilha via novo endpoint futuro.
-    // Por enquanto, evita erro:
-    const tbody = $("#tblClientes tbody");
-    tbody.innerHTML = `<tr><td colspan="4" class="muted">Endpoint de clientes será habilitado na próxima etapa.</td></tr>`;
-    setMsg("", "info");
-  }catch(e){
-    setMsg("Erro ao carregar clientes.", "err");
-  }
-}
+        const body = {
+          rom: $('#rom_rom').value,
+          data: $('#rom_data').value,
+          obs:  $('#rom_obs').value,
+          cliente:     { tel: $('#cli_tel').value, nome: $('#cli_nome').value, local: $('#cli_loc').value },
+          fornecedor:  { tel: $('#for_tel').value, nome: $('#for_nome').value, local: $('#for_loc').value },
+          itens, fotos
+        };
 
-/* ================== SAIR ================== */
-$("#btnSair").addEventListener("click", (e)=>{
-  e.preventDefault();
-  localStorage.removeItem("session");
-  location.href = "index.html";
-});
+        $('#rom_result').textContent = 'Enviando…';
+        const r = await api('/rom/create', body);
+        if (r.error) throw new Error(r.error);
 
-/* ================== BOOT ================== */
-(function boot(){
-  const s = sess();
-  if (s) $("#userChip").textContent = `${s.usuario} • ${s.role||''}`;
-  // valores padrão
-  const today = new Date().toISOString().slice(0,10);
-  $("#rom_data").value = today;
-  // primeira linha de itens
-  addItemRow();
-  showTab("rom-form");
-})();
-</script>
+        $('#rom_result').innerHTML = `
+          <div class="chip" style="color:#fff;background:#06210f;border-color:#0e4429">Romaneio criado!</div>
+          <div style="margin-top:6px">Código: <b>${r.cod}</b></div>
+          <div style="margin-top:6px"><a href="${r.pdfUrl}" target="_blank">Abrir PDF</a></div>
+          <div style="margin-top:6px"><a href="${r.whatsappUrl}" target="_blank">Enviar no WhatsApp</a></div>
+        `;
+      } catch(err){
+        $('#rom_result').innerHTML = `<span style="color:#ffb4b4">Erro: ${err.message}</span>`;
+      } finally {
+        endLoading();
+      }
+    }
+
+    // estado inicial
+    document.addEventListener('DOMContentLoaded', ()=>{
+      showTab('enviar');
+      addItemRow();
+      const today = new Date().toISOString().slice(0,10);
+      $('#rom_data').value = today;
+    });
+  </script>
 </body>
 </html>
