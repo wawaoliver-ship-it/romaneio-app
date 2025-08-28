@@ -6,13 +6,8 @@
   <title>Romaneio • Painel</title>
   <meta name="theme-color" content="#0d1117" />
   <style>
-    :root{
-      --bg:#0d1117;--panel:#0f172a;--text:#e6edf3;--muted:#8a94a6;--primary:#2563eb;--ok:#16a34a;--err:#ef4444;--border:#1f2a44
-      ;--chip:#1f2a44
-    }
-    [data-theme="light"]{
-      --bg:#f7f7fb;--panel:#ffffff;--text:#0b1020;--muted:#56617a;--primary:#2563eb;--ok:#15803d;--err:#dc2626;--border:#e5e7eb;--chip:#eef2ff
-    }
+    :root{--bg:#0d1117;--panel:#0f172a;--text:#e6edf3;--muted:#8a94a6;--primary:#2563eb;--ok:#16a34a;--err:#ef4444;--border:#1f2a44;--chip:#1f2a44}
+    [data-theme="light"]{--bg:#f7f7fb;--panel:#ffffff;--text:#0b1020;--muted:#56617a;--primary:#2563eb;--ok:#15803d;--err:#dc2626;--border:#e5e7eb;--chip:#eef2ff}
     *{box-sizing:border-box}
     body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif}
     header{position:sticky;top:0;z-index:5;padding:.75rem 1rem;background:var(--panel);border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:center}
@@ -42,7 +37,8 @@
     .err{background:rgba(239,68,68,.12);color:var(--err);border:1px solid rgba(239,68,68,.4)}
     .progress{height:6px;background:linear-gradient(90deg,var(--primary),transparent);border-radius:999px;animation:load 1.2s linear infinite;margin:8px 0}
     @keyframes load{from{background-position-x:0}to{background-position-x:200%}}
-    /* Modal */
+    .preview{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    .preview img{height:72px;width:72px;object-fit:cover;border:1px solid var(--border);border-radius:8px}
     .modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;padding:16px}
     .modal .box{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px;max-width:520px;width:100%}
     .ticket{border:1px dashed var(--border);border-radius:12px;padding:12px;margin-top:8px}
@@ -58,6 +54,7 @@
       <button class="ghost" onclick="showTab('clientes')">Clientes</button>
       <button class="ghost" onclick="showTab('roms')">Romaneios</button>
       <button class="ghost" onclick="showTab('fin')">Financeiro</button>
+      <button class="ghost" onclick="showTab('users')">Usuários</button>
       <button class="ghost" onclick="toggleTheme()">🌙/☀️</button>
       <button class="ghost" onclick="logout()">Sair</button>
     </nav>
@@ -93,12 +90,18 @@
         <thead><tr><th>Tipo</th><th>Tamanho</th><th>Qtd</th><th></th></tr></thead>
         <tbody></tbody>
       </table>
-      <button class="ghost" type="button" onclick="addItemRow()">+ Item</button>
-      <div class="row"><b>Total:</b> <span id="rom_total">0</span></div>
+      <div class="row">
+        <button class="ghost" type="button" onclick="addItemRow()">+ Item</button>
+        <div><b>Total:</b> <span id="rom_total">0</span></div>
+      </div>
 
       <h3>Fotos</h3>
-      <input id="rom_fotos" type="file" accept="image/*" multiple capture="environment" />
-      <div class="muted">Você pode selecionar múltiplas imagens.</div>
+      <div class="row">
+        <input id="rom_fotos" type="file" accept="image/*" multiple capture="environment" />
+        <button class="ghost" type="button" onclick="document.getElementById('rom_fotos').click()">+ Adicionar fotos</button>
+      </div>
+      <div class="preview" id="preview"></div>
+      <div class="muted">Você pode selecionar múltiplas imagens. Pré-visualização acima.</div>
 
       <div class="progress" id="progress" style="display:none"></div>
       <div id="status" class="status" style="display:none"></div>
@@ -109,10 +112,11 @@
       </div>
     </section>
 
-    <!-- Outras tabs (placeholders) -->
+    <!-- Placeholders -->
     <section id="tab-clientes" class="card" style="display:none"><h2>Clientes</h2><div class="muted">Em breve…</div></section>
-    <section id="tab-roms" class="card" style="display:none"><h2>Romaneios</h2><div class="muted">Em breve…</div></section>
-    <section id="tab-fin" class="card" style="display:none"><h2>Financeiro</h2><div class="muted">Em breve…</div></section>
+    <section id="tab-roms"     class="card" style="display:none"><h2>Romaneios</h2><div class="muted">Em breve…</div></section>
+    <section id="tab-fin"      class="card" style="display:none"><h2>Financeiro</h2><div class="muted">Em breve…</div></section>
+    <section id="tab-users"    class="card" style="display:none"><h2>Usuários</h2><div class="muted">Listagem/CRUD virá na próxima entrega.</div></section>
   </main>
 
   <!-- Modal comprovante -->
@@ -136,8 +140,9 @@
   </div>
 
 <script>
-const APP_VERSION = "v2025-08-28-1";
-// Tema
+const API_BASE = "https://script.google.com/macros/s/AKfycbzahPVwksRN4y6WnYZ6sXfCWftB_YDiL2nfyTw0QPMelz_A_3GKmrtMV-4QysIhTu8R/exec";
+
+/* Tema */
 function toggleTheme(){
   const root = document.documentElement;
   const cur = root.getAttribute("data-theme") || "dark";
@@ -145,51 +150,34 @@ function toggleTheme(){
   root.setAttribute("data-theme", next);
   localStorage.setItem("theme", next);
 }
-(function bootTheme(){
-  const saved = localStorage.getItem("theme");
-  if (saved) document.documentElement.setAttribute("data-theme", saved);
-})();
+(function bootTheme(){ const saved = localStorage.getItem("theme"); if (saved) document.documentElement.setAttribute("data-theme", saved); })();
 
-// Guard de sessão (sem loop)
+/* Guard (sem loop) */
 (function guard(){
   const s = JSON.parse(localStorage.getItem("session")||"null");
-  if (!s || !s.token) {
-    location.replace("index.html?v=" + Date.now());
-  } else {
-    document.getElementById("userChip").textContent = (s.usuario || s.nome || "Usuário");
-  }
+  if (!s || !s.token) { location.replace("index.html?v=" + Date.now()); }
+  else { document.getElementById("userChip").textContent = (s.usuario || s.nome || "Usuário"); }
 })();
 
-const API_BASE = "https://script.google.com/macros/s/AKfycbzahPVwksRN4y6WnYZ6sXfCWftB_YDiL2nfyTw0QPMelz_A_3GKmrtMV-4QysIhTu8R/exec";
-
-function showTab(id){
-  ["rom","clientes","roms","fin"].forEach(t=>{
-    document.getElementById("tab-"+t).style.display = (t===id) ? "block" : "none";
-  });
-}
+/* Tabs */
+function showTab(id){ ["rom","clientes","roms","fin","users"].forEach(t=> document.getElementById("tab-"+t).style.display = (t===id)?"block":"none"); }
 showTab("rom");
 
-// Data hoje auto
-(function setToday(){
-  const d = new Date();
-  const iso = d.toISOString().slice(0,10);
-  document.getElementById("rom_data").value = iso;
-})();
+/* Data hoje */
+(function setToday(){ const d = new Date(); document.getElementById("rom_data").value = d.toISOString().slice(0,10); })();
 
+/* Logout */
 function logout(){
   try {
     const s = JSON.parse(localStorage.getItem("session")||"null");
-    // opcional chamar /logout
-    fetch(API_BASE+"?path=/logout&nocache="+Date.now(), {
-      method:"POST", headers:{ "Content-Type":"text/plain" },
-      body: JSON.stringify({ token: s?.token })
-    }).catch(()=>{});
+    fetch(API_BASE+"?path=/logout&nocache="+Date.now(), { method:"POST", headers:{ "Content-Type":"text/plain" }, body: JSON.stringify({ token: s?.token }) }).catch(()=>{});
   } finally {
     localStorage.clear(); sessionStorage.clear();
     location.href = "index.html?v=" + Date.now();
   }
 }
 
+/* Helpers UI */
 function $(sel){ return document.querySelector(sel); }
 function addItemRow(pref={}){
   const tb = $("#tblItens tbody");
@@ -201,13 +189,33 @@ function addItemRow(pref={}){
     <td><button class="ghost" type="button" onclick="this.closest('tr').remove(); calcTotal()">x</button></td>`;
   tb.appendChild(tr); calcTotal();
 }
-function calcTotal(){
-  let tot=0; document.querySelectorAll("#tblItens .qtd").forEach(i=> tot += Number(i.value||0));
-  $("#rom_total").textContent = tot;
-}
+function calcTotal(){ let tot=0; document.querySelectorAll("#tblItens .qtd").forEach(i=> tot += Number(i.value||0)); $("#rom_total").textContent = tot; }
 document.addEventListener("input", (e)=>{ if(e.target.classList.contains("qtd")) calcTotal(); });
 addItemRow();
 
+/* Pré-visualização de fotos */
+document.getElementById("rom_fotos").addEventListener("change", (e)=>{
+  const cont = document.getElementById("preview"); cont.innerHTML = "";
+  const files = Array.from(e.target.files||[]);
+  files.forEach(f=>{
+    const r=new FileReader(); r.onload=()=>{ const img=document.createElement("img"); img.src=r.result; cont.appendChild(img); }; r.readAsDataURL(f);
+  });
+});
+
+/* API */
+async function api(path, body={}){
+  const s = JSON.parse(localStorage.getItem("session")||"null");
+  const url = API_BASE + "?path=" + encodeURIComponent(path) + "&nocache=" + Date.now();
+  const res = await fetch(url,{ method:"POST", headers:{ "Content-Type":"text/plain;charset=utf-8" }, body: JSON.stringify({ ...body, token: s?.token }) });
+  if(!res.ok) throw new Error("HTTP "+res.status);
+  return res.json();
+}
+
+/* Status/Progress */
+function showStatus(kind,msg){ const s=$("#status"); s.className="status "+(kind||""); s.textContent=msg; s.style.display="flex"; }
+function showProgress(on){ $("#progress").style.display = on ? "block" : "none"; }
+
+/* Base64 */
 function filesToBase64(input){
   const files = Array.from(input.files||[]);
   return Promise.all(files.map(f => new Promise(res=>{
@@ -215,51 +223,33 @@ function filesToBase64(input){
   })));
 }
 
-function showStatus(kind,msg){ const s=$("#status"); s.className="status "+(kind||""); s.textContent=msg; s.style.display="flex"; }
-function showProgress(on){ $("#progress").style.display = on ? "block" : "none"; }
-
+/* Limpar form */
 function limparForm(){
   $("#rom_obs").value="";
   $("#cli_tel").value=""; $("#cli_nome").value=""; $("#cli_loc").value="";
   $("#for_tel").value=""; $("#for_nome").value=""; $("#for_loc").value="";
   $("#tblItens tbody").innerHTML=""; addItemRow(); $("#rom_total").textContent="0";
-  $("#rom_fotos").value="";
+  $("#rom_fotos").value=""; $("#preview").innerHTML="";
 }
 
-async function api(path, body={}){
-  const s = JSON.parse(localStorage.getItem("session")||"null");
-  const url = API_BASE + "?path=" + encodeURIComponent(path) + "&nocache=" + Date.now();
-  const res = await fetch(url,{
-    method:"POST", headers:{ "Content-Type":"text/plain;charset=utf-8" },
-    body: JSON.stringify({ ...body, token: s?.token })
-  });
-  if(!res.ok) throw new Error("HTTP "+res.status);
-  return res.json();
-}
-
+/* Modal (comprovante) */
 function drawTicketPNG({cod, rom, data, cliNome, total}){
   const c = document.getElementById("ticketCanvas");
   const ctx = c.getContext("2d");
-  // bg
   ctx.fillStyle = (document.documentElement.getAttribute("data-theme")==="light") ? "#ffffff" : "#0f172a";
   ctx.fillRect(0,0,c.width,c.height);
   ctx.fillStyle = (document.documentElement.getAttribute("data-theme")==="light") ? "#0b1020" : "#e6edf3";
-  ctx.font = "bold 22px system-ui";
-  ctx.fillText("Comprovante de Romaneio", 20, 40);
+  ctx.font = "bold 22px system-ui"; ctx.fillText("Comprovante de Romaneio", 20, 40);
   ctx.font = "16px system-ui";
   ctx.fillText("Código: "+cod, 20, 80);
   ctx.fillText("ROM: "+rom, 20, 110);
   ctx.fillText("Data: "+data, 20, 140);
   ctx.fillText("Cliente: "+cliNome, 20, 170);
   ctx.fillText("Total de volumes: "+total, 20, 200);
-  // “destacar” código
-  ctx.strokeStyle = "#2563eb"; ctx.lineWidth=2;
-  ctx.strokeRect(16,60, c.width-32,28);
+  ctx.strokeStyle = "#2563eb"; ctx.lineWidth=2; ctx.strokeRect(16,60, c.width-32,28);
   const url = c.toDataURL("image/png");
-  const a = document.getElementById("m_img");
-  a.href = url; a.download = "ROM_"+cod+".png";
+  const a = document.getElementById("m_img"); a.href = url; a.download = "ROM_"+cod+".png";
 }
-
 function openModal(dados){
   $("#m_cod").textContent = dados.cod;
   $("#m_rom").textContent = dados.rom;
@@ -273,6 +263,7 @@ function openModal(dados){
 }
 function closeModal(){ $("#modal").style.display = "none"; }
 
+/* Enviar */
 async function enviarRomaneio(){
   try{
     showProgress(true); showStatus("",""); $("#status").style.display="none";
@@ -299,17 +290,13 @@ async function enviarRomaneio(){
     if (r.error){ showStatus("err", r.error); showProgress(false); return; }
 
     showStatus("ok","Romaneio enviado!");
-    // limpa formulário
-    limparForm();
-
-    // abre modal comprovante
     const dataIso = $("#rom_data").value || new Date().toISOString().slice(0,10);
     openModal({
       cod: r.cod, rom: body.rom||"", data: dataIso,
       cliNome: body.cliente?.nome||"", total: document.getElementById("rom_total").textContent,
       pdfUrl: r.pdfUrl, whatsappUrl: r.whatsappUrl
     });
-
+    limparForm();
   }catch(err){
     showStatus("err", "Erro: " + err.message);
   }finally{
