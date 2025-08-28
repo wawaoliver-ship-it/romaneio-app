@@ -1,305 +1,378 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Romaneio • Painel</title>
-  <meta name="theme-color" content="#0d1117" />
-  <link rel="icon" href="icon-192.png" />
-  <style>
-    :root{
-      --bg:#0b1220; --panel:#0f172a; --muted:#98a2b3; --text:#e6edf3;
-      --primary:#2563eb; --primary-2:#1d4ed8; --border:#1f2a44;
-      --ok:#16a34a; --err:#dc2626;
-    }
-    *{box-sizing:border-box}
-    body{margin:0;background:radial-gradient(1200px 600px at 20% -10%,rgba(37,99,235,.18),transparent 60%),var(--bg);color:var(--text);
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif}
-    header{padding:.75rem 14px;background:#0b0f1a;border-bottom:1px solid var(--border);
-      display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10}
-    header .brand{display:flex;gap:8px;align-items:center;font-weight:700}
-    nav a{margin-left:16px;color:var(--muted);text-decoration:none;font-weight:600}
-    nav a:hover{color:var(--primary)}
-    .wrap{max-width:1100px;margin:0 auto;padding:16px}
-    h2{margin:10px 0 14px}
-    .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px}
-    .grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-    .row{margin:.5rem 0}
-    label{font-size:12px;color:var(--muted);display:block;margin:.1rem 0 .35rem}
-    input,textarea,select{width:100%;background:#0b1220;border:1px solid var(--border);color:var(--text);border-radius:10px;padding:10px}
-    textarea{min-height:76px;resize:vertical}
-    table{width:100%;border-collapse:collapse}
-    th,td{padding:10px;border-bottom:1px solid var(--border);text-align:left}
-    th{color:#cbd5e1}
-    .btn{padding:.6rem 1rem;background:var(--primary);border:0;border-radius:10px;color:#fff;font-weight:800;cursor:pointer}
-    .btn:hover{background:var(--primary-2)}
-    .btn-sm{padding:.35rem .6rem;border-radius:8px}
-    .right{display:flex;justify-content:flex-end}
-    .muted{color:var(--muted);font-size:12px}
-    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);backdrop-filter:saturate(120%) blur(2px);display:none;align-items:center;justify-content:center;z-index:50}
-    .bar{width:220px;height:8px;background:#0b1220;border:1px solid var(--border);border-radius:999px;overflow:hidden}
-    .bar>span{display:block;height:100%;width:0;background:linear-gradient(90deg,#2563eb,#60a5fa);animation:load 1.2s infinite}
-    @keyframes load{0%{width:0}50%{width:90%}100%{width:0;transform:translateX(100%)}}
-    .toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
-      background:#0b1220;border:1px solid var(--border);padding:10px 14px;border-radius:10px;display:none;z-index:60}
-    .toast.ok{border-color:rgba(22,163,74,.5)}
-    .toast.err{border-color:rgba(220,38,38,.5)}
-    .badge{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;background:#0b1220;border:1px solid var(--border);border-radius:999px;color:var(--muted);font-size:12px}
-  </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Romaneio • Painel</title>
+<meta name="theme-color" content="#0d1117"/>
+<link rel="icon" href="icon-192.png"/>
+
+<style>
+  :root{
+    --bg:#0b1220; --panel:#0f172a; --muted:#93a0b5; --text:#e6edf3;
+    --primary:#2563eb; --border:#1f2a44; --ok:#16a34a; --err:#ef4444; --warn:#f59e0b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif}
+  header{padding:.75rem 1rem;background:#0b1120;border-bottom:1px solid var(--border);
+    display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10}
+  header .brand{font-weight:700}
+  nav a{margin-left:16px;color:var(--muted);text-decoration:none;font-weight:600}
+  nav a:hover{color:#fff}
+  .wrap{max-width:1100px;margin:0 auto;padding:18px}
+  h2{margin:10px 0 16px;border-bottom:1px solid var(--border);padding-bottom:8px}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:14px}
+  .grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+  .grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+  input,select,textarea{width:100%;padding:10px;border:1px solid var(--border);background:#0d1324;color:#fff;border-radius:8px}
+  textarea{min-height:42px}
+  .btn{padding:.7rem 1.1rem;background:var(--primary);border:0;border-radius:10px;color:#fff;font-weight:700;cursor:pointer}
+  .btn:hover{filter:brightness(1.1)}
+  .btn.gray{background:#1f2937}
+  .btn.red{background:#b91c1c}
+  table{width:100%;border-collapse:collapse;margin-top:8px}
+  th,td{padding:10px;border-bottom:1px solid var(--border);text-align:left}
+  th{background:#0b1429}
+  .right{text-align:right}
+
+  /* loading bar */
+  #bar{position:fixed;left:0;top:0;height:3px;background:linear-gradient(90deg,var(--primary),#22d3ee);width:0%;z-index:9999;transition:width .2s ease}
+  /* toast */
+  #toast{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);
+    background:#111827;border:1px solid var(--border);color:#fff;padding:10px 14px;border-radius:10px;
+    display:none;z-index:9999;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+  #toast.ok{border-color:#144d2a;color:#bbf7d0}
+  #toast.err{border-color:#4c1d1d;color:#fecaca}
+  #toast.warn{border-color:#4d3814;color:#fde68a}
+
+  .topnav a.active{color:#fff}
+  .muted{color:var(--muted)}
+</style>
 </head>
 <body>
-  <header>
-    <div class="brand">🚚 Romaneio</div>
-    <nav>
-      <a href="#" onclick="showTab('rom-enviar')">Enviar Romaneio</a>
-      <a href="#" onclick="showTab('rom-lista')">Romaneios</a>
-      <a href="#" onclick="showTab('clientes')">Clientes</a>
-      <a href="#" onclick="logout()">Sair</a>
-    </nav>
-  </header>
+<div id="bar"></div>
+<div id="toast"></div>
 
-  <main class="wrap">
-    <!-- ======== ENVIAR ROMANEIO ======== -->
-    <section id="rom-enviar" class="tab">
-      <h2>Enviar Romaneio</h2>
-      <div class="card">
-        <div class="grid-3">
-          <div class="row">
-            <label>ROM</label>
-            <input id="rom_rom" type="number" placeholder="Ex.: 21">
-          </div>
-          <div class="row">
-            <label>Data</label>
-            <input id="rom_data" type="date">
-          </div>
-          <div class="row">
-            <label>Observações</label>
-            <textarea id="rom_obs" placeholder="Ex.: Agendar com o cliente"></textarea>
-          </div>
-        </div>
+<header>
+  <div class="brand">🚚 Romaneio</div>
+  <nav class="topnav">
+    <a href="app.html" class="active">Enviar Romaneio</a>
+    <a href="#" onclick="go('clientes')">Clientes</a>
+    <a href="#" onclick="go('romaneios')">Romaneios</a>
+    <a href="#" onclick="go('financeiro')">Financeiro</a>
+    <a href="#" onclick="logout()">Sair</a>
+  </nav>
+</header>
 
-        <div class="row" style="margin-top:10px">
-          <span class="badge">Cliente</span>
-        </div>
-        <div class="grid-3">
-          <div class="row">
-            <label>Telefone</label>
-            <input id="cli_tel" placeholder="(DDD) 90000-0000">
-          </div>
-          <div class="row">
-            <label>Nome</label>
-            <input id="cli_nome" placeholder="Nome do cliente">
-          </div>
-          <div class="row">
-            <label>Cidade/UF</label>
-            <input id="cli_loc" placeholder="Fortaleza-CE">
-          </div>
-        </div>
+<main class="wrap">
+  <section class="card">
+    <h2>Enviar Romaneio</h2>
 
-        <div class="row" style="margin-top:10px">
-          <span class="badge">Fornecedor <small style="opacity:.6">Opcional</small></span>
-        </div>
-        <div class="grid-3">
-          <div class="row">
-            <label>Telefone</label>
-            <input id="for_tel" placeholder="(DDD) 90000-0000">
-          </div>
-          <div class="row">
-            <label>Nome</label>
-            <input id="for_nome" placeholder="Nome do fornecedor">
-          </div>
-          <div class="row">
-            <label>Cidade/UF</label>
-            <input id="for_loc" placeholder="Cidade-UF">
-          </div>
-        </div>
-
-        <div class="row" style="margin-top:14px">
-          <span class="badge">Itens</span>
-        </div>
-        <table id="tblItens">
-          <thead>
-            <tr>
-              <th>Tipo</th>
-              <th>Tamanho</th>
-              <th>Qtd</th>
-              <th class="right"><button class="btn btn-sm" type="button" onclick="addItemRow()">+ Item</button></th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-          <tfoot>
-            <tr><td colspan="4" class="right"><b>Total: <span id="rom_total">0</span></b></td></tr>
-          </tfoot>
-        </table>
-
-        <div class="row" style="margin-top:14px">
-          <span class="badge">Fotos</span>
-        </div>
-        <div class="row">
-          <input id="rom_fotos" type="file" accept="image/*" multiple capture="environment">
-          <div class="muted" style="margin-top:6px">Você pode escolher várias e remover antes de enviar.</div>
-        </div>
-
-        <div class="row" style="margin-top:16px">
-          <button class="btn" type="button" onclick="enviarRomaneio()">Enviar Romaneio</button>
-        </div>
-
-        <div id="rom_result" class="row" style="margin-top:8px"></div>
+    <!-- Linha superior -->
+    <div class="grid-3">
+      <div>
+        <label>ROM <span class="muted">(Ex.: 21)</span></label>
+        <input id="f_rom" type="number" required placeholder="Ex.: 21"/>
       </div>
-    </section>
+      <div>
+        <label>Data</label>
+        <input id="f_data" type="date" required/>
+      </div>
+      <div>
+        <label>Observações</label>
+        <textarea id="f_obs" placeholder="Ex.: Agendar com o cliente"></textarea>
+      </div>
+    </div>
 
-    <section id="rom-lista" class="tab" style="display:none">
-      <h2>Romaneios</h2>
-      <div class="card muted">Lista em breve.</div>
-    </section>
+    <!-- Cliente -->
+    <div style="margin-top:12px" class="grid-3">
+      <div class="card">
+        <label><b>Cliente</b></label>
+        <div class="grid-3">
+          <div>
+            <label>Telefone</label>
+            <input id="cli_tel" required placeholder="(DDD) 90000-0000"/>
+          </div>
+          <div>
+            <label>Nome</label>
+            <input id="cli_nome" required placeholder="Nome do cliente"/>
+          </div>
+          <div>
+            <label>Cidade/UF</label>
+            <input id="cli_loc" required placeholder="Fortaleza/CE"/>
+          </div>
+        </div>
+      </div>
 
-    <section id="clientes" class="tab" style="display:none">
-      <h2>Clientes</h2>
-      <div class="card muted">Lista em breve.</div>
-    </section>
-  </main>
+      <!-- Fornecedor -->
+      <div class="card">
+        <label><b>Fornecedor</b> <span class="muted">(Obrigatório)</span></label>
+        <div class="grid-3">
+          <div>
+            <label>Telefone</label>
+            <input id="for_tel" required placeholder="(DDD) 90000-0000"/>
+          </div>
+          <div>
+            <label>Nome</label>
+            <input id="for_nome" required placeholder="Nome do fornecedor"/>
+          </div>
+          <div>
+            <label>Cidade/UF</label>
+            <input id="for_loc" required placeholder="Maracanaú/CE"/>
+          </div>
+        </div>
+      </div>
 
-  <div id="overlay" class="overlay"><div class="bar"><span></span></div></div>
-  <div id="toast" class="toast"></div>
+      <!-- Fotos -->
+      <div class="card">
+        <label><b>Fotos</b> <span class="muted">(opcional – múltiplas)</span></label>
+        <input id="f_fotos" type="file" accept="image/*" multiple capture="environment"/>
+        <div class="muted" style="font-size:12px;margin-top:6px">
+          Você pode escolher várias e remover antes de enviar.
+        </div>
+      </div>
+    </div>
+
+    <!-- Itens -->
+    <div class="card" style="margin-top:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h3 style="margin:0">Itens</h3>
+        <button class="btn gray" type="button" onclick="addItem()">+ Item</button>
+      </div>
+      <table id="tbl">
+        <thead>
+          <tr>
+            <th style="width:28%">Tipo</th>
+            <th style="width:28%">Tamanho</th>
+            <th style="width:20%">Qtd</th>
+            <th class="right" style="width:24%">Ação</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div style="margin-top:8px"><b>Total:</b> <span id="total">0</span></div>
+    </div>
+
+    <div style="margin-top:14px">
+      <button class="btn" onclick="enviarRomaneio()">Enviar Romaneio</button>
+    </div>
+
+    <div id="result" style="margin-top:12px"></div>
+  </section>
+</main>
 
 <script>
-/* ====== CONFIG ====== */
-const API_BASE = "https://script.google.com/macros/s/AKfycbzahPVwksRN4y6WnYZ6sXfCWftB_YDiL2nfyTw0QPMelz_A_3GKmrtMV-4QysIhTu8R/exec";
+/* ============================================================
+   CONFIG
+============================================================ */
+const API_BASE = "https://script.google.com/macros/s/AKfycbwJwVO5VR138hBjVH07DkVqpmpz0-V7wh3FMTEjh7ey-tYaWWITKR37SJUvYxKSaEAB/exec";
 
-/* ====== helpers UI ====== */
-const $ = (s)=>document.querySelector(s);
-function setLoading(v){ $("#overlay").style.display = v ? "flex" : "none"; }
-function toast(msg, kind="ok"){ const t=$("#toast"); t.textContent=msg; t.className="toast "+kind; t.style.display="block"; setTimeout(()=>t.style.display="none", 3000); }
-function sess(){ try { return JSON.parse(localStorage.getItem("session"))||null; } catch(_) { return null; } }
-function urlWithPath(path){ const p = path.startsWith("/")?path:("/"+path); return API_BASE+"?path="+encodeURIComponent(p); }
-
-/* ====== guard de sessão (sem loop) ====== */
-(async function guard(){
-  const s = sess();
-  if(!s?.token){ location.replace("index.html"); return; }
-  setLoading(true);
-  let ok=false;
-  try{
-    const r = await fetch(urlWithPath("/whoami"), {
-      method:"POST",
-      headers:{ "Content-Type":"text/plain;charset=utf-8" },
-      body: JSON.stringify({ token: s.token }),
-      cache:"no-store"
-    }).then(x=>x.json());
-    ok = !!r?.session?.token;
-  }catch(_){}
-  setLoading(false);
-  if(!ok){
-    localStorage.removeItem("session");
-    location.replace("index.html");
-  }
-})();
-
-/* ====== navegação ====== */
-function showTab(id){
-  document.querySelectorAll(".tab").forEach(t=> t.style.display="none");
-  $("#"+id).style.display = "block";
+/* ============================================================
+   UX helpers: loading bar + toast
+============================================================ */
+const $ = s => document.querySelector(s);
+function barStart(){ $("#bar").style.width="30%"; setTimeout(()=>$("#bar").style.width="60%",150) }
+function barDone(){ $("#bar").style.width="100%"; setTimeout(()=>$("#bar").style.width="0%",250) }
+function toast(msg, type="ok"){
+  const t=$("#toast"); t.className=""; t.classList.add(type==="err"?"err":type==="warn"?"warn":"ok");
+  t.textContent = msg; t.style.display="block"; clearTimeout(toast._t);
+  toast._t=setTimeout(()=>t.style.display="none", 3500);
 }
 
-/* ====== Itens dinâmicos ====== */
-function addItemRow(){
-  const tb = $("#tblItens tbody");
-  const tr = document.createElement("tr");
-  tr.innerHTML = `
+/* ============================================================
+   Sessão/guard (sem loop)
+============================================================ */
+function getSession(){
+  try{ return JSON.parse(localStorage.getItem("session")||"null") }catch(_){ return null }
+}
+function requireLogin(){
+  const s=getSession();
+  if(!s || !s.token){
+    const next = encodeURIComponent(location.pathname.replace(/^.*\//,"") + location.search);
+    location.href = "index.html?next="+next;
+  }
+}
+requireLogin();
+
+/* ============================================================
+   API helper
+============================================================ */
+async function api(path, body={}){
+  const sess = getSession();
+  const url = API_BASE + "?path=" + encodeURIComponent(path);
+  barStart();
+  const res = await fetch(url,{
+    method:"POST",
+    headers:{"Content-Type":"text/plain;charset=utf-8"},
+    body: JSON.stringify({...body, token:sess?.token}),
+    cache:"no-store"
+  }).catch(e=>{
+    barDone(); throw new Error("NetworkError");
+  });
+  barDone();
+  if(!res.ok) throw new Error("HTTP "+res.status);
+  return res.json();
+}
+
+/* ============================================================
+   Itens
+============================================================ */
+function addItem(tipo="caixa", tam="p", qtd=1){
+  const tb=$("#tbl tbody");
+  const tr=document.createElement("tr");
+  tr.innerHTML=`
     <td>
-      <select class="tipo" style="padding:8px;width:120px">
-        <option value="caixa">Caixa</option>
-        <option value="saco">Saco</option>
+      <select class="tipo">
+        <option value="caixa"${tipo==="caixa"?" selected":""}>Caixa</option>
+        <option value="saco"${tipo==="saco"?" selected":""}>Saco</option>
       </select>
     </td>
     <td>
-      <select class="tam" style="padding:8px;width:90px">
-        <option value="p">P</option>
-        <option value="m">M</option>
-        <option value="g">G</option>
+      <select class="tam">
+        <option value="p"${tam==="p"?" selected":""}>P</option>
+        <option value="m"${tam==="m"?" selected":""}>M</option>
+        <option value="g"${tam==="g"?" selected":""}>G</option>
       </select>
     </td>
-    <td>
-      <input type="number" min="0" class="qtd" value="1" style="padding:8px;width:100px">
-    </td>
+    <td><input type="number" class="qtd" min="0" value="${qtd}"></td>
     <td class="right">
-      <button class="btn btn-sm" type="button" onclick="this.closest('tr').remove(); calcTotal()">Remover</button>
+      <button class="btn red" type="button" onclick="this.closest('tr').remove(); calcTotal()">Remover</button>
     </td>`;
   tb.appendChild(tr);
+  tr.querySelector(".qtd").addEventListener("input", calcTotal);
   calcTotal();
 }
 function calcTotal(){
-  let tot=0;
-  document.querySelectorAll("#tblItens .qtd").forEach(i=> tot += Number(i.value||0));
-  $("#rom_total").textContent = tot;
+  let t=0;
+  document.querySelectorAll(".qtd").forEach(i=> t+= Number(i.value||0));
+  $("#total").textContent=t;
 }
-document.addEventListener("input", (e)=>{ if (e.target.classList.contains("qtd")) calcTotal(); });
-document.addEventListener("DOMContentLoaded", ()=> addItemRow());
+function resetItens(){
+  $("#tbl tbody").innerHTML="";
+  addItem();
+}
 
-/* ====== fotos para base64 ====== */
-function filesToBase64(input){
-  const files = Array.from(input.files||[]);
-  return Promise.all(files.map(f => new Promise(res=>{
+/* ============================================================
+   Fotos -> base64
+============================================================ */
+function filesToBase64(){
+  const input=$("#f_fotos");
+  const files=[... (input.files||[])];
+  return Promise.all(files.map(f=> new Promise(res=>{
     const r=new FileReader();
-    r.onload=()=>res({ name:f.name, data:r.result });
+    r.onload=()=>res({name:f.name, data:r.result});
     r.readAsDataURL(f);
   })));
 }
 
-/* ====== enviar romaneio ====== */
-async function enviarRomaneio(){
-  const s = sess();
-  if(!s?.token){ toast("Sessão expirada. Faça login.", "err"); location.replace("index.html"); return; }
+/* ============================================================
+   Enviar Romaneio
+============================================================ */
+function normPhone(v){ return String(v||"").replace(/\D/g,"").replace(/^55/,"") }
 
+function formOk(){
+  // obrigatórios
+  const req = ["f_rom","f_data","cli_tel","cli_nome","cli_loc","for_tel","for_nome","for_loc"];
+  for(const id of req){
+    const el = $("#"+id);
+    if(!el || !el.value){ el.focus(); toast("Preencha todos os campos obrigatórios.","warn"); return false }
+  }
+  const temItem = [...document.querySelectorAll("#tbl tbody tr")].some(tr => Number(tr.querySelector(".qtd").value||0)>0);
+  if(!temItem){ toast("Adicione ao menos 1 item com quantidade > 0.","warn"); return false }
+  return true;
+}
+
+async function enviarRomaneio(){
   try{
-    const itens = Array.from(document.querySelectorAll("#tblItens tbody tr")).map(tr=>({
+    if(!formOk()) return;
+
+    const itens = [...document.querySelectorAll("#tbl tbody tr")].map(tr=>({
       tipo: tr.querySelector(".tipo").value,
       tamanho: tr.querySelector(".tam").value,
       qtd: Number(tr.querySelector(".qtd").value||0)
     })).filter(i=>i.qtd>0);
 
-    const fotos = await filesToBase64($("#rom_fotos"));
+    const fotos = await filesToBase64();
 
     const body = {
-      rom: $("#rom_rom").value,
-      data: $("#rom_data").value,
-      obs : $("#rom_obs").value,
-      cliente: { tel: $("#cli_tel").value, nome: $("#cli_nome").value, local: $("#cli_loc").value },
-      fornecedor: { tel: $("#for_tel").value, nome: $("#for_nome").value, local: $("#for_loc").value },
-      itens, fotos,
-      token: s.token
+      rom: $("#f_rom").value,
+      data: $("#f_data").value,
+      obs : $("#f_obs").value,
+      cliente: {
+        tel: normPhone($("#cli_tel").value),
+        nome: $("#cli_nome").value,
+        local: $("#cli_loc").value
+      },
+      fornecedor: {
+        tel: normPhone($("#for_tel").value),
+        nome: $("#for_nome").value,
+        local: $("#for_loc").value
+      },
+      itens, fotos
     };
 
-    setLoading(true);
-    const res = await fetch(urlWithPath("/rom/create"), {
-      method:"POST",
-      headers:{ "Content-Type":"text/plain;charset=utf-8" },
-      body: JSON.stringify(body),
-      cache:"no-store"
-    });
-    setLoading(false);
+    $("#result").innerHTML = "";
+    toast("Enviando…");
+    const r = await api("/rom/create", body);
+    if(r.error) throw new Error(r.error);
 
-    if(!res.ok){ toast("Falha (HTTP "+res.status+").", "err"); return; }
-    const r = await res.json();
-    if (r.error){ toast(r.error, "err"); return; }
+    // sucesso
+    $("#result").innerHTML = `
+      <div class="card" style="margin-top:10px">
+        <div><b>Romaneio criado!</b></div>
+        <div>Código: <b>${r.cod ?? "-"}</b></div>
+        ${r.pdfUrl ? `<div><a href="${r.pdfUrl}" target="_blank">Abrir PDF</a></div>` : ``}
+        ${r.whatsappUrl ? `<div><a href="${r.whatsappUrl}" target="_blank">WhatsApp do cliente</a></div>` : ``}
+      </div>`;
+    toast("Romaneio enviado com sucesso!","ok");
 
-    $("#rom_result").innerHTML = `
-      <div><b>Romaneio criado!</b></div>
-      <div>Código: <b>${r.cod}</b></div>
-      <div><a href="${r.pdfUrl}" target="_blank">Abrir PDF</a></div>
-      <div><a href="${r.whatsappUrl}" target="_blank">WhatsApp do cliente</a></div>`;
-    toast("Enviado com sucesso.", "ok");
+    // reset do form
+    resetForm();
+
   }catch(err){
-    setLoading(false);
-    toast("Erro: "+(err?.message||err), "err");
+    console.error(err);
+    toast(err.message || "Erro ao enviar","err");
+    $("#result").innerHTML = `<div class="card" style="margin-top:10px;color:#fecaca;border-color:#4c1d1d">Erro: ${err.message||String(err)}</div>`;
   }
 }
 
-/* ====== sair ====== */
+/* ============================================================
+   Reset do formulário após sucesso
+============================================================ */
+function resetForm(){
+  $("#f_rom").value="";
+  $("#f_data").value = new Date().toISOString().slice(0,10);
+  $("#f_obs").value="";
+  $("#cli_tel").value=""; $("#cli_nome").value=""; $("#cli_loc").value="";
+  $("#for_tel").value=""; $("#for_nome").value=""; $("#for_loc").value="";
+  $("#f_fotos").value="";
+  resetItens();
+}
+
+/* ============================================================
+   Navegação
+============================================================ */
+function go(tab){
+  toast("Seções ‘Clientes’, ‘Romaneios’ e ‘Financeiro’ chegam nas próximas etapas.","warn");
+}
+
+/* ============================================================
+   Logout
+============================================================ */
 function logout(){
   localStorage.removeItem("session");
-  location.replace("index.html");
+  location.href="index.html";
 }
+
+/* ============================================================
+   Init
+============================================================ */
+document.addEventListener("DOMContentLoaded", ()=>{
+  // data de hoje
+  $("#f_data").value = new Date().toISOString().slice(0,10);
+  resetItens();            // começa com 1 linha
+});
 </script>
 </body>
 </html>
