@@ -14,7 +14,7 @@
   <script>
     document.documentElement.style.visibility = 'hidden';
     (async () => {
-      const API_BASE = "SUA_URL_DO_EXEC_AQUI"; // ← MESMO /exec do index.html
+      const API_BASE = "https://script.google.com/macros/s/AKfycbwJwVO5VR138hBjVH07DkVqpmpz0-V7wh3FMTEjh7ey-tYaWWITKR37SJUvYxKSaEAB/exec"; // ← MESMO /exec do index.html
       const sess = JSON.parse(localStorage.getItem("session") || "null");
       if (!sess || !sess.token) {
         localStorage.removeItem("session");
@@ -233,7 +233,7 @@
 
   <script>
     // ========= CONFIG =========
-    const API_BASE = "SUA_URL_DO_EXEC_AQUI"; // MESMO /exec do index.html
+    const API_BASE = "https://script.google.com/macros/s/AKfycbwJwVO5VR138hBjVH07DkVqpmpz0-V7wh3FMTEjh7ey-tYaWWITKR37SJUvYxKSaEAB/exec"; // MESMO /exec do index.html
     const $ = sel => document.querySelector(sel);
 
     function showTab(id){
