@@ -148,7 +148,6 @@
       </div>
     </section>
 
-    <!-- tabs “Romaneios” e “Clientes” (placeholders simples por enquanto) -->
     <section id="rom-lista" class="tab" style="display:none">
       <h2>Romaneios</h2>
       <div class="card muted">Lista em breve.</div>
@@ -160,7 +159,6 @@
     </section>
   </main>
 
-  <!-- overlay + toast -->
   <div id="overlay" class="overlay"><div class="bar"><span></span></div></div>
   <div id="toast" class="toast"></div>
 
@@ -173,6 +171,7 @@ const $ = (s)=>document.querySelector(s);
 function setLoading(v){ $("#overlay").style.display = v ? "flex" : "none"; }
 function toast(msg, kind="ok"){ const t=$("#toast"); t.textContent=msg; t.className="toast "+kind; t.style.display="block"; setTimeout(()=>t.style.display="none", 3000); }
 function sess(){ try { return JSON.parse(localStorage.getItem("session"))||null; } catch(_) { return null; } }
+function urlWithPath(path){ const p = path.startsWith("/")?path:("/"+path); return API_BASE+"?path="+encodeURIComponent(p); }
 
 /* ====== guard de sessão (sem loop) ====== */
 (async function guard(){
@@ -181,7 +180,7 @@ function sess(){ try { return JSON.parse(localStorage.getItem("session"))||null;
   setLoading(true);
   let ok=false;
   try{
-    const r = await fetch(API_BASE+"?path=whoami", {
+    const r = await fetch(urlWithPath("/whoami"), {
       method:"POST",
       headers:{ "Content-Type":"text/plain;charset=utf-8" },
       body: JSON.stringify({ token: s.token }),
@@ -196,7 +195,7 @@ function sess(){ try { return JSON.parse(localStorage.getItem("session"))||null;
   }
 })();
 
-/* ====== navegação básica ====== */
+/* ====== navegação ====== */
 function showTab(id){
   document.querySelectorAll(".tab").forEach(t=> t.style.display="none");
   $("#"+id).style.display = "block";
@@ -272,7 +271,7 @@ async function enviarRomaneio(){
     };
 
     setLoading(true);
-    const res = await fetch(API_BASE+"?path=rom/create", {
+    const res = await fetch(urlWithPath("/rom/create"), {
       method:"POST",
       headers:{ "Content-Type":"text/plain;charset=utf-8" },
       body: JSON.stringify(body),
