@@ -8,133 +8,131 @@
   <link rel="icon" href="icon-192.png" />
   <style>
     :root{
-      --bg:#0d1117; --panel:#0f172a; --muted:#95a0b4; --text:#e6edf3;
+      --bg:#0b1220; --panel:#0f172a; --muted:#98a2b3; --text:#e6edf3;
       --primary:#2563eb; --primary-2:#1d4ed8; --border:#1f2a44;
-      --ok:#16a34a; --warn:#f59e0b; --danger:#ef4444;
+      --ok:#16a34a; --err:#dc2626;
     }
     *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;background:var(--bg);color:var(--text);
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif;
-      display:flex;align-items:center;justify-content:center;
-      padding:16px
-    }
-    .card{
-      width:100%;max-width:420px;background:#0b0f1a;border:1px solid var(--border);
-      border-radius:14px;padding:20px 18px 16px
-    }
-    h1{margin:0 0 14px;font-size:20px}
-    label{font-size:12px;color:var(--muted);display:block;margin:10px 0 6px}
-    input{
-      width:100%;padding:12px;background:#0b1220;border:1px solid var(--border);
-      border-radius:10px;color:var(--text);outline:none
-    }
-    .btn{
-      width:100%;margin-top:14px;padding:12px;background:var(--primary);
-      border:0;border-radius:10px;color:#fff;font-weight:700;cursor:pointer
-    }
-    .btn[disabled]{opacity:.7;cursor:not-allowed}
-    .hint{margin-top:10px;font-size:12px;color:var(--muted);line-height:1.4}
-    .status{margin-top:10px;font-size:13px}
-    .status.ok{color:#86efac}
-    .status.err{color:#fecaca}
-    .topbar{position:fixed;top:0;left:0;height:3px;width:0%;
-      background:linear-gradient(90deg,var(--primary),#60a5fa);
-      transition:width .25s ease;z-index:5}
-    .small{margin-top:16px;text-align:center;color:#677189;font-size:12px}
+    body{margin:0;min-height:100dvh;background:radial-gradient(1200px 600px at 20% -10%,rgba(37,99,235,.18),transparent 60%),var(--bg);color:var(--text);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif;display:grid;place-items:center}
+    .card{width:min(560px,92vw);background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:22px 22px 18px}
+    h1{margin:.3rem 0 1rem;font-size:20px}
+    label{font-size:12px;color:var(--muted);display:block;margin:.25rem 0 .4rem}
+    input{width:100%;background:#0b1220;border:1px solid var(--border);color:var(--text);border-radius:10px;padding:12px 12px}
+    .row{margin:.65rem 0}
+    .btn{width:100%;padding:.75rem 1rem;background:var(--primary);border:0;border-radius:10px;color:#fff;font-weight:800;cursor:pointer}
+    .btn:hover{background:var(--primary-2)}
+    .muted{color:var(--muted);font-size:12px;margin-top:.75rem}
+    .brand{display:flex;gap:8px;align-items:center;margin-bottom:.25rem}
+    .brand b{font-size:18px}
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);backdrop-filter:saturate(120%) blur(2px);display:none;align-items:center;justify-content:center;z-index:50}
+    .bar{width:200px;height:8px;background:#0b1220;border:1px solid var(--border);border-radius:999px;overflow:hidden}
+    .bar>span{display:block;height:100%;width:0;background:linear-gradient(90deg,#2563eb,#60a5fa);animation:load 1.2s infinite}
+    @keyframes load{0%{width:0}50%{width:90%}100%{width:0;transform:translateX(100%)}}
+    .toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
+      background:#0b1220;border:1px solid var(--border);padding:10px 14px;border-radius:10px;display:none;z-index:60}
+    .toast.ok{border-color:rgba(22,163,74,.5)}
+    .toast.err{border-color:rgba(220,38,38,.5)}
+    .ver{margin-top:22px;text-align:center;color:var(--muted);font-size:12px}
   </style>
 </head>
 <body>
-  <div id="topbar" class="topbar"></div>
+  <div class="card">
+    <div class="brand">🚚 <b>Romaneio</b></div>
+    <h1>Acesso</h1>
 
-  <main class="card">
-    <h1>🔐 Acesso</h1>
-
-    <label for="user">Usuário</label>
-    <input id="user" autocomplete="username" placeholder="admin" />
-
-    <label for="pass">Senha</label>
-    <input id="pass" type="password" autocomplete="current-password" placeholder="••••••" />
-
-    <button id="btn" class="btn">Entrar</button>
-
-    <div id="status" class="status"></div>
-
-    <div class="hint">
-      Admin cria/gerencia usuários via planilha. Precisa de acesso? Fale com o responsável.
+    <div class="row">
+      <label>Usuário</label>
+      <input id="user" placeholder="admin" autocomplete="username"/>
+    </div>
+    <div class="row">
+      <label>Senha</label>
+      <input id="pass" type="password" placeholder="••••••" autocomplete="current-password"/>
+    </div>
+    <div class="row">
+      <button class="btn" id="btnLogin">Entrar</button>
     </div>
 
-    <div class="small">v1 • PWA (instalável)</div>
-  </main>
+    <div class="muted">
+      Admin cria/gerencia usuários via planilha. Precisa de acesso? Fale com o responsável.
+    </div>
+    <div class="ver">v1 • PWA (instalável)</div>
+  </div>
 
-  <script>
-    // ======== CONFIG ========
-    const API_BASE = "https://script.google.com/macros/s/AKfycbwJwVO5VR138hBjVH07DkVqpmpz0-V7wh3FMTEjh7ey-tYaWWITKR37SJUvYxKSaEAB/exec";
-    const $ = (s)=>document.querySelector(s);
-    const top = $('#topbar'), btn = $('#btn'), st = $('#status');
+  <div id="overlay" class="overlay"><div class="bar"><span></span></div></div>
+  <div id="toast" class="toast"></div>
 
-    function barStart(){ top.style.width='0%'; setTimeout(()=> top.style.width='65%', 0); }
-    function barEnd(){ top.style.width='100%'; setTimeout(()=> top.style.width='0%', 300); }
-    function setStatus(msg, type=''){ st.className='status '+(type||''); st.textContent=msg||''; }
-    function saveSession(sess){ localStorage.setItem('session', JSON.stringify(sess)); }
-    function disableForm(dis){ btn.disabled=dis; btn.textContent = dis ? 'Carregando…' : 'Entrar'; }
-    function timeout(ms){ return new Promise((_,rej)=> setTimeout(()=> rej(new Error('Tempo esgotado')), ms)); }
+<script>
+/* ====== CONFIG ====== */
+const API_BASE = "https://script.google.com/macros/s/AKfycbwJwVO5VR138hBjVH07DkVqpmpz0-V7wh3FMTEjh7ey-tYaWWITKR37SJUvYxKSaEAB/exec";
 
-    async function login(){
-      const usuario = $('#user').value.trim();
-      const senha   = $('#pass').value.trim();
-      if(!usuario || !senha){ setStatus('Informe usuário e senha.', 'err'); return; }
+/* ====== UI helpers ====== */
+const $ = (s)=>document.querySelector(s);
+function setLoading(v){ $("#overlay").style.display = v ? "flex" : "none"; }
+function toast(msg, kind="ok"){ const t=$("#toast"); t.textContent=msg; t.className="toast "+kind; t.style.display="block"; setTimeout(()=>t.style.display="none", 3200); }
 
-      setStatus(''); disableForm(true); barStart();
-      try{
-        const res = await Promise.race([
-          fetch(API_BASE + "?path=login", {
-            method:"POST",
-            headers:{"Content-Type":"text/plain;charset=utf-8"},
-            body: JSON.stringify({ usuario, senha }),
-            cache:"no-store"
-          }),
-          timeout(15000)
-        ]);
-        if(!res.ok) throw new Error('HTTP '+res.status);
-        const data = await res.json();
-
-        if(data.error){
-          if (data.error.includes('inativo')) throw new Error('Usuário inativo. Fale com o responsável.');
-          if (data.error.includes('Usuário/senha')) throw new Error('Preencha usuário e senha.');
-          if (data.error.includes('Credenciais')) throw new Error('Credenciais inválidas. Verifique usuário/senha.');
-          throw new Error(data.error);
-        }
-        if(!data.session?.token) throw new Error('Resposta inválida da API.');
-
-        saveSession(data.session);
-        setStatus('Login concluído! Redirecionando…', 'ok');
-        location.replace('app.html');
-      }catch(err){
-        if(!navigator.onLine) setStatus('Sem conexão com a internet.', 'err');
-        else setStatus(err.message || 'Falha ao entrar.', 'err');
-      }finally{
-        disableForm(false); barEnd();
-      }
+/* ====== já tem sessão? valida e redireciona ====== */
+(async function autoRedirectIfSession(){
+  try{
+    const s = JSON.parse(localStorage.getItem("session")||"null");
+    if (!s?.token) return; // nada a fazer
+    setLoading(true);
+    const r = await fetch(API_BASE+"?path=whoami", {
+      method:"POST",
+      headers:{ "Content-Type":"text/plain;charset=utf-8" },
+      body: JSON.stringify({ token: s.token }),
+      cache: "no-store"
+    }).then(x=>x.json()).catch(()=>null);
+    setLoading(false);
+    if (r?.session?.token) {
+      location.replace("app.html");
+    } else {
+      localStorage.removeItem("session");
     }
+  } catch(_){ setLoading(false); }
+})();
 
-    btn.addEventListener('click', login);
-    document.addEventListener('keydown', e=>{ if(e.key==='Enter') login(); });
-    $('#user').focus();
+/* ====== login ====== */
+async function doLogin(){
+  const usuario = $("#user").value.trim();
+  const senha   = $("#pass").value.trim();
+  if(!usuario || !senha){ toast("Preencha usuário e senha.", "err"); return; }
 
-    // Já logado? tenta whoami e pula pro app
-    (async ()=>{
-      const sess = JSON.parse(localStorage.getItem('session')||'null');
-      if(!sess?.token) return;
-      try{
-        const r = await fetch(API_BASE+"?path=whoami", {
-          method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"},
-          body: JSON.stringify({ token: sess.token }), cache:"no-store"
-        }).then(x=>x.json());
-        if(r?.session?.token) location.replace('app.html');
-      }catch(_){}
-    })();
-  </script>
+  setLoading(true);
+  let res;
+  try{
+    res = await fetch(API_BASE+"?path=login", {
+      method:"POST",
+      headers:{ "Content-Type":"text/plain;charset=utf-8" },
+      body: JSON.stringify({ usuario, senha }),
+      cache:"no-store"
+    });
+  }catch(err){
+    setLoading(false);
+    toast("Sem conexão com a API. Verifique sua internet.", "err");
+    return;
+  }
+  setLoading(false);
+
+  if (!res.ok){ toast("Falha (HTTP "+res.status+").", "err"); return; }
+
+  let json = {};
+  try{ json = await res.json(); }catch(_){}
+  if (json.error){
+    if (/inativo/i.test(json.error)) toast("Usuário inativo.", "err");
+    else if (/credenciais/i.test(json.error)) toast("Credenciais inválidas.", "err");
+    else toast(json.error, "err");
+    return;
+  }
+  if (!json.session?.token){ toast("Resposta inesperada da API.", "err"); return; }
+
+  localStorage.setItem("session", JSON.stringify(json.session));
+  toast("Login concluído. Redirecionando…", "ok");
+  setTimeout(()=> location.replace("app.html"), 600);
+}
+
+$("#btnLogin").addEventListener("click", doLogin);
+document.addEventListener("keydown", (e)=>{ if(e.key==="Enter") doLogin(); });
+</script>
 </body>
 </html>
