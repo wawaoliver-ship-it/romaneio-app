@@ -1,369 +1,507 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Romaneio • Painel</title>
-<meta name="theme-color" content="#0d1117"/>
-<link rel="icon" href="icon-192.png"/>
-<style>
-:root{
-  --bg:#0d1117;--panel:#0f172a;--muted:#8a94a6;--text:#e6edf3;
-  --primary:#2563eb;--border:#1f2a44;--danger:#ef4444;--ok:#22c55e;
-}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif}
-header{padding:.75rem;background:#0b0f1a;border-bottom:1px solid var(--border);
-  display:flex;justify-content:space-between;align-items:center}
-header .title{font-weight:600}
-nav a{margin-left:14px;color:var(--muted);text-decoration:none;font-weight:500}
-nav a[hidden]{display:none}
-nav a.active{color:#fff}
-nav a:hover{color:var(--primary)}
-.wrap{max-width:1100px;margin:0 auto;padding:16px}
-h2{margin:8px 0 12px;border-bottom:1px solid var(--border);padding-bottom:6px}
-.card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px}
-.row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-.row-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.row-1{display:grid;grid-template-columns:1fr;gap:12px}
-label{font-size:12px;opacity:.8;display:block;margin-bottom:4px}
-input,select,textarea{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:#0b1324;color:var(--text)}
-table{width:100%;border-collapse:collapse;margin-top:10px}
-th,td{padding:.6rem .75rem;border-bottom:1px solid var(--border);text-align:left}
-th{background:#111827}
-.btn{padding:.55rem 1rem;background:var(--primary);border:0;border-radius:8px;color:#fff;cursor:pointer;font-weight:600}
-.btn:hover{filter:brightness(1.05)}
-.btn.sm{padding:.4rem .7rem;font-size:.9rem}
-.btn.gray{background:#1f2937}
-.btn.danger{background:var(--danger)}
-.badge{display:inline-block;padding:.2rem .5rem;border-radius:999px;font-size:.75rem;border:1px solid var(--border);color:#9fb4ff}
-.alert{position:fixed;left:50%;bottom:10px;transform:translateX(-50%);
-  background:#111827;border:1px solid var(--border);padding:.6rem 1rem;border-radius:8px}
-.alert.ok{border-color:#124b2e;color:#8ff0b7}
-.alert.err{border-color:#4b1212;color:#ff9a9a}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center}
-.modal .box{width:min(720px,92vw);background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px}
-.chk-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-hr.sep{border:none;border-top:1px solid var(--border);margin:8px 0 12px}
-</style>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Romaneio • Painel</title>
+  <meta name="theme-color" content="#0d1117"/>
+  <link rel="icon" href="icon-192.png"/>
+
+  <style>
+    :root{
+      --bg:#0d1117;--panel:#0f172a;--muted:#9aa5b1;--text:#e6edf3;
+      --primary:#2563eb;--border:#1f2a44;--danger:#ef4444;--ok:#22c55e;
+      --chip:#0b1223;
+    }
+    /* layout base */
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif}
+    header{padding:.75rem 1rem;background:#0b0f1a;border-bottom:1px solid var(--border);
+      display:flex;align-items:center;gap:14px}
+    .brand{font-weight:700}
+    nav{margin-left:auto;display:flex;gap:16px}
+    nav a{color:var(--muted);text-decoration:none;font-weight:600}
+    nav a.active,nav a:hover{color:#fff}
+    .wrap{max-width:1100px;margin:0 auto;padding:18px}
+    h2{margin:18px 0 10px;border-bottom:1px solid var(--border);padding-bottom:6px}
+    section.tab{display:none}
+    .card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px}
+    .grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+    .grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    label{font-size:12px;color:var(--muted);display:block;margin-bottom:4px}
+    input,select,textarea{width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);
+      background:#0b1223;color:#e6edf3;outline:none}
+    textarea{resize:vertical}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:.65rem .75rem;border-bottom:1px solid var(--border);text-align:left}
+    th{background:#0b1223;color:#cbd5e1}
+    .btn{padding:.55rem 1rem;border:0;border-radius:8px;font-weight:700;cursor:pointer}
+    .btn-primary{background:var(--primary);color:#fff}
+    .btn-muted{background:#122036;color:#cbd5e1}
+    .btn-danger{background:var(--danger);color:#fff}
+    .chip{background:var(--chip);border:1px solid var(--border);padding:.35rem .6rem;border-radius:999px;font-size:12px}
+    .row{display:flex;gap:8px;align-items:center}
+    .right{margin-left:auto}
+    /* top loader */
+    #loader{position:fixed;left:0;top:0;height:3px;background:var(--primary);width:0%;z-index:9999;transition:width .25s ease}
+    /* toast */
+    #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:12px;background:#111827;color:#e5e7eb;
+      border:1px solid var(--border);padding:.6rem .9rem;border-radius:8px;display:none;z-index:9999}
+    #toast.ok{border-color:#14532d;background:#052e16;color:#a7f3d0}
+    #toast.err{border-color:#7f1d1d;background:#2a0c0c;color:#fecaca}
+    /* empty state */
+    .empty{padding:30px;text-align:center;color:var(--muted)}
+    /* small */
+    @media (max-width:900px){.grid-3{grid-template-columns:1fr}}
+  </style>
 </head>
 <body>
-<header>
-  <div class="title">🚚 Romaneio</div>
-  <nav>
-    <a id="nav-send" href="#send">Enviar Romaneio</a>
-    <a id="nav-roms" href="#roms">Romaneios</a>
-    <a id="nav-clients" href="#clients">Clientes</a>
-    <a id="nav-fin" href="#fin">Financeiro</a>
-    <a id="nav-users" href="#users">Usuários</a>
-    <a href="#" onclick="logout()">Sair</a>
-  </nav>
-</header>
 
-<main class="wrap">
+  <!-- loader + toast -->
+  <div id="loader"></div>
+  <div id="toast"></div>
 
-  <!-- Enviar Romaneio (sua tela já conhecida; resumida aqui para exemplo) -->
-  <section id="tab-send" class="card" hidden>
-    <h2>Enviar Romaneio</h2>
-    <div class="row">
-      <div><label>ROM</label><input id="rom_rom" type="number" placeholder="Ex: 21"></div>
-      <div><label>Data</label><input id="rom_data" type="date"></div>
-      <div><label>Observações</label><input id="rom_obs" placeholder="Ex.: Agendar com o cliente"></div>
-    </div>
-    <h3>Cliente</h3>
-    <div class="row">
-      <div><label>Telefone</label><input id="cli_tel" placeholder="(DDD) 90000-0000"></div>
-      <div><label>Nome</label><input id="cli_nome" placeholder="Nome do cliente"></div>
-      <div><label>Cidade/UF</label><input id="cli_loc" placeholder="Fortaleza/CE"></div>
-    </div>
-    <h3>Fornecedor <span class="badge">Opcional</span></h3>
-    <div class="row">
-      <div><label>Telefone</label><input id="for_tel" placeholder="(DDD) 90000-0000"></div>
-      <div><label>Nome</label><input id="for_nome" placeholder="Nome do fornecedor"></div>
-      <div><label>Cidade/UF</label><input id="for_loc" placeholder="Cidade-UF"></div>
-    </div>
-    <h3>Itens</h3>
-    <table id="tblItens"><thead><tr><th>Tipo</th><th>Tamanho</th><th>Qtd</th><th>Ação</th></tr></thead><tbody></tbody></table>
-    <div style="margin:8px 0">
-      <button class="btn sm gray" onclick="addItemRow()">+ Item</button>
-      &nbsp; Total: <b id="rom_total">0</b>
-    </div>
-    <h3>Fotos</h3>
-    <input id="rom_fotos" type="file" accept="image/*" multiple capture="environment">
-    <hr class="sep"/>
-    <button class="btn" onclick="enviarRomaneio()">Enviar Romaneio</button>
-    <div id="rom_result" style="margin-top:10px"></div>
-  </section>
+  <header>
+    <div class="brand">🚚 Romaneio</div>
+    <nav id="menu">
+      <a href="#rom" data-tab="rom">Enviar Romaneio</a>
+      <a href="#romaneios" data-tab="romaneios">Romaneios</a>
+      <a href="#clientes" data-tab="clientes">Clientes</a>
+      <a href="#financeiro" data-tab="financeiro">Financeiro</a>
+      <a href="#users" data-tab="users">Usuários</a>
+      <a href="#" id="btnSair">Sair</a>
+    </nav>
+  </header>
 
-  <!-- Usuários -->
-  <section id="tab-users" class="card" hidden>
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <h2>Usuários</h2>
-      <button class="btn" onclick="openUserModal()">+ Novo usuário</button>
-    </div>
-    <table id="tblUsers">
-      <thead><tr><th>Usuário</th><th>Nome</th><th>Ativo</th><th>Permissões</th><th style="width:160px">Ações</th></tr></thead>
-      <tbody></tbody>
-    </table>
-  </section>
+  <main class="wrap">
 
-  <!-- (demais abas, se quiser, você adiciona depois) -->
+    <!-- ROM (form) -->
+    <section id="tab-rom" class="tab">
+      <h2>Enviar Romaneio</h2>
+      <div class="card">
+        <div class="grid-3">
+          <div><label>ROM</label><input id="rom_rom" type="number" placeholder="Ex: 21"></div>
+          <div><label>Data</label><input id="rom_data" type="date"></div>
+          <div><label>Observações</label><textarea id="rom_obs" rows="2" placeholder="Ex.: Agendar com o cliente"></textarea></div>
+        </div>
 
-</main>
+        <h3 style="margin-top:16px">Cliente</h3>
+        <div class="grid-3">
+          <div><label>Telefone</label><input id="cli_tel" placeholder="(DDD) 90000-0000"></div>
+          <div><label>Nome</label><input id="cli_nome" placeholder="Nome do cliente"></div>
+          <div><label>Cidade/UF</label><input id="cli_loc" placeholder="Fortaleza/CE"></div>
+        </div>
 
-<!-- Modal usuário -->
-<div class="modal" id="userModal">
-  <div class="box">
-    <h3 id="umTitle">Novo usuário</h3>
-    <div class="row-2">
-      <div><label>Usuário (login)</label><input id="um_usuario" placeholder="ex.: joao"/></div>
-      <div><label>Nome</label><input id="um_nome" placeholder="João Silva"/></div>
-    </div>
-    <div class="row-2" style="margin-top:8px">
-      <div><label>Nova senha</label><input id="um_pwd1" type="password" placeholder="••••••"/></div>
-      <div><label>Repita a senha</label><input id="um_pwd2" type="password" placeholder="••••••"/></div>
-    </div>
-    <div style="margin-top:8px">
-      <label><input type="checkbox" id="um_ativo" checked/> Ativo</label>
-    </div>
-    <hr class="sep"/>
-    <div>
-      <label>Permissões</label>
-      <div class="chk-grid" id="um_perms">
-        <label><input type="checkbox" value="rom:send"> Enviar romaneio</label>
-        <label><input type="checkbox" value="rom:view"> Ver romaneios</label>
-        <label><input type="checkbox" value="clients:view"> Ver clientes</label>
-        <label><input type="checkbox" value="finance:view"> Ver financeiro</label>
-        <label><input type="checkbox" value="users:view"> Ver usuários</label>
-        <label><input type="checkbox" value="users:edit"> Editar usuários</label>
+        <div class="row" style="margin:6px 0 10px">
+          <button class="btn btn-muted" id="btnFillCli">Preencher pelo telefone</button>
+          <span class="chip">Fornecedor <b>Opcional</b></span>
+        </div>
+
+        <div class="grid-3">
+          <div><label>Telefone</label><input id="for_tel" placeholder="(DDD) 90000-0000"></div>
+          <div><label>Nome</label><input id="for_nome" placeholder="Nome do fornecedor"></div>
+          <div><label>Cidade/UF</label><input id="for_loc" placeholder="Maracanaú/CE"></div>
+        </div>
+
+        <h3 style="margin-top:16px">Itens</h3>
+        <div class="row" style="margin-bottom:6px">
+          <button class="btn btn-muted" id="btnAddItem">+ Item</button>
+          <div class="right"><b>Total: <span id="rom_total">0</span></b></div>
+        </div>
+        <table id="tblItens">
+          <thead><tr><th>Tipo</th><th>Tamanho</th><th>Qtd</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+
+        <h3 style="margin-top:16px">Fotos</h3>
+        <input id="rom_fotos" type="file" accept="image/*" multiple capture="environment">
+        <div style="margin:6px 0 12px;color:var(--muted);font-size:12px">Você pode escolher várias e remover antes de enviar.</div>
+
+        <div class="row">
+          <button id="btnEnviarRom" class="btn btn-primary">Enviar Romaneio</button>
+        </div>
+
+        <div id="rom_result" style="margin-top:12px"></div>
       </div>
-    </div>
-    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
-      <button class="btn gray" onclick="closeUserModal()">Cancelar</button>
-      <button class="btn" onclick="saveUser()">Salvar</button>
-    </div>
-  </div>
-</div>
+    </section>
 
-<div id="toast" class="alert" style="display:none"></div>
+    <!-- Romaneios -->
+    <section id="tab-romaneios" class="tab">
+      <h2>Romaneios</h2>
+      <div class="card">
+        <div class="row"><button id="btnLoadRom" class="btn btn-muted">🔄 Atualizar</button></div>
+        <div id="listRom" class="empty">Sem registros por enquanto.</div>
+      </div>
+    </section>
 
-<script>
-// ======= CONFIG – TROQUE AQUI! =======
-const API_BASE = "https://script.google.com/macros/s/AKfycbzahPVwksRN4y6WnYZ6sXfCWftB_YDiL2nfyTw0QPMelz_A_3GKmrtMV-4QysIhTu8R/exec";
+    <!-- Clientes -->
+    <section id="tab-clientes" class="tab">
+      <h2>Clientes</h2>
+      <div class="card">
+        <div class="row"><button id="btnLoadCli" class="btn btn-muted">🔄 Atualizar</button></div>
+        <div id="listCli" class="empty">Sem registros por enquanto.</div>
+      </div>
+    </section>
 
-// ======= helpers UI =======
-const $ = sel => document.querySelector(sel);
-function toast(msg, type="ok"){ const el=$("#toast"); el.textContent=msg; el.className="alert "+(type==="ok"?"ok":"err"); el.style.display="block"; setTimeout(()=>el.style.display="none", 3000); }
-function showTab(id){
-  document.querySelectorAll("main > section").forEach(s=>s.hidden=true);
-  const section = $("#tab-"+id);
-  if (section) section.hidden=false;
-  document.querySelectorAll("nav a").forEach(a=>a.classList.remove("active"));
-  const nav = document.querySelector(`nav a[href="#${id}"]`);
-  if (nav) nav.classList.add("active");
-  history.replaceState({}, "", "#"+id);
-}
-function guardTabsByPerms(perms){
-  const can = p => (perms.includes("*") || perms.includes(p));
-  $("#nav-send").hidden   = !(can("rom:send"));
-  $("#nav-roms").hidden   = !(can("rom:view") || can("rom:send"));
-  $("#nav-clients").hidden= !(can("clients:view"));
-  $("#nav-fin").hidden    = !(can("finance:view"));
-  $("#nav-users").hidden  = !(can("users:view"));
-  // Se hash atual não for permitido, manda para a primeira permitida
-  const preferred = ["send","roms","clients","fin","users"].find(h=>{
-    const map = {send:"rom:send", roms:"rom:view", clients:"clients:view", fin:"finance:view", users:"users:view"};
-    return can(map[h]) || (h==="roms" && can("rom:send"));
-  });
-  const current = (location.hash||"#send").slice(1);
-  if (!document.querySelector(`#nav-${current}`) || document.querySelector(`#nav-${current}`).hidden){
-    showTab(preferred || "send");
-  } else {
-    showTab(current);
-  }
-}
+    <!-- Financeiro -->
+    <section id="tab-financeiro" class="tab">
+      <h2>Financeiro</h2>
+      <div class="card">
+        <div class="empty">Em breve.</div>
+      </div>
+    </section>
 
-// ======= API =======
-async function api(path, body={}){
-  const session = JSON.parse(localStorage.getItem("session")||"null");
-  const res = await fetch(API_BASE+"?path="+encodeURIComponent(path),{
-    method:"POST",
-    headers:{"Content-Type":"text/plain;charset=utf-8"},
-    body: JSON.stringify({...body, token: session?.token}),
-    cache:"no-store"
-  });
-  if (!res.ok) throw new Error("HTTP "+res.status);
-  return res.json();
-}
-async function whoami(){
-  return api("/whoami").catch(()=>({session:null}));
-}
+    <!-- Usuários -->
+    <section id="tab-users" class="tab">
+      <h2>Usuários</h2>
+      <div class="card">
+        <div class="row" style="margin-bottom:10px">
+          <button id="btnNewUser" class="btn btn-primary">+ Novo usuário</button>
+        </div>
 
-// ======= logout + limpar cache =======
-async function logout(){
-  try{ await api("/logout"); }catch(_){}
-  localStorage.removeItem("session");
-  if (window.caches){
-    const keys = await caches.keys(); for (const k of keys) await caches.delete(k);
-  }
-  location.href="index.html";
-}
+        <table id="tblUsers" style="display:none">
+          <thead>
+          <tr>
+            <th>Usuário</th><th>Nome</th><th>Ativo</th><th>Permissões</th><th></th>
+          </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <div id="usersEmpty" class="empty">Sem usuários.</div>
+      </div>
+    </section>
 
-// ======= boot =======
-let ME = null;
-(async function boot(){
-  const w = await whoami();
-  if (!w.session){ location.href="index.html"; return; }
-  ME = w.session;
-  guardTabsByPerms(ME.perms||[]);
-  // default: preparar tela de envio (adiciona 1 linha vazia)
-  addItemRow();
-  refreshUsersIfAllowed();
-})();
+  </main>
 
-// ======= Itens (envio romaneio) =======
-function addItemRow(){
-  const tb = $("#tblItens tbody");
-  if (!tb) return;
-  const tr = document.createElement("tr");
-  tr.innerHTML = `
-    <td><select class="tipo"><option value="caixa">Caixa</option><option value="saco">Saco</option></select></td>
-    <td><select class="tam"><option value="p">P</option><option value="m">M</option><option value="g">G</option></select></td>
-    <td><input type="number" class="qtd" min="0" value="1" style="width:100px"></td>
-    <td><button class="btn sm gray" onclick="this.closest('tr').remove(); calcTotal()">Remover</button></td>`;
-  tb.appendChild(tr);
-  calcTotal();
-}
-function calcTotal(){
-  let tot=0; document.querySelectorAll("#tblItens .qtd").forEach(i=> tot += Number(i.value||0));
-  $("#rom_total").textContent = tot;
-}
-document.addEventListener("input",e=>{ if (e.target.classList.contains("qtd")) calcTotal(); });
+  <!-- ======== SCRIPTS ======== -->
+  <script>
+    /* ===== CONFIG ===== */
+    const API_BASE = "https://script.google.com/macros/s/AKfycbzahPVwksRN4y6WnYZ6sXfCWftB_YDiL2nfyTw0QPMelz_A_3GKmrtMV-4QysIhTu8R/exec";
+    const PERM_ALL = "*";
 
-function filesToBase64(input){
-  const files = Array.from(input.files||[]);
-  return Promise.all(files.map(f=>new Promise(res=>{
-    const r=new FileReader(); r.onload=()=>res({name:f.name, data:r.result}); r.readAsDataURL(f);
-  })));
-}
-
-async function enviarRomaneio(){
-  try{
-    $("#rom_result").textContent = "Enviando…";
-    const itens = Array.from(document.querySelectorAll("#tblItens tbody tr")).map(tr=>({
-      tipo: tr.querySelector(".tipo").value,
-      tamanho: tr.querySelector(".tam").value,
-      qtd: Number(tr.querySelector(".qtd").value||0)
-    })).filter(i=>i.qtd>0);
-    const fotos = await filesToBase64($("#rom_fotos"));
-
-    const body = {
-      rom: $("#rom_rom").value, data: $("#rom_data").value, obs: $("#rom_obs").value,
-      cliente: { tel: $("#cli_tel").value, nome: $("#cli_nome").value, local: $("#cli_loc").value },
-      fornecedor: { tel: $("#for_tel").value, nome: $("#for_nome").value, local: $("#for_loc").value },
-      itens, fotos
+    /* ===== helpers UI ===== */
+    const $ = (q,root=document)=>root.querySelector(q);
+    const $$ = (q,root=document)=>Array.from(root.querySelectorAll(q));
+    const toast = (msg, kind="")=>{
+      const el=$("#toast");
+      el.textContent=msg; el.className=kind?kind:"";
+      el.style.display="block";
+      clearTimeout(el._t); el._t=setTimeout(()=>el.style.display="none", 3000);
     };
-    const r = await api("/rom/create", body);
-    if (r.error) throw new Error(r.error);
-    $("#rom_result").innerHTML = `
-      <div class="badge">Romaneio criado!</div><br/>
-      Código: <b>${r.cod}</b> — <a target="_blank" href="${r.pdfUrl}">Abrir PDF</a> — 
-      <a target="_blank" href="${r.whatsappUrl}">WhatsApp do cliente</a>
-    `;
-    // limpar formulário
-    ["rom_rom","rom_data","rom_obs","cli_tel","cli_nome","cli_loc","for_tel","for_nome","for_loc"].forEach(id=>$("#"+id).value="");
-    $("#tblItens tbody").innerHTML=""; addItemRow(); $("#rom_fotos").value="";
-    toast("Romaneio enviado!", "ok");
-  }catch(err){
-    $("#rom_result").textContent = "Erro: "+err.message;
-    toast(err.message,"err");
-  }
-}
-
-// ======= Usuários (UI) =======
-let EDIT_USER = null; // null = novo
-
-function permsFromUI(){
-  return Array.from(document.querySelectorAll("#um_perms input:checked")).map(i=>i.value);
-}
-function setPermsUI(perms){
-  document.querySelectorAll("#um_perms input").forEach(cb=>{
-    cb.checked = (perms?.includes("*") || perms?.includes(cb.value));
-  });
-}
-function openUserModal(u){
-  EDIT_USER = u || null;
-  $("#umTitle").textContent = EDIT_USER ? "Editar usuário" : "Novo usuário";
-  $("#um_usuario").value = EDIT_USER?.usuario || "";
-  $("#um_usuario").disabled = !!EDIT_USER;
-  $("#um_nome").value = EDIT_USER?.nome || "";
-  $("#um_pwd1").value = ""; $("#um_pwd2").value = "";
-  $("#um_ativo").checked = (EDIT_USER?.ativo ?? true);
-  setPermsUI(EDIT_USER?.perms || []);
-  $("#userModal").style.display="flex";
-}
-function closeUserModal(){ $("#userModal").style.display="none"; }
-
-async function saveUser(){
-  try{
-    const usuario = $("#um_usuario").value.trim();
-    const nome    = $("#um_nome").value.trim();
-    const p1 = $("#um_pwd1").value, p2 = $("#um_pwd2").value;
-    if (!usuario) return toast("Usuário é obrigatório","err");
-    if ((p1||p2) && p1!==p2) return toast("Senhas não conferem","err");
-    const body = {
-      usuario, nome, novaSenha: p1||"", ativo: $("#um_ativo").checked,
-      perms: permsFromUI()
+    const loader = {
+      on(){ $("#loader").style.width="55%"; },
+      progress(p){ $("#loader").style.width = (p||90)+"%"; },
+      off(){ $("#loader").style.width="100%"; setTimeout(()=>$("#loader").style.width="0%", 220); }
     };
-    const r = await api("/users/save", body);
-    if (r.error) throw new Error(r.error);
-    closeUserModal();
-    toast("Usuário salvo!","ok");
-    refreshUsersIfAllowed();
-  }catch(err){ toast(err.message,"err"); }
-}
 
-async function deleteUser(usuario){
-  if (!confirm("Excluir usuário '"+usuario+"'?")) return;
-  try{
-    const r = await api("/users/delete",{usuario});
-    if (r.error) throw new Error(r.error);
-    toast("Usuário excluído","ok");
-    refreshUsersIfAllowed();
-  }catch(err){ toast(err.message,"err"); }
-}
+    /* ===== session ===== */
+    function sess(){
+      try{ return JSON.parse(localStorage.getItem("session")||"null"); }catch(_){ return null; }
+    }
+    function requireLogin(){
+      const s = sess();
+      if(!s || !s.token){ location.href="index.html"; return false; }
+      return true;
+    }
+    function hasPerm(p){
+      const s = sess();
+      const perms = (s && Array.isArray(s.perms) ? s.perms : [PERM_ALL]);
+      return perms.includes(PERM_ALL) || perms.includes(p);
+    }
 
-async function refreshUsersIfAllowed(){
-  if (!$("#tab-users")) return;
-  // só tenta listar se a aba users estiver disponível no menu
-  if ($("#nav-users").hidden) return;
-  try{
-    const r = await api("/users/list");
-    const tb = $("#tblUsers tbody"); tb.innerHTML="";
-    (r.items||[]).forEach(u=>{
+    /* ===== API ===== */
+    async function api(path, body={}){
+      const s = sess();
+      const url = API_BASE + "?path=" + encodeURIComponent(path);
+      const res = await fetch(url,{
+        method:"POST",
+        headers: {"Content-Type":"text/plain;charset=utf-8"},
+        body: JSON.stringify({...body, token: s?.token}),
+        cache:"no-store"
+      });
+      if(!res.ok) throw new Error("HTTP "+res.status);
+      return res.json();
+    }
+
+    /* ===== Router & permissions ===== */
+    const tabs = {
+      rom      : { el: "#tab-rom",         perm: "rom" },
+      romaneios: { el: "#tab-romaneios",   perm: "romaneios" },
+      clientes : { el: "#tab-clientes",    perm: "clientes" },
+      financeiro:{ el:"#tab-financeiro",   perm: "financeiro" },
+      users    : { el: "#tab-users",       perm: "usuarios" },
+    };
+
+    function setActiveMenu(hash){
+      $$("#menu a[data-tab]").forEach(a=>{
+        a.classList.toggle("active", a.getAttribute("data-tab")===hash);
+      });
+    }
+
+    async function showTabFromHash(){
+      if(!requireLogin()) return;
+      const hash = (location.hash.replace("#","") || "rom");
+      const def  = tabs[hash] || tabs.rom;
+
+      // permissões
+      if(!hasPerm(def.perm)){
+        toast("Você não tem acesso a esta área.","err");
+        location.hash = Object.keys(tabs).find(k=>hasPerm(tabs[k].perm)) || "rom";
+        return;
+      }
+
+      // esconde/mostra
+      $$(".tab").forEach(s=>s.style.display="none");
+      $(def.el).style.display="block";
+      setActiveMenu(hash);
+
+      // carregamentos rápidos por aba
+      if(hash==="users")      loadUsers();
+      if(hash==="romaneios")  loadRomaneios();
+      if(hash==="clientes")   loadClientes();
+    }
+
+    window.addEventListener("hashchange", showTabFromHash);
+
+    /* ===== menu sair ===== */
+    $("#btnSair").addEventListener("click", async (e)=>{
+      e.preventDefault();
+      try{ await api("/logout"); }catch(_){}
+      localStorage.removeItem("session");
+      // tentar limpar storage do app
+      try{ localStorage.clear(); sessionStorage.clear(); caches && caches.keys().then(ks=>ks.forEach(k=>caches.delete(k))); }catch(_){}
+      location.href="index.html";
+    });
+
+    /* ===== ROM (form) ===== */
+    function addItemRow(tipo="caixa", tam="p", qtd=1){
+      const tb = $("#tblItens tbody");
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td>${u.usuario}</td>
-        <td>${u.nome||"-"}</td>
-        <td>${u.ativo? "Sim":"Não"}</td>
-        <td>${(u.perms||[]).join(", ")||"-"}</td>
         <td>
-          <button class="btn sm gray" onclick='openUserModal(${JSON.stringify(u)})'>Editar</button>
-          <button class="btn sm danger" style="margin-left:6px" ${u.usuario==="admin"?"disabled":""}
-            onclick="deleteUser('${u.usuario}')">Excluir</button>
-        </td>`;
+          <select class="tipo">
+            <option value="caixa"${tipo==="caixa"?" selected":""}>Caixa</option>
+            <option value="saco"${tipo==="saco"?" selected":""}>Saco</option>
+          </select>
+        </td>
+        <td>
+          <select class="tam">
+            <option value="p"${tam==="p"?" selected":""}>P</option>
+            <option value="m"${tam==="m"?" selected":""}>M</option>
+            <option value="g"${tam==="g"?" selected":""}>G</option>
+          </select>
+        </td>
+        <td><input type="number" min="0" class="qtd" value="${qtd}"></td>
+        <td><button class="btn btn-danger btn-xs">Remover</button></td>
+      `;
+      tr.querySelector(".btn").addEventListener("click", ()=>{ tr.remove(); calcTotal(); });
+      tr.querySelector(".qtd").addEventListener("input", calcTotal);
       tb.appendChild(tr);
+      calcTotal();
+    }
+    function calcTotal(){
+      let tot=0; $$("#tblItens .qtd").forEach(i=> tot += Number(i.value||0));
+      $("#rom_total").textContent = tot;
+    }
+    $("#btnAddItem").addEventListener("click", ()=> addItemRow());
+
+    async function filesToBase64(input){
+      const files = Array.from(input.files||[]);
+      return Promise.all(files.map(f => new Promise(res=>{
+        const r=new FileReader(); r.onload=()=>res({ name:f.name, data:r.result }); r.readAsDataURL(f);
+      })));
+    }
+
+    function clearRomForm(){
+      $("#rom_rom").value = "";
+      $("#rom_data").value = "";
+      $("#rom_obs").value  = "";
+      $("#cli_tel").value = $("#cli_nome").value = $("#cli_loc").value = "";
+      $("#for_tel").value = $("#for_nome").value = $("#for_loc").value = "";
+      $("#rom_fotos").value = "";
+      $("#tblItens tbody").innerHTML = "";
+      addItemRow();
+      $("#rom_result").innerHTML = "";
+      calcTotal();
+    }
+
+    $("#btnEnviarRom").addEventListener("click", async ()=>{
+      try{
+        loader.on();
+        const itens = $$("#tblItens tbody tr").map(tr=>({
+          tipo: tr.querySelector(".tipo").value,
+          tamanho: tr.querySelector(".tam").value,
+          qtd: Number(tr.querySelector(".qtd").value||0)
+        })).filter(i=>i.qtd>0);
+        if(!itens.length){ toast("Inclua ao menos 1 item.","err"); return; }
+
+        const fotos = await filesToBase64($("#rom_fotos"));
+
+        const body = {
+          rom: $("#rom_rom").value,
+          data: $("#rom_data").value,
+          obs : $("#rom_obs").value,
+          cliente: { tel: $("#cli_tel").value, nome: $("#cli_nome").value, local: $("#cli_loc").value },
+          fornecedor: { tel: $("#for_tel").value, nome: $("#for_nome").value, local: $("#for_loc").value },
+          itens, fotos
+        };
+
+        loader.progress();
+        const r = await api("/rom/create", body);
+        loader.off();
+
+        if(r.error){ toast(r.error,"err"); return; }
+
+        $("#rom_result").innerHTML = `
+          <div class="row" style="gap:12px;flex-wrap:wrap">
+            <span class="chip">Romaneio criado</span>
+            <span class="chip">Código: <b>${r.cod}</b></span>
+            ${r.pdfUrl?`<a class="btn btn-muted" target="_blank" href="${r.pdfUrl}">Abrir PDF</a>`:""}
+            ${r.whatsappUrl?`<a class="btn btn-primary" target="_blank" href="${r.whatsappUrl}">WhatsApp do cliente</a>`:""}
+          </div>
+        `;
+        toast("Romaneio enviado!","ok");
+        clearRomForm();
+      }catch(err){
+        loader.off();
+        toast("Falha ao enviar: "+err.message,"err");
+      }
     });
-  }catch(_){/* ignorar */ }
-}
 
-// ======= Router simples das abas =======
-window.addEventListener("hashchange", ()=>{
-  const h = (location.hash||"#send").slice(1);
-  showTab(h);
-});
+    // exemplo bobo para “preencher pelo tel” (lado cliente)
+    $("#btnFillCli").addEventListener("click", ()=>{
+      const t = $("#cli_tel").value.replace(/\D/g,"");
+      if(!t){ toast("Informe o telefone do cliente.","err"); return; }
+      $("#cli_nome").value = $("#cli_nome").value || "Cliente";
+      $("#cli_loc").value  = $("#cli_loc").value  || "Fortaleza/CE";
+    });
 
-</script>
+    /* ===== Listagens simples (placeholders) ===== */
+    async function loadRomaneios(){
+      $("#listRom").innerHTML = `<div class="empty">Carregando…</div>`;
+      // (se quiser, crie no backend /rom/list)
+      $("#listRom").innerHTML = `<div class="empty">Sem registros (crie um /rom/list no backend se quiser listar aqui 😉)</div>`;
+    }
+    async function loadClientes(){
+      $("#listCli").innerHTML = `<div class="empty">Carregando…</div>`;
+      $("#listCli").innerHTML = `<div class="empty">Sem registros (crie um /clientes no backend se quiser listar aqui 😉)</div>`;
+    }
+
+    /* ===== Usuários (lista + modal) ===== */
+    function renderPermsChips(perms){
+      if(!perms || !perms.length) return `<span class="chip">—</span>`;
+      return perms.map(p=>`<span class="chip">${p}</span>`).join(" ");
+    }
+
+    async function loadUsers(){
+      if(!hasPerm("usuarios")){
+        $("#tab-users").innerHTML = `<div class="card"><div class="empty">Sem permissão.</div></div>`;
+        return;
+      }
+      $("#usersEmpty").style.display="block";
+      $("#tblUsers").style.display="none";
+      try{
+        loader.on();
+        const r = await api("/users/list");
+        loader.off();
+        if(r.error){ toast(r.error,"err"); return; }
+        const tb = $("#tblUsers tbody"); tb.innerHTML="";
+        (r.users||[]).forEach(u=>{
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${u.usuario}</td>
+            <td>${u.nome||""}</td>
+            <td>${u.ativo? "✅":"❌"}</td>
+            <td>${renderPermsChips(u.perms||[])}</td>
+            <td><button class="btn btn-muted btn-edit">Editar</button></td>
+          `;
+          tr.querySelector(".btn-edit").addEventListener("click",()=> openUserModal(u));
+          tb.appendChild(tr);
+        });
+        if((r.users||[]).length){ $("#usersEmpty").style.display="none"; $("#tblUsers").style.display="table"; }
+      }catch(err){
+        loader.off(); toast(err.message,"err");
+      }
+    }
+
+    function openUserModal(u){
+      const allPerms = ["rom","romaneios","clientes","financeiro","usuarios"];
+      const div = document.createElement("div");
+      div.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:9998";
+      div.innerHTML = `
+        <div class="card" style="width:min(680px,92vw);max-height:90vh;overflow:auto">
+          <h3>${u? "Editar usuário":"Novo usuário"}</h3>
+          <div class="grid-2" style="margin-top:10px">
+            <div><label>Usuário (login)</label><input id="u_usuario" ${u?"disabled":""} value="${u?.usuario||""}"></div>
+            <div><label>Nome</label><input id="u_nome" value="${u?.nome||""}"></div>
+          </div>
+          <div class="grid-2" style="margin-top:10px">
+            <div><label>Nova senha</label><input id="u_pwd1" type="password" placeholder="${u?"(deixe em branco p/ não alterar)":"Digite a senha"}"></div>
+            <div><label>Repita a senha</label><input id="u_pwd2" type="password" placeholder="${u?"(deixe em branco p/ não alterar)":"Repita a senha"}"></div>
+          </div>
+          <div style="margin-top:12px">
+            <label>Permissões</label>
+            <div class="row" style="flex-wrap:wrap;gap:8px;margin-top:6px">
+              ${allPerms.map(p=>{
+                const on = (u?.perms||[]).includes(p) || (u && (u.perms||[]).includes("*"));
+                return `<label class="chip" style="cursor:pointer">
+                  <input class="perm" type="checkbox" value="${p}" ${on?"checked":""} style="margin-right:6px">${p}
+                </label>`;
+              }).join("")}
+            </div>
+          </div>
+          <div class="row" style="margin-top:16px">
+            <label class="row" style="gap:8px"><input id="u_ativo" type="checkbox" ${u?.ativo!==false?"checked":""}> Ativo</label>
+            <div class="right">
+              <button class="btn btn-muted" id="u_cancel">Cancelar</button>
+              <button class="btn btn-primary" id="u_save">Salvar</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(div);
+      $("#u_cancel",div).onclick=()=>div.remove();
+      $("#u_save",div).onclick=async()=>{
+        try{
+          const usuario = $("#u_usuario",div).value.trim();
+          const nome = $("#u_nome",div).value.trim();
+          const pwd1 = $("#u_pwd1",div).value;
+          const pwd2 = $("#u_pwd2",div).value;
+          const ativo = $("#u_ativo",div).checked;
+          const perms = $$(".perm",div).filter(i=>i.checked).map(i=>i.value);
+
+          if(!usuario){ toast("Informe o usuário.","err"); return; }
+          if(!u){ // novo -> senha obrigatória
+            if(!pwd1 || !pwd2 || pwd1!==pwd2){ toast("Senhas não conferem.","err"); return; }
+          }else{
+            if((pwd1||pwd2) && pwd1!==pwd2){ toast("Senhas não conferem.","err"); return; }
+          }
+
+          loader.on();
+          const r = await api("/users/upsert", { usuario, nome, senha: pwd1||"", ativo, perms });
+          loader.off();
+          if(r.error){ toast(r.error,"err"); return; }
+          toast("Usuário salvo!","ok");
+          div.remove();
+          loadUsers();
+        }catch(err){
+          loader.off(); toast(err.message,"err");
+        }
+      };
+    }
+    $("#btnNewUser").addEventListener("click", ()=> openUserModal(null));
+
+    /* ===== boot ===== */
+    document.addEventListener("DOMContentLoaded", ()=>{
+      if(!requireLogin()) return;
+      // se não houver hash, define a primeira aba permitida
+      const firstAllowed = Object.entries(tabs).find(([k,v])=>hasPerm(v.perm))?.[0] || "rom";
+      if(!location.hash) location.hash = firstAllowed;
+      // pelo menos 1 linha no ROM
+      addItemRow();
+      showTabFromHash();
+    });
+  </script>
 </body>
 </html>
