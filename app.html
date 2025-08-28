@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8"/>
@@ -6,373 +6,364 @@
 <title>Romaneio • Painel</title>
 <meta name="theme-color" content="#0d1117"/>
 <link rel="icon" href="icon-192.png"/>
-
 <style>
-  :root{
-    --bg:#0b1220; --panel:#0f172a; --muted:#93a0b5; --text:#e6edf3;
-    --primary:#2563eb; --border:#1f2a44; --ok:#16a34a; --err:#ef4444; --warn:#f59e0b;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif}
-  header{padding:.75rem 1rem;background:#0b1120;border-bottom:1px solid var(--border);
-    display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10}
-  header .brand{font-weight:700}
-  nav a{margin-left:16px;color:var(--muted);text-decoration:none;font-weight:600}
-  nav a:hover{color:#fff}
-  .wrap{max-width:1100px;margin:0 auto;padding:18px}
-  h2{margin:10px 0 16px;border-bottom:1px solid var(--border);padding-bottom:8px}
-  .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:14px}
-  .grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-  .grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-  label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
-  input,select,textarea{width:100%;padding:10px;border:1px solid var(--border);background:#0d1324;color:#fff;border-radius:8px}
-  textarea{min-height:42px}
-  .btn{padding:.7rem 1.1rem;background:var(--primary);border:0;border-radius:10px;color:#fff;font-weight:700;cursor:pointer}
-  .btn:hover{filter:brightness(1.1)}
-  .btn.gray{background:#1f2937}
-  .btn.red{background:#b91c1c}
-  table{width:100%;border-collapse:collapse;margin-top:8px}
-  th,td{padding:10px;border-bottom:1px solid var(--border);text-align:left}
-  th{background:#0b1429}
-  .right{text-align:right}
-
-  /* loading bar */
-  #bar{position:fixed;left:0;top:0;height:3px;background:linear-gradient(90deg,var(--primary),#22d3ee);width:0%;z-index:9999;transition:width .2s ease}
-  /* toast */
-  #toast{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);
-    background:#111827;border:1px solid var(--border);color:#fff;padding:10px 14px;border-radius:10px;
-    display:none;z-index:9999;box-shadow:0 10px 30px rgba(0,0,0,.3)}
-  #toast.ok{border-color:#144d2a;color:#bbf7d0}
-  #toast.err{border-color:#4c1d1d;color:#fecaca}
-  #toast.warn{border-color:#4d3814;color:#fde68a}
-
-  .topnav a.active{color:#fff}
-  .muted{color:var(--muted)}
+:root{
+  --bg:#0d1117;--panel:#0f172a;--muted:#8a94a6;--text:#e6edf3;
+  --primary:#2563eb;--border:#1f2a44;--danger:#ef4444;--ok:#22c55e;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif}
+header{padding:.75rem;background:#0b0f1a;border-bottom:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center}
+header .title{font-weight:600}
+nav a{margin-left:14px;color:var(--muted);text-decoration:none;font-weight:500}
+nav a[hidden]{display:none}
+nav a.active{color:#fff}
+nav a:hover{color:var(--primary)}
+.wrap{max-width:1100px;margin:0 auto;padding:16px}
+h2{margin:8px 0 12px;border-bottom:1px solid var(--border);padding-bottom:6px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px}
+.row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.row-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.row-1{display:grid;grid-template-columns:1fr;gap:12px}
+label{font-size:12px;opacity:.8;display:block;margin-bottom:4px}
+input,select,textarea{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:#0b1324;color:var(--text)}
+table{width:100%;border-collapse:collapse;margin-top:10px}
+th,td{padding:.6rem .75rem;border-bottom:1px solid var(--border);text-align:left}
+th{background:#111827}
+.btn{padding:.55rem 1rem;background:var(--primary);border:0;border-radius:8px;color:#fff;cursor:pointer;font-weight:600}
+.btn:hover{filter:brightness(1.05)}
+.btn.sm{padding:.4rem .7rem;font-size:.9rem}
+.btn.gray{background:#1f2937}
+.btn.danger{background:var(--danger)}
+.badge{display:inline-block;padding:.2rem .5rem;border-radius:999px;font-size:.75rem;border:1px solid var(--border);color:#9fb4ff}
+.alert{position:fixed;left:50%;bottom:10px;transform:translateX(-50%);
+  background:#111827;border:1px solid var(--border);padding:.6rem 1rem;border-radius:8px}
+.alert.ok{border-color:#124b2e;color:#8ff0b7}
+.alert.err{border-color:#4b1212;color:#ff9a9a}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center}
+.modal .box{width:min(720px,92vw);background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px}
+.chk-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+hr.sep{border:none;border-top:1px solid var(--border);margin:8px 0 12px}
 </style>
 </head>
 <body>
-<div id="bar"></div>
-<div id="toast"></div>
-
 <header>
-  <div class="brand">🚚 Romaneio</div>
-  <nav class="topnav">
-    <a href="app.html" class="active">Enviar Romaneio</a>
-    <a href="#" onclick="go('clientes')">Clientes</a>
-    <a href="#" onclick="go('romaneios')">Romaneios</a>
-    <a href="#" onclick="go('financeiro')">Financeiro</a>
+  <div class="title">🚚 Romaneio</div>
+  <nav>
+    <a id="nav-send" href="#send">Enviar Romaneio</a>
+    <a id="nav-roms" href="#roms">Romaneios</a>
+    <a id="nav-clients" href="#clients">Clientes</a>
+    <a id="nav-fin" href="#fin">Financeiro</a>
+    <a id="nav-users" href="#users">Usuários</a>
     <a href="#" onclick="logout()">Sair</a>
   </nav>
 </header>
 
 <main class="wrap">
-  <section class="card">
+
+  <!-- Enviar Romaneio (sua tela já conhecida; resumida aqui para exemplo) -->
+  <section id="tab-send" class="card" hidden>
     <h2>Enviar Romaneio</h2>
-
-    <!-- Linha superior -->
-    <div class="grid-3">
-      <div>
-        <label>ROM <span class="muted">(Ex.: 21)</span></label>
-        <input id="f_rom" type="number" required placeholder="Ex.: 21"/>
-      </div>
-      <div>
-        <label>Data</label>
-        <input id="f_data" type="date" required/>
-      </div>
-      <div>
-        <label>Observações</label>
-        <textarea id="f_obs" placeholder="Ex.: Agendar com o cliente"></textarea>
-      </div>
+    <div class="row">
+      <div><label>ROM</label><input id="rom_rom" type="number" placeholder="Ex: 21"></div>
+      <div><label>Data</label><input id="rom_data" type="date"></div>
+      <div><label>Observações</label><input id="rom_obs" placeholder="Ex.: Agendar com o cliente"></div>
     </div>
-
-    <!-- Cliente -->
-    <div style="margin-top:12px" class="grid-3">
-      <div class="card">
-        <label><b>Cliente</b></label>
-        <div class="grid-3">
-          <div>
-            <label>Telefone</label>
-            <input id="cli_tel" required placeholder="(DDD) 90000-0000"/>
-          </div>
-          <div>
-            <label>Nome</label>
-            <input id="cli_nome" required placeholder="Nome do cliente"/>
-          </div>
-          <div>
-            <label>Cidade/UF</label>
-            <input id="cli_loc" required placeholder="Fortaleza/CE"/>
-          </div>
-        </div>
-      </div>
-
-      <!-- Fornecedor -->
-      <div class="card">
-        <label><b>Fornecedor</b> <span class="muted">(Obrigatório)</span></label>
-        <div class="grid-3">
-          <div>
-            <label>Telefone</label>
-            <input id="for_tel" required placeholder="(DDD) 90000-0000"/>
-          </div>
-          <div>
-            <label>Nome</label>
-            <input id="for_nome" required placeholder="Nome do fornecedor"/>
-          </div>
-          <div>
-            <label>Cidade/UF</label>
-            <input id="for_loc" required placeholder="Maracanaú/CE"/>
-          </div>
-        </div>
-      </div>
-
-      <!-- Fotos -->
-      <div class="card">
-        <label><b>Fotos</b> <span class="muted">(opcional – múltiplas)</span></label>
-        <input id="f_fotos" type="file" accept="image/*" multiple capture="environment"/>
-        <div class="muted" style="font-size:12px;margin-top:6px">
-          Você pode escolher várias e remover antes de enviar.
-        </div>
-      </div>
+    <h3>Cliente</h3>
+    <div class="row">
+      <div><label>Telefone</label><input id="cli_tel" placeholder="(DDD) 90000-0000"></div>
+      <div><label>Nome</label><input id="cli_nome" placeholder="Nome do cliente"></div>
+      <div><label>Cidade/UF</label><input id="cli_loc" placeholder="Fortaleza/CE"></div>
     </div>
-
-    <!-- Itens -->
-    <div class="card" style="margin-top:12px">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <h3 style="margin:0">Itens</h3>
-        <button class="btn gray" type="button" onclick="addItem()">+ Item</button>
-      </div>
-      <table id="tbl">
-        <thead>
-          <tr>
-            <th style="width:28%">Tipo</th>
-            <th style="width:28%">Tamanho</th>
-            <th style="width:20%">Qtd</th>
-            <th class="right" style="width:24%">Ação</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-      <div style="margin-top:8px"><b>Total:</b> <span id="total">0</span></div>
+    <h3>Fornecedor <span class="badge">Opcional</span></h3>
+    <div class="row">
+      <div><label>Telefone</label><input id="for_tel" placeholder="(DDD) 90000-0000"></div>
+      <div><label>Nome</label><input id="for_nome" placeholder="Nome do fornecedor"></div>
+      <div><label>Cidade/UF</label><input id="for_loc" placeholder="Cidade-UF"></div>
     </div>
-
-    <div style="margin-top:14px">
-      <button class="btn" onclick="enviarRomaneio()">Enviar Romaneio</button>
+    <h3>Itens</h3>
+    <table id="tblItens"><thead><tr><th>Tipo</th><th>Tamanho</th><th>Qtd</th><th>Ação</th></tr></thead><tbody></tbody></table>
+    <div style="margin:8px 0">
+      <button class="btn sm gray" onclick="addItemRow()">+ Item</button>
+      &nbsp; Total: <b id="rom_total">0</b>
     </div>
-
-    <div id="result" style="margin-top:12px"></div>
+    <h3>Fotos</h3>
+    <input id="rom_fotos" type="file" accept="image/*" multiple capture="environment">
+    <hr class="sep"/>
+    <button class="btn" onclick="enviarRomaneio()">Enviar Romaneio</button>
+    <div id="rom_result" style="margin-top:10px"></div>
   </section>
+
+  <!-- Usuários -->
+  <section id="tab-users" class="card" hidden>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h2>Usuários</h2>
+      <button class="btn" onclick="openUserModal()">+ Novo usuário</button>
+    </div>
+    <table id="tblUsers">
+      <thead><tr><th>Usuário</th><th>Nome</th><th>Ativo</th><th>Permissões</th><th style="width:160px">Ações</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <!-- (demais abas, se quiser, você adiciona depois) -->
+
 </main>
 
+<!-- Modal usuário -->
+<div class="modal" id="userModal">
+  <div class="box">
+    <h3 id="umTitle">Novo usuário</h3>
+    <div class="row-2">
+      <div><label>Usuário (login)</label><input id="um_usuario" placeholder="ex.: joao"/></div>
+      <div><label>Nome</label><input id="um_nome" placeholder="João Silva"/></div>
+    </div>
+    <div class="row-2" style="margin-top:8px">
+      <div><label>Nova senha</label><input id="um_pwd1" type="password" placeholder="••••••"/></div>
+      <div><label>Repita a senha</label><input id="um_pwd2" type="password" placeholder="••••••"/></div>
+    </div>
+    <div style="margin-top:8px">
+      <label><input type="checkbox" id="um_ativo" checked/> Ativo</label>
+    </div>
+    <hr class="sep"/>
+    <div>
+      <label>Permissões</label>
+      <div class="chk-grid" id="um_perms">
+        <label><input type="checkbox" value="rom:send"> Enviar romaneio</label>
+        <label><input type="checkbox" value="rom:view"> Ver romaneios</label>
+        <label><input type="checkbox" value="clients:view"> Ver clientes</label>
+        <label><input type="checkbox" value="finance:view"> Ver financeiro</label>
+        <label><input type="checkbox" value="users:view"> Ver usuários</label>
+        <label><input type="checkbox" value="users:edit"> Editar usuários</label>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+      <button class="btn gray" onclick="closeUserModal()">Cancelar</button>
+      <button class="btn" onclick="saveUser()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="alert" style="display:none"></div>
+
 <script>
-/* ============================================================
-   CONFIG
-============================================================ */
+// ======= CONFIG – TROQUE AQUI! =======
 const API_BASE = "https://script.google.com/macros/s/AKfycbzahPVwksRN4y6WnYZ6sXfCWftB_YDiL2nfyTw0QPMelz_A_3GKmrtMV-4QysIhTu8R/exec";
 
-/* ============================================================
-   UX helpers: loading bar + toast
-============================================================ */
-const $ = s => document.querySelector(s);
-function barStart(){ $("#bar").style.width="30%"; setTimeout(()=>$("#bar").style.width="60%",150) }
-function barDone(){ $("#bar").style.width="100%"; setTimeout(()=>$("#bar").style.width="0%",250) }
-function toast(msg, type="ok"){
-  const t=$("#toast"); t.className=""; t.classList.add(type==="err"?"err":type==="warn"?"warn":"ok");
-  t.textContent = msg; t.style.display="block"; clearTimeout(toast._t);
-  toast._t=setTimeout(()=>t.style.display="none", 3500);
+// ======= helpers UI =======
+const $ = sel => document.querySelector(sel);
+function toast(msg, type="ok"){ const el=$("#toast"); el.textContent=msg; el.className="alert "+(type==="ok"?"ok":"err"); el.style.display="block"; setTimeout(()=>el.style.display="none", 3000); }
+function showTab(id){
+  document.querySelectorAll("main > section").forEach(s=>s.hidden=true);
+  const section = $("#tab-"+id);
+  if (section) section.hidden=false;
+  document.querySelectorAll("nav a").forEach(a=>a.classList.remove("active"));
+  const nav = document.querySelector(nav a[href="#${id}"]);
+  if (nav) nav.classList.add("active");
+  history.replaceState({}, "", "#"+id);
 }
-
-/* ============================================================
-   Sessão/guard (sem loop)
-============================================================ */
-function getSession(){
-  try{ return JSON.parse(localStorage.getItem("session")||"null") }catch(_){ return null }
-}
-function requireLogin(){
-  const s=getSession();
-  if(!s || !s.token){
-    const next = encodeURIComponent(location.pathname.replace(/^.*\//,"") + location.search);
-    location.href = "index.html?next="+next;
+function guardTabsByPerms(perms){
+  const can = p => (perms.includes("*") || perms.includes(p));
+  $("#nav-send").hidden   = !(can("rom:send"));
+  $("#nav-roms").hidden   = !(can("rom:view") || can("rom:send"));
+  $("#nav-clients").hidden= !(can("clients:view"));
+  $("#nav-fin").hidden    = !(can("finance:view"));
+  $("#nav-users").hidden  = !(can("users:view"));
+  // Se hash atual não for permitido, manda para a primeira permitida
+  const preferred = ["send","roms","clients","fin","users"].find(h=>{
+    const map = {send:"rom:send", roms:"rom:view", clients:"clients:view", fin:"finance:view", users:"users:view"};
+    return can(map[h]) || (h==="roms" && can("rom:send"));
+  });
+  const current = (location.hash||"#send").slice(1);
+  if (!document.querySelector(#nav-${current}) || document.querySelector(#nav-${current}).hidden){
+    showTab(preferred || "send");
+  } else {
+    showTab(current);
   }
 }
-requireLogin();
 
-/* ============================================================
-   API helper
-============================================================ */
+// ======= API =======
 async function api(path, body={}){
-  const sess = getSession();
-  const url = API_BASE + "?path=" + encodeURIComponent(path);
-  barStart();
-  const res = await fetch(url,{
+  const session = JSON.parse(localStorage.getItem("session")||"null");
+  const res = await fetch(API_BASE+"?path="+encodeURIComponent(path),{
     method:"POST",
     headers:{"Content-Type":"text/plain;charset=utf-8"},
-    body: JSON.stringify({...body, token:sess?.token}),
+    body: JSON.stringify({...body, token: session?.token}),
     cache:"no-store"
-  }).catch(e=>{
-    barDone(); throw new Error("NetworkError");
   });
-  barDone();
-  if(!res.ok) throw new Error("HTTP "+res.status);
+  if (!res.ok) throw new Error("HTTP "+res.status);
   return res.json();
 }
+async function whoami(){
+  return api("/whoami").catch(()=>({session:null}));
+}
 
-/* ============================================================
-   Itens
-============================================================ */
-function addItem(tipo="caixa", tam="p", qtd=1){
-  const tb=$("#tbl tbody");
-  const tr=document.createElement("tr");
-  tr.innerHTML=`
-    <td>
-      <select class="tipo">
-        <option value="caixa"${tipo==="caixa"?" selected":""}>Caixa</option>
-        <option value="saco"${tipo==="saco"?" selected":""}>Saco</option>
-      </select>
-    </td>
-    <td>
-      <select class="tam">
-        <option value="p"${tam==="p"?" selected":""}>P</option>
-        <option value="m"${tam==="m"?" selected":""}>M</option>
-        <option value="g"${tam==="g"?" selected":""}>G</option>
-      </select>
-    </td>
-    <td><input type="number" class="qtd" min="0" value="${qtd}"></td>
-    <td class="right">
-      <button class="btn red" type="button" onclick="this.closest('tr').remove(); calcTotal()">Remover</button>
-    </td>`;
+// ======= logout + limpar cache =======
+async function logout(){
+  try{ await api("/logout"); }catch(_){}
+  localStorage.removeItem("session");
+  if (window.caches){
+    const keys = await caches.keys(); for (const k of keys) await caches.delete(k);
+  }
+  location.href="index.html";
+}
+
+// ======= boot =======
+let ME = null;
+(async function boot(){
+  const w = await whoami();
+  if (!w.session){ location.href="index.html"; return; }
+  ME = w.session;
+  guardTabsByPerms(ME.perms||[]);
+  // default: preparar tela de envio (adiciona 1 linha vazia)
+  addItemRow();
+  refreshUsersIfAllowed();
+})();
+
+// ======= Itens (envio romaneio) =======
+function addItemRow(){
+  const tb = $("#tblItens tbody");
+  if (!tb) return;
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
+    <td><select class="tipo"><option value="caixa">Caixa</option><option value="saco">Saco</option></select></td>
+    <td><select class="tam"><option value="p">P</option><option value="m">M</option><option value="g">G</option></select></td>
+    <td><input type="number" class="qtd" min="0" value="1" style="width:100px"></td>
+    <td><button class="btn sm gray" onclick="this.closest('tr').remove(); calcTotal()">Remover</button></td>`;
   tb.appendChild(tr);
-  tr.querySelector(".qtd").addEventListener("input", calcTotal);
   calcTotal();
 }
 function calcTotal(){
-  let t=0;
-  document.querySelectorAll(".qtd").forEach(i=> t+= Number(i.value||0));
-  $("#total").textContent=t;
+  let tot=0; document.querySelectorAll("#tblItens .qtd").forEach(i=> tot += Number(i.value||0));
+  $("#rom_total").textContent = tot;
 }
-function resetItens(){
-  $("#tbl tbody").innerHTML="";
-  addItem();
-}
+document.addEventListener("input",e=>{ if (e.target.classList.contains("qtd")) calcTotal(); });
 
-/* ============================================================
-   Fotos -> base64
-============================================================ */
-function filesToBase64(){
-  const input=$("#f_fotos");
-  const files=[... (input.files||[])];
-  return Promise.all(files.map(f=> new Promise(res=>{
-    const r=new FileReader();
-    r.onload=()=>res({name:f.name, data:r.result});
-    r.readAsDataURL(f);
+function filesToBase64(input){
+  const files = Array.from(input.files||[]);
+  return Promise.all(files.map(f=>new Promise(res=>{
+    const r=new FileReader(); r.onload=()=>res({name:f.name, data:r.result}); r.readAsDataURL(f);
   })));
-}
-
-/* ============================================================
-   Enviar Romaneio
-============================================================ */
-function normPhone(v){ return String(v||"").replace(/\D/g,"").replace(/^55/,"") }
-
-function formOk(){
-  // obrigatórios
-  const req = ["f_rom","f_data","cli_tel","cli_nome","cli_loc","for_tel","for_nome","for_loc"];
-  for(const id of req){
-    const el = $("#"+id);
-    if(!el || !el.value){ el.focus(); toast("Preencha todos os campos obrigatórios.","warn"); return false }
-  }
-  const temItem = [...document.querySelectorAll("#tbl tbody tr")].some(tr => Number(tr.querySelector(".qtd").value||0)>0);
-  if(!temItem){ toast("Adicione ao menos 1 item com quantidade > 0.","warn"); return false }
-  return true;
 }
 
 async function enviarRomaneio(){
   try{
-    if(!formOk()) return;
-
-    const itens = [...document.querySelectorAll("#tbl tbody tr")].map(tr=>({
+    $("#rom_result").textContent = "Enviando…";
+    const itens = Array.from(document.querySelectorAll("#tblItens tbody tr")).map(tr=>({
       tipo: tr.querySelector(".tipo").value,
       tamanho: tr.querySelector(".tam").value,
       qtd: Number(tr.querySelector(".qtd").value||0)
     })).filter(i=>i.qtd>0);
-
-    const fotos = await filesToBase64();
+    const fotos = await filesToBase64($("#rom_fotos"));
 
     const body = {
-      rom: $("#f_rom").value,
-      data: $("#f_data").value,
-      obs : $("#f_obs").value,
-      cliente: {
-        tel: normPhone($("#cli_tel").value),
-        nome: $("#cli_nome").value,
-        local: $("#cli_loc").value
-      },
-      fornecedor: {
-        tel: normPhone($("#for_tel").value),
-        nome: $("#for_nome").value,
-        local: $("#for_loc").value
-      },
+      rom: $("#rom_rom").value, data: $("#rom_data").value, obs: $("#rom_obs").value,
+      cliente: { tel: $("#cli_tel").value, nome: $("#cli_nome").value, local: $("#cli_loc").value },
+      fornecedor: { tel: $("#for_tel").value, nome: $("#for_nome").value, local: $("#for_loc").value },
       itens, fotos
     };
-
-    $("#result").innerHTML = "";
-    toast("Enviando…");
     const r = await api("/rom/create", body);
-    if(r.error) throw new Error(r.error);
-
-    // sucesso
-    $("#result").innerHTML = `
-      <div class="card" style="margin-top:10px">
-        <div><b>Romaneio criado!</b></div>
-        <div>Código: <b>${r.cod ?? "-"}</b></div>
-        ${r.pdfUrl ? `<div><a href="${r.pdfUrl}" target="_blank">Abrir PDF</a></div>` : ``}
-        ${r.whatsappUrl ? `<div><a href="${r.whatsappUrl}" target="_blank">WhatsApp do cliente</a></div>` : ``}
-      </div>`;
-    toast("Romaneio enviado com sucesso!","ok");
-
-    // reset do form
-    resetForm();
-
+    if (r.error) throw new Error(r.error);
+    $("#rom_result").innerHTML = `
+      <div class="badge">Romaneio criado!</div><br/>
+      Código: <b>${r.cod}</b> — <a target="_blank" href="${r.pdfUrl}">Abrir PDF</a> — 
+      <a target="_blank" href="${r.whatsappUrl}">WhatsApp do cliente</a>
+    `;
+    // limpar formulário
+    ["rom_rom","rom_data","rom_obs","cli_tel","cli_nome","cli_loc","for_tel","for_nome","for_loc"].forEach(id=>$("#"+id).value="");
+    $("#tblItens tbody").innerHTML=""; addItemRow(); $("#rom_fotos").value="";
+    toast("Romaneio enviado!", "ok");
   }catch(err){
-    console.error(err);
-    toast(err.message || "Erro ao enviar","err");
-    $("#result").innerHTML = `<div class="card" style="margin-top:10px;color:#fecaca;border-color:#4c1d1d">Erro: ${err.message||String(err)}</div>`;
+    $("#rom_result").textContent = "Erro: "+err.message;
+    toast(err.message,"err");
   }
 }
 
-/* ============================================================
-   Reset do formulário após sucesso
-============================================================ */
-function resetForm(){
-  $("#f_rom").value="";
-  $("#f_data").value = new Date().toISOString().slice(0,10);
-  $("#f_obs").value="";
-  $("#cli_tel").value=""; $("#cli_nome").value=""; $("#cli_loc").value="";
-  $("#for_tel").value=""; $("#for_nome").value=""; $("#for_loc").value="";
-  $("#f_fotos").value="";
-  resetItens();
+// ======= Usuários (UI) =======
+let EDIT_USER = null; // null = novo
+
+function permsFromUI(){
+  return Array.from(document.querySelectorAll("#um_perms input:checked")).map(i=>i.value);
+}
+function setPermsUI(perms){
+  document.querySelectorAll("#um_perms input").forEach(cb=>{
+    cb.checked = (perms?.includes("*") || perms?.includes(cb.value));
+  });
+}
+function openUserModal(u){
+  EDIT_USER = u || null;
+  $("#umTitle").textContent = EDIT_USER ? "Editar usuário" : "Novo usuário";
+  $("#um_usuario").value = EDIT_USER?.usuario || "";
+  $("#um_usuario").disabled = !!EDIT_USER;
+  $("#um_nome").value = EDIT_USER?.nome || "";
+  $("#um_pwd1").value = ""; $("#um_pwd2").value = "";
+  $("#um_ativo").checked = (EDIT_USER?.ativo ?? true);
+  setPermsUI(EDIT_USER?.perms || []);
+  $("#userModal").style.display="flex";
+}
+function closeUserModal(){ $("#userModal").style.display="none"; }
+
+async function saveUser(){
+  try{
+    const usuario = $("#um_usuario").value.trim();
+    const nome    = $("#um_nome").value.trim();
+    const p1 = $("#um_pwd1").value, p2 = $("#um_pwd2").value;
+    if (!usuario) return toast("Usuário é obrigatório","err");
+    if ((p1||p2) && p1!==p2) return toast("Senhas não conferem","err");
+    const body = {
+      usuario, nome, novaSenha: p1||"", ativo: $("#um_ativo").checked,
+      perms: permsFromUI()
+    };
+    const r = await api("/users/save", body);
+    if (r.error) throw new Error(r.error);
+    closeUserModal();
+    toast("Usuário salvo!","ok");
+    refreshUsersIfAllowed();
+  }catch(err){ toast(err.message,"err"); }
 }
 
-/* ============================================================
-   Navegação
-============================================================ */
-function go(tab){
-  toast("Seções ‘Clientes’, ‘Romaneios’ e ‘Financeiro’ chegam nas próximas etapas.","warn");
+async function deleteUser(usuario){
+  if (!confirm("Excluir usuário '"+usuario+"'?")) return;
+  try{
+    const r = await api("/users/delete",{usuario});
+    if (r.error) throw new Error(r.error);
+    toast("Usuário excluído","ok");
+    refreshUsersIfAllowed();
+  }catch(err){ toast(err.message,"err"); }
 }
 
-/* ============================================================
-   Logout
-============================================================ */
-function logout(){
-  localStorage.removeItem("session");
-  location.href="index.html";
+async function refreshUsersIfAllowed(){
+  if (!$("#tab-users")) return;
+  // só tenta listar se a aba users estiver disponível no menu
+  if ($("#nav-users").hidden) return;
+  try{
+    const r = await api("/users/list");
+    const tb = $("#tblUsers tbody"); tb.innerHTML="";
+    (r.items||[]).forEach(u=>{
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${u.usuario}</td>
+        <td>${u.nome||"-"}</td>
+        <td>${u.ativo? "Sim":"Não"}</td>
+        <td>${(u.perms||[]).join(", ")||"-"}</td>
+        <td>
+          <button class="btn sm gray" onclick='openUserModal(${JSON.stringify(u)})'>Editar</button>
+          <button class="btn sm danger" style="margin-left:6px" ${u.usuario==="admin"?"disabled":""}
+            onclick="deleteUser('${u.usuario}')">Excluir</button>
+        </td>`;
+      tb.appendChild(tr);
+    });
+  }catch(_){/* ignorar */ }
 }
 
-/* ============================================================
-   Init
-============================================================ */
-document.addEventListener("DOMContentLoaded", ()=>{
-  // data de hoje
-  $("#f_data").value = new Date().toISOString().slice(0,10);
-  resetItens();            // começa com 1 linha
+// ======= Router simples das abas =======
+window.addEventListener("hashchange", ()=>{
+  const h = (location.hash||"#send").slice(1);
+  showTab(h);
 });
+
 </script>
 </body>
 </html>
