@@ -1,261 +1,422 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Romaneio • Painel</title>
-<meta name="theme-color" content="#0d1117"/>
-<style>
-  :root{
-    --bg:#0d1117;--panel:#0f172a;--muted:#8a94a6;--text:#e6edf3;
-    --primary:#2563eb;--border:#1f2a44;--ok:#16a34a;--bad:#ef4444;
-  }
-  *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif}
-  header{padding:.75rem;background:#0b0f1a;border-bottom:1px solid var(--border);
-    display:flex;justify-content:space-between;align-items:center}
-  .wrap{max-width:980px;margin:0 auto;padding:16px}
-  h2{margin:12px 0 8px;border-bottom:1px solid var(--border);padding-bottom:6px}
-  label{display:block;margin:8px 0;font-size:14px}
-  input,select,textarea{width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);
-    background:#0b1220;color:var(--text)}
-  .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-  .row{display:flex;gap:8px;align-items:center}
-  .btn{padding:.6rem 1rem;border:0;border-radius:8px;cursor:pointer;font-weight:600}
-  .btn.primary{background:var(--primary);color:#fff}
-  .btn.muted{background:#15223c;color:#fff}
-  .btn.bad{background:var(--bad);color:#fff}
-  table{width:100%;border-collapse:collapse;margin-top:10px}
-  th,td{padding:.55rem .65rem;border-bottom:1px solid var(--border);text-align:left}
-  th{background:#111827}
-  .note{font-size:12px;color:var(--muted)}
-  .badge{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;
-    padding:.5rem .75rem;border-radius:10px;background:#111827;border:1px solid var(--border)}
-  .badge.ok{color:#d1fae5;border-color:#064e3b}
-  .badge.err{color:#fee2e2;border-color:#7f1d1d}
-  .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px}
-  .mini{font-size:12px;color:var(--muted)}
-  .thumbs{display:flex;gap:8px;flex-wrap:wrap}
-  .thumbs img{width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid var(--border)}
-  nav a{margin-left:10px;color:var(--muted);text-decoration:none;font-weight:600}
-  nav a:hover{color:#fff}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Romaneio • Painel</title>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <style>
+    :root{
+      --bg:#0f172a; --bg-card:#0b1222; --text:#e5e7eb; --muted:#94a3b8;
+      --primary:#3b82f6; --primary-2:#1d4ed8; --danger:#ef4444; --ok:#22c55e;
+      --border:#1f2a44; --chip:#111a31;
+    }
+    .light{
+      --bg:#f7f7fb; --bg-card:#ffffff; --text:#0f172a; --muted:#475569;
+      --primary:#2563eb; --primary-2:#1e40af; --danger:#dc2626; --ok:#16a34a;
+      --border:#e5e7eb; --chip:#edf2ff;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif}
+    a{color:inherit}
+    .wrap{max-width:1100px;margin:0 auto;padding:24px}
+    header{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--border)}
+    .nav{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:12px 0}
+    .menu{display:flex;gap:10px;flex-wrap:wrap}
+    .chip{padding:10px 14px;border-radius:12px;background:var(--chip);border:1px solid var(--border);cursor:pointer}
+    .chip.primary{background:var(--primary);border-color:transparent;color:#fff}
+    .chip.danger{background:var(--danger);color:#fff;border-color:transparent}
+    .chip.ghost{background:transparent}
+    .tag{font-size:12px;opacity:.8;margin-left:6px}
+    .card{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:18px;margin-top:18px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    @media (max-width:820px){.grid{grid-template-columns:1fr}}
+    label{font-size:13px;color:var(--muted);display:block;margin-bottom:6px}
+    input,select,textarea{
+      background:#0b1222; color:var(--text); border:1px solid var(--border);
+      border-radius:10px; padding:10px 12px; width:100%;
+    }
+    .light input,.light select,.light textarea{background:#fff}
+    textarea{min-height:90px}
+    .row{display:flex;gap:10px;align-items:center}
+    .space{height:8px}
+    .btn{padding:12px 16px;border-radius:10px;border:1px solid var(--border);background:var(--chip);color:var(--text);cursor:pointer}
+    .btn.primary{background:var(--primary);border-color:transparent;color:#fff}
+    .btn.muted{background:transparent}
+    .btn.danger{background:var(--danger);border-color:transparent;color:#fff}
+    .right{display:flex;justify-content:flex-end;gap:10px}
+    .table{width:100%;border-collapse:collapse}
+    .table th,.table td{border-bottom:1px solid var(--border);padding:10px 6px;text-align:left}
+    .total{font-weight:600}
+    .status{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:var(--bg-card)}
+    .status.ok{border-color:transparent;background:var(--ok);color:#fff}
+    .status.err{border-color:transparent;background:var(--danger);color:#fff}
+    .hidden{display:none}
+    .avatar{padding:8px 10px;border:1px solid var(--border);border-radius:10px;background:var(--chip)}
+    .thumbs{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+    .thumb{position:relative}
+    .thumb img{width:90px;height:90px;object-fit:cover;border-radius:10px;border:1px solid var(--border)}
+    .thumb button{position:absolute;right:4px;top:4px;background:rgba(0,0,0,.55);color:#fff;border:none;border-radius:8px;padding:2px 6px;cursor:pointer}
+    /* modal */
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;padding:16px;z-index:8}
+    .modal.show{display:flex}
+    .receipt{max-width:520px;width:100%;background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:18px}
+    .receipt h3{margin:0 0 10px}
+    .kv{display:flex;justify-content:space-between;gap:14px;padding:6px 0;border-bottom:1px dashed var(--border)}
+    .kv:last-child{border-bottom:none}
+    .muted{color:var(--muted)}
+  </style>
 </head>
 <body>
-<header>
-  <div>🚚 <b>Romaneio</b></div>
-  <nav>
-    <a href="#" id="btnTest">Testar API</a>
-  </nav>
-</header>
+  <header>
+    <div class="wrap nav">
+      <div class="row" style="gap:10px">
+        <div class="chip">🚚 <b>Romaneio</b> <span id="who" class="tag"></span></div>
+        <div class="menu">
+          <a class="chip primary" href="#rom">Enviar Romaneio</a>
+          <a class="chip ghost" href="#clients">Clientes</a>
+          <a class="chip ghost" href="#roms">Romaneios</a>
+          <a class="chip ghost" href="#fin">Financeiro</a>
+          <a class="chip ghost" id="goUsers" href="#users">Usuários</a>
+        </div>
+      </div>
+      <div class="row" style="gap:8px">
+        <button id="themeBtn" class="chip">🌙/☀️</button>
+        <button id="logoutBtn" class="chip danger">Sair</button>
+      </div>
+    </div>
+  </header>
 
-<main class="wrap">
-
-  <div class="card">
+  <main class="wrap" id="viewRom">
     <h2>Enviar Romaneio</h2>
-
-    <div class="grid">
-      <label>ROM
-        <input id="rom_rom" type="number" placeholder="Ex.: 21"/>
-      </label>
-      <label>Data
-        <input id="rom_data" type="date"/>
-      </label>
-      <label>Observações
-        <input id="rom_obs" placeholder="Ex.: Doca 3, às 16h"/>
-      </label>
+    <div class="card">
+      <div class="grid">
+        <div>
+          <label>ROM</label>
+          <input id="rom" type="text" placeholder="Ex.: 21">
+        </div>
+        <div>
+          <label>Data</label>
+          <input id="data" type="date">
+        </div>
+      </div>
+      <div class="space"></div>
+      <div>
+        <label>Observações</label>
+        <textarea id="obs" placeholder="Ex.: Doca 3, até 16h"></textarea>
+      </div>
     </div>
 
-    <h3>Cliente</h3>
-    <div class="grid">
-      <label>Telefone <input id="cli_tel" placeholder="85999999999"/></label>
-      <label>Nome <input id="cli_nome" placeholder="Nome do cliente"/></label>
-      <label>Cidade/UF <input id="cli_loc" placeholder="Fortaleza/CE"/></label>
+    <div class="card">
+      <h3>Cliente</h3>
+      <div class="grid">
+        <div>
+          <label>Telefone</label>
+          <input id="cli_tel" placeholder="85999999999" inputmode="numeric">
+        </div>
+        <div>
+          <label>Nome</label>
+          <input id="cli_nome" placeholder="Nome do cliente">
+        </div>
+        <div>
+          <label>Cidade/UF</label>
+          <input id="cli_local" placeholder="Fortaleza/CE">
+        </div>
+        <div class="muted" style="display:flex;align-items:flex-end">Fornecedor opcional ➜</div>
+      </div>
+      <div class="space"></div>
+      <h3>Fornecedor</h3>
+      <div class="grid">
+        <div>
+          <label>Telefone</label>
+          <input id="for_tel" placeholder="85999999999" inputmode="numeric">
+        </div>
+        <div>
+          <label>Nome</label>
+          <input id="for_nome" placeholder="Nome do fornecedor">
+        </div>
+        <div>
+          <label>Cidade/UF</label>
+          <input id="for_local" placeholder="Maracanaú/CE">
+        </div>
+      </div>
     </div>
 
-    <h3>Fornecedor (opcional)</h3>
-    <div class="grid">
-      <label>Telefone <input id="for_tel" placeholder="85999999999"/></label>
-      <label>Nome <input id="for_nome" placeholder="Nome do fornecedor"/></label>
-      <label>Cidade/UF <input id="for_loc" placeholder="Maracanaú/CE"/></label>
+    <div class="card">
+      <div class="row" style="justify-content:space-between;align-items:center">
+        <h3>Itens</h3>
+        <div class="muted">Total: <span id="total">0</span></div>
+      </div>
+      <table class="table" id="tblItens">
+        <thead>
+          <tr><th>Tipo</th><th>Tamanho</th><th>Qtd</th><th>Ação</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div class="space"></div>
+      <button class="btn" id="addItem">+ Item</button>
     </div>
 
-    <h3>Itens</h3>
-    <table id="tblItens">
-      <thead><tr><th>Tipo</th><th>Tamanho</th><th>Qtd</th><th></th></tr></thead>
-      <tbody></tbody>
-    </table>
-    <div class="row" style="margin-top:8px">
-      <button class="btn muted" id="addItem">+ Item</button>
-      <div class="mini">Total: <b id="rom_total">0</b></div>
+    <div class="card">
+      <h3>Fotos</h3>
+      <input id="fotoInput" type="file" accept="image/*" multiple />
+      <div class="thumbs" id="thumbs"></div>
+      <div class="muted" style="margin-top:8px">Você pode selecionar várias imagens. Pré-visualização acima.</div>
     </div>
 
-    <h3>Fotos</h3>
-    <input id="rom_fotos" type="file" accept="image/*" multiple/>
-    <div class="mini">Você pode selecionar várias imagens. Pré-visualização abaixo.</div>
-    <div id="thumbs" class="thumbs" style="margin-top:8px"></div>
-
-    <div class="row" style="margin-top:14px">
-      <button class="btn primary" id="btnEnviar">Enviar</button>
-      <button class="btn" id="btnLimpar">Limpar</button>
+    <div class="right">
+      <button id="btnLimpar" class="btn muted">Limpar</button>
+      <button id="btnEnviar" class="btn primary">Enviar</button>
     </div>
+  </main>
 
-    <div id="out" class="mini" style="margin-top:10px"></div>
+  <!-- status -->
+  <div id="status" class="status hidden">...</div>
+
+  <!-- modal recibo -->
+  <div id="modal" class="modal">
+    <div class="receipt">
+      <h3>✅ Romaneio criado</h3>
+      <div class="kv"><span class="muted">Código</span><b id="rc_cod">—</b></div>
+      <div class="kv"><span class="muted">ROM</span><span id="rc_rom"></span></div>
+      <div class="kv"><span class="muted">Cliente</span><span id="rc_cli"></span></div>
+      <div class="kv"><span class="muted">Fornecedor</span><span id="rc_for"></span></div>
+      <div class="kv"><span class="muted">Total</span><span id="rc_total"></span></div>
+      <div class="space"></div>
+      <div class="row" style="gap:8px;flex-wrap:wrap">
+        <a class="btn" id="rc_pdf" target="_blank">Abrir PDF</a>
+        <a class="btn" id="rc_wa" target="_blank">WhatsApp</a>
+        <button class="btn" id="rc_copy">Copiar código</button>
+        <button class="btn danger" id="rc_close">Fechar</button>
+      </div>
+    </div>
   </div>
 
-  <div class="card" style="margin-top:16px">
-    <h3>Diagnóstico rápido</h3>
-    <div class="mini">Mostra o que o servidor recebeu em <code>/echo</code>.</div>
-    <pre id="diag" class="mini" style="white-space:pre-wrap;background:#0b1220;border:1px solid var(--border);padding:10px;border-radius:8px;margin-top:8px"></pre>
-  </div>
+  <script>
+  // ========= CONFIG =========
+  const API_BASE = "https://script.google.com/macros/s/AKfycbzahPVwksRN4y6WnYZ6sXfCWftB_YDiL2nfyTw0QPMelz_A_3GKmrtMV-4QysIhTu8R/exec"; // <- SEU /exec
 
-</main>
-
-<div id="badge" class="badge" style="display:none"></div>
-
-<script>
-/* ========= CONFIG ========= */
-// COLE AQUI sua URL /exec (a mais recente após "Implantar")
-const API_BASE = "https://script.google.com/macros/s/AKfycbwQI7qWHBqRRbLs6lzF13-t2Fi3V7bDTpatRbqSsLk/dev";
-
-/* ========= HELPERS ========= */
-const $ = s => document.querySelector(s);
-function showBadge(msg, ok=false){
-  const el = $('#badge'); el.textContent = msg; el.className = 'badge ' + (ok?'ok':'err');
-  el.style.display='block'; setTimeout(()=> el.style.display='none', 3500);
-}
-function sess(){
-  try { return JSON.parse(localStorage.getItem('session')) || null; } catch(_){ return null; }
-}
-function todayStr(){
-  const d=new Date(); const m=String(d.getMonth()+1).padStart(2,'0'); const day=String(d.getDate()).padStart(2,'0');
-  return `${d.getFullYear()}-${m}-${day}`;
-}
-function ensurePath(p){ p=String(p||'/'); return p.startsWith('/')?p:('/'+p); }
-
-/* ========= API ========= */
-async function api(path, body = {}){
-  path = ensurePath(path);
-  const s = sess();
-  const url = API_BASE + '?path=' + encodeURIComponent(path);
-  const res = await fetch(url, {
-    method:'POST',
-    headers:{ 'Content-Type':'text/plain;charset=utf-8' },
-    body: JSON.stringify({ token:s?.token, ...body }),
-    cache:'no-store',
-    redirect:'follow'
-  });
-  let dataText = await res.text(); 
-  let data; try { data = JSON.parse(dataText); } catch(_){ data = { raw:dataText }; }
-  return data;
-}
-
-/* ========= UI: Itens ========= */
-function addItemRow(tipo='caixa', tam='p', qtd=1){
-  const tb = $('#tblItens tbody');
-  const tr = document.createElement('tr');
-  tr.innerHTML = `
-    <td>
-      <select class="tipo">
-        <option value="caixa"${tipo==='caixa'?' selected':''}>Caixa</option>
-        <option value="saco"${tipo==='saco'?' selected':''}>Saco</option>
-      </select>
-    </td>
-    <td>
-      <select class="tam">
-        <option value="p"${tam==='p'?' selected':''}>P</option>
-        <option value="m"${tam==='m'?' selected':''}>M</option>
-        <option value="g"${tam==='g'?' selected':''}>G</option>
-      </select>
-    </td>
-    <td><input type="number" class="qtd" min="0" value="${qtd}"/></td>
-    <td><button type="button" class="btn bad btnDel">Remover</button></td>`;
-  tb.appendChild(tr);
-  calcTotal();
-}
-function calcTotal(){
-  let tot=0;
-  document.querySelectorAll('#tblItens .qtd').forEach(i=> tot += Number(i.value||0));
-  $('#rom_total').textContent = tot;
-}
-document.addEventListener('input', e => { if(e.target.classList.contains('qtd')) calcTotal(); });
-document.addEventListener('click', e=>{
-  if(e.target.id==='addItem') addItemRow();
-  if(e.target.classList.contains('btnDel')) { e.target.closest('tr').remove(); calcTotal(); }
-});
-
-/* ========= Fotos preview ========= */
-$('#rom_fotos').addEventListener('change', ()=>{
-  const cont = $('#thumbs'); cont.innerHTML='';
-  const files = Array.from($('#rom_fotos').files||[]);
-  files.forEach(f=>{
-    const r = new FileReader();
-    r.onload = ()=> {
-      const img = new Image(); img.src = r.result; 
-      cont.appendChild(img);
-    };
-    r.readAsDataURL(f);
-  });
-});
-
-/* ========= Enviar ========= */
-async function filesToBase64(input){
-  const files = Array.from(input.files||[]);
-  const arr = await Promise.all(files.map(f => new Promise(res=>{
-    const r = new FileReader(); r.onload = ()=> res({ name:f.name, data:r.result }); r.readAsDataURL(f);
-  })));
-  return arr;
-}
-
-async function enviar(){
-  try{
-    const itens = Array.from(document.querySelectorAll('#tblItens tbody tr')).map(tr=>({
-      tipo: tr.querySelector('.tipo').value,
-      tamanho: tr.querySelector('.tam').value,
-      qtd: Number(tr.querySelector('.qtd').value||0)
-    })).filter(i=> i.qtd>0);
-
-    const fotos = await filesToBase64($('#rom_fotos'));
-
-    const body = {
-      rom: $('#rom_rom').value,
-      data: $('#rom_data').value,
-      obs : $('#rom_obs').value,
-      cliente: { tel: $('#cli_tel').value, nome: $('#cli_nome').value, local: $('#cli_loc').value },
-      fornecedor: { tel: $('#for_tel').value, nome: $('#for_nome').value, local: $('#for_loc').value },
-      itens, fotos
-    };
-
-    $('#out').textContent = 'Enviando...';
-    const r = await api('/rom/create', body);
-    $('#out').textContent = JSON.stringify(r, null, 2);
-
-    if(r.error){ showBadge('Erro: '+r.error,false); return; }
-    showBadge('Romaneio criado! COD '+r.cod, true);
-
-  }catch(err){
-    $('#out').textContent = 'Falha: '+err.message;
-    showBadge('Falha: '+err.message, false);
+  // ========= TEMA =========
+  const root = document.documentElement;
+  function applyTheme(){
+    const t = localStorage.getItem("theme") || "dark";
+    if(t === "light") root.classList.add("light"); else root.classList.remove("light");
   }
-}
+  applyTheme();
+  document.getElementById("themeBtn").onclick = ()=>{
+    const cur = localStorage.getItem("theme") || "dark";
+    localStorage.setItem("theme", cur==="dark" ? "light" : "dark");
+    applyTheme();
+  };
 
-/* ========= Diagnóstico /echo ========= */
-async function testarEcho(){
-  const payload = { foo:'bar', momento: new Date().toISOString() };
-  const r = await api('/echo', payload);
-  $('#diag').textContent = JSON.stringify(r, null, 2);
-  if(r && (r.ok||r.pong!==undefined)) showBadge('Echo OK', true);
-  else showBadge('Echo falhou', false);
-}
+  // ========= SESSÃO / GUARDA =========
+  const sess = JSON.parse(localStorage.getItem("sess") || "null");
+  const who = document.getElementById("who");
+  if(!sess || !sess.token){
+    // guarda simples sem loop
+    window.location.href = "./index.html";
+  }else{
+    who.textContent = sess.usuario ? ` ${sess.usuario}` : "";
+  }
+  document.getElementById("logoutBtn").onclick = async ()=>{
+    try{ await post("/logout", {}); }catch(_){}
+    localStorage.removeItem("sess");
+    window.location.href = "./index.html";
+  };
 
-/* ========= Inicialização ========= */
-document.addEventListener('DOMContentLoaded', ()=>{
-  $('#rom_data').value = todayStr();
-  addItemRow();
-  $('#btnEnviar').addEventListener('click', enviar);
-  $('#btnLimpar').addEventListener('click', ()=> location.reload());
-  $('#btnTest').addEventListener('click', (e)=>{ e.preventDefault(); testarEcho(); });
-});
-</script>
+  // ========= HELPERS =========
+  function showStatus(msg, kind=""){
+    const el = document.getElementById("status");
+    el.textContent = msg;
+    el.classList.remove("hidden","ok","err");
+    if(kind==="ok") el.classList.add("ok");
+    if(kind==="err") el.classList.add("err");
+    setTimeout(()=>el.classList.add("hidden"), 3500);
+  }
+  function todayISO(){
+    const d = new Date();
+    const m = String(d.getMonth()+1).padStart(2,"0");
+    const dy = String(d.getDate()).padStart(2,"0");
+    return `${d.getFullYear()}-${m}-${dy}`;
+  }
+
+  async function post(path, body){
+    const r = await fetch(`${API_BASE}?path=${encodeURIComponent(path)}`,{
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ ...(body||{}), token: sess?.token || "" })
+    });
+    // Apps Script sempre responde 200; checamos JSON
+    return await r.json();
+  }
+
+  // ========= FORM DOM =========
+  const $ = (id)=>document.getElementById(id);
+  $("data").value = todayISO();
+
+  // Itens (linhas)
+  const tbody = $("tblItens").querySelector("tbody");
+  function recalc(){
+    let tot = 0;
+    tbody.querySelectorAll("tr").forEach(tr=>{
+      const q = Number(tr.querySelector('input[type="number"]').value||0);
+      tot += q;
+    });
+    $("total").textContent = tot;
+  }
+  function addRow(tipo="Caixa", tam="P", qtd=1){
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>
+        <select>
+          <option${tipo==="Caixa"?" selected":""}>Caixa</option>
+          <option${tipo==="Saco"?" selected":""}>Saco</option>
+        </select>
+      </td>
+      <td>
+        <select>
+          <option${tam==="P"?" selected":""}>P</option>
+          <option${tam==="M"?" selected":""}>M</option>
+          <option${tam==="G"?" selected":""}>G</option>
+        </select>
+      </td>
+      <td><input type="number" min="1" value="${qtd}"></td>
+      <td><button class="btn danger btnDel">Remover</button></td>
+    `;
+    tr.querySelector('input[type="number"]').addEventListener("input", recalc);
+    tr.querySelector(".btnDel").onclick = ()=>{ tr.remove(); recalc(); };
+    tbody.appendChild(tr);
+    recalc();
+  }
+  $("addItem").onclick = ()=> addRow();
+  // começa com 1 linha
+  addRow();
+
+  // Fotos (pré-visualização)
+  let fotos = []; // {file, dataUrl}
+  async function fileToDataURL(file){
+    return new Promise((res,rej)=>{
+      const fr = new FileReader();
+      fr.onload = ()=>res(fr.result);
+      fr.onerror = rej;
+      fr.readAsDataURL(file);
+    });
+  }
+  function renderThumbs(){
+    const c = $("thumbs"); c.innerHTML = "";
+    fotos.forEach((f,i)=>{
+      const d = document.createElement("div");
+      d.className = "thumb";
+      d.innerHTML = `<img src="${f.dataUrl}"><button title="Remover">✕</button>`;
+      d.querySelector("button").onclick = ()=>{ fotos.splice(i,1); renderThumbs(); };
+      c.appendChild(d);
+    });
+  }
+  $("fotoInput").addEventListener("change", async (ev)=>{
+    const files = Array.from(ev.target.files||[]);
+    for(const file of files){
+      const dataUrl = await fileToDataURL(file);
+      fotos.push({ file, dataUrl });
+    }
+    renderThumbs();
+    // limpa o input para permitir escolher o mesmo arquivo de novo
+    ev.target.value = "";
+  });
+
+  // Limpar formulário
+  $("btnLimpar").onclick = ()=>{
+    $("rom").value = "";
+    $("data").value = todayISO();
+    $("obs").value = "";
+    $("cli_tel").value = "";
+    $("cli_nome").value = "";
+    $("cli_local").value = "";
+    $("for_tel").value = "";
+    $("for_nome").value = "";
+    $("for_local").value = "";
+    tbody.innerHTML = "";
+    addRow();
+    fotos = [];
+    renderThumbs();
+    showStatus("Formulário limpo");
+  };
+
+  // Enviar
+  $("btnEnviar").onclick = async ()=>{
+    try{
+      const rom = $("rom").value.trim();
+      const data = $("data").value;
+      const obs  = $("obs").value.trim();
+      const cliente = { tel:$("cli_tel").value.trim(), nome:$("cli_nome").value.trim(), local:$("cli_local").value.trim() };
+      const fornecedor = { tel:$("for_tel").value.trim(), nome:$("for_nome").value.trim(), local:$("for_local").value.trim() };
+
+      const itens = [];
+      tbody.querySelectorAll("tr").forEach(tr=>{
+        const tipo = tr.children[0].querySelector("select").value;
+        const tamanho = tr.children[1].querySelector("select").value;
+        const qtd = Number(tr.children[2].querySelector('input[type="number"]').value||0);
+        if(qtd>0) itens.push({ tipo, tamanho, qtd });
+      });
+      if(!itens.length){ showStatus("Adicione ao menos 1 item", "err"); return; }
+
+      // prepara fotos (base64)
+      const fotosPayload = fotos.map(f=>({ name:f.file?.name||"foto.jpg", data:f.dataUrl }));
+
+      showStatus("Enviando…");
+      const rsp = await post("/rom/create", { rom, data, obs, cliente, fornecedor, itens, fotos:fotosPayload });
+      if(rsp.error){ showStatus(rsp.error, "err"); return; }
+
+      // sucesso
+      showStatus("Romaneio criado!", "ok");
+
+      // Zera o form
+      $("btnLimpar").click();
+
+      // abre modal recibo
+      $("rc_cod").textContent   = rsp.cod;
+      $("rc_rom").textContent   = rom || "—";
+      $("rc_cli").textContent   = `${cliente.nome || "—"} (${cliente.tel || "—"})`;
+      $("rc_for").textContent   = `${fornecedor.nome || "—"} (${fornecedor.tel || "—"})`;
+      $("rc_total").textContent = (itens.reduce((s,i)=>s+Number(i.qtd||0),0)).toString();
+      $("rc_pdf").href = rsp.pdfUrl || "#";
+      $("rc_wa").href  = rsp.whatsappUrl || "#";
+      $("modal").classList.add("show");
+
+    }catch(err){
+      console.error(err);
+      showStatus("Falha: " + (err?.message||err), "err");
+    }
+  };
+
+  $("rc_close").onclick = ()=> $("modal").classList.remove("show");
+  $("rc_copy").onclick  = async ()=>{
+    const code = $("rc_cod").textContent;
+    try{ await navigator.clipboard.writeText(code); showStatus("Código copiado", "ok"); }
+    catch(_){ showStatus("Não foi possível copiar", "err"); }
+  };
+
+  // ======== ROTEAMENTO TRIVIAL (mantém menu “ativo”) ========
+  function markMenu(){
+    const h = (location.hash||"#rom");
+    document.querySelectorAll("header .menu a").forEach(a=>{
+      a.classList.toggle("primary", a.getAttribute("href")===h);
+      a.classList.toggle("ghost", a.getAttribute("href")!==h);
+    });
+  }
+  window.addEventListener("hashchange", markMenu);
+  markMenu();
+
+  // ======== DIAGNÓSTICO RÁPIDO (opcional, comente se quiser) ========
+  (async()=>{
+    try{
+      const pong = await post("/ping",{});
+      if(!pong || !pong.pong) console.warn("Ping sem sucesso", pong);
+    }catch(e){
+      console.warn("Ping falhou", e);
+    }
+  })();
+  </script>
 </body>
 </html>
