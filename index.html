@@ -1,113 +1,174 @@
 <!doctype html>
-<html lang="pt-BR" data-theme="dark">
+<html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Romaneio • Login</title>
-  <meta name="theme-color" content="#0d1117" />
+  <!-- anti-cache -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <style>
-    :root{--bg:#0d1117;--panel:#0f172a;--text:#e6edf3;--muted:#8a94a6;--primary:#2563eb;--ok:#16a34a;--err:#ef4444;--border:#1f2a44}
-    [data-theme="light"]{--bg:#f7f7fb;--panel:#ffffff;--text:#0b1020;--muted:#56617a;--primary:#2563eb;--ok:#15803d;--err:#dc2626;--border:#e5e7eb}
-    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif}
-    .wrap{min-height:100dvh;display:grid;place-items:center;padding:16px}
-    .card{width:min(420px,100%);background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px 16px}
-    h1{margin:0 0 10px 0;font-size:1.3rem}
-    label{display:block;margin:10px 0 6px;font-weight:600}
-    input{width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;background:transparent;color:var(--text)}
-    .row{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:12px}
-    button{padding:.75rem 1rem;border:1px solid var(--primary);background:var(--primary);color:#fff;border-radius:10px;font-weight:700;cursor:pointer}
-    .muted{color:var(--muted);font-size:.9rem}
-    .status{margin-top:10px;height:36px;border-radius:8px;display:flex;align-items:center;padding:0 10px;font-weight:600}
-    .status.ok{background:rgba(22,163,74,.12);color:var(--ok);border:1px solid rgba(22,163,74,.4)}
-    .status.err{background:rgba(239,68,68,.12);color:var(--err);border:1px solid rgba(239,68,68,.4)}
-    .progress{height:6px;background:linear-gradient(90deg,var(--primary),transparent);border-radius:999px;animation:load 1.2s linear infinite;margin-top:10px}
-    @keyframes load{from{background-position-x:0}to{background-position-x:200%}}
-    .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-    .theme{background:transparent;border:1px solid var(--border);color:var(--text)}
+    :root{
+      --bg:#0f172a; --card:#0b1222; --text:#e5e7eb; --muted:#94a3b8;
+      --primary:#3b82f6; --primary-2:#1d4ed8; --border:#1f2a44; --chip:#111a31;
+      --ok:#22c55e; --err:#ef4444;
+    }
+    .light{
+      --bg:#f6f7fb; --card:#ffffff; --text:#0f172a; --muted:#475569;
+      --primary:#2563eb; --primary-2:#1e40af; --border:#e5e7eb; --chip:#edf2ff;
+      --ok:#16a34a; --err:#dc2626;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif}
+    .wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+    .card{width:100%;max-width:420px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px}
+    h1{margin:0 0 8px}
+    .muted{color:var(--muted)}
+    label{font-size:13px;color:var(--muted);display:block;margin:10px 0 6px}
+    input{
+      width:100%;padding:12px;border-radius:10px;border:1px solid var(--border);
+      background:#0b1222;color:var(--text)
+    }
+    .light input{background:#fff}
+    .row{display:flex;gap:10px;align-items:center}
+    .between{display:flex;justify-content:space-between;align-items:center}
+    .btn{
+      width:100%;padding:12px 16px;border-radius:10px;border:1px solid var(--border);
+      background:var(--primary);color:#fff;cursor:pointer;font-weight:600
+    }
+    .ghost{background:transparent;color:var(--text)}
+    .chip{padding:8px 10px;border:1px solid var(--border);border-radius:10px;background:var(--chip);cursor:pointer}
+    .status{margin-top:10px;padding:10px 12px;border-radius:10px;border:1px solid var(--border)}
+    .ok{background:var(--ok);color:#fff;border-color:transparent}
+    .err{background:var(--err);color:#fff;border-color:transparent}
+    .eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;opacity:.7}
+    .relative{position:relative}
+    .footer{margin-top:14px;display:flex;justify-content:space-between;align-items:center}
+    a{color:inherit}
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="card">
-      <div class="toolbar">
-        <div>🚚 <b>Romaneio</b></div>
-        <button class="theme" id="btnTheme" type="button">🌙/☀️</button>
+      <div class="between">
+        <h1>🚚 Romaneio</h1>
+        <button id="themeBtn" class="chip">🌙/☀️</button>
       </div>
-      <h1>Login</h1>
-      <p class="muted">Use seu usuário e senha. Admin gerencia acessos.</p>
+      <div class="muted">Acesse com seu usuário e senha.</div>
 
       <label>Usuário</label>
-      <input id="usuario" placeholder="ex: admin" autocomplete="username" />
+      <input id="usuario" placeholder="ex.: admin" autocomplete="username" />
 
       <label>Senha</label>
-      <input id="senha" type="password" placeholder="••••••••" autocomplete="current-password" />
-
-      <div class="row">
-        <button id="btnLogin">Entrar</button>
-        <small class="muted">v<span id="ver"></span></small>
+      <div class="relative">
+        <input id="senha" type="password" placeholder="••••••" autocomplete="current-password" />
+        <span id="toggleEye" class="eye">👁️</span>
       </div>
 
-      <div id="progress" class="progress" style="display:none"></div>
-      <div id="status" class="status" style="display:none"></div>
+      <div style="height:10px"></div>
+      <button id="btnLogin" class="btn">Entrar</button>
+
+      <div id="msg" class="status" style="display:none"></div>
+
+      <div class="footer">
+        <small class="muted">Precisa de ajuda? Fale com o suporte.</small>
+        <a id="testPing" class="chip ghost" href="#">Testar conexão</a>
+      </div>
     </div>
   </div>
 
-<script>
-const APP_VERSION = "v2025-08-28-1";
-document.getElementById("ver").textContent = APP_VERSION;
+  <script>
+    // ====== CONFIG: USE O MESMO /exec DO APP ======
+    const API_BASE = "https://script.google.com/macros/s/AKfycbzahPVwksRN4y6WnYZ6sXfCWftB_YDiL2nfyTw0QPMelz_A_3GKmrtMV-4QysIhTu8R/exec";
 
-// Tema
-function toggleTheme(){
-  const root = document.documentElement;
-  const cur = root.getAttribute("data-theme") || "dark";
-  const next = cur === "dark" ? "light" : "dark";
-  root.setAttribute("data-theme", next);
-  localStorage.setItem("theme", next);
-}
-document.getElementById("btnTheme").onclick = toggleTheme;
-(function bootTheme(){
-  const saved = localStorage.getItem("theme");
-  if (saved) document.documentElement.setAttribute("data-theme", saved);
-})();
+    // ====== TEMA ======
+    const root = document.documentElement;
+    function applyTheme(){
+      const t = localStorage.getItem("theme") || "dark";
+      if(t==="light") root.classList.add("light"); else root.classList.remove("light");
+    }
+    applyTheme();
+    document.getElementById("themeBtn").onclick = ()=>{
+      const cur = localStorage.getItem("theme")||"dark";
+      localStorage.setItem("theme", cur==="dark"?"light":"dark");
+      applyTheme();
+    };
 
-const API_BASE = "https://script.google.com/macros/s/AKfycbzahPVwksRN4y6WnYZ6sXfCWftB_YDiL2nfyTw0QPMelz_A_3GKmrtMV-4QysIhTu8R/exec";
+    // ====== UI helpers ======
+    const $ = (id)=>document.getElementById(id);
+    function showMsg(text, kind=""){
+      const el = $("msg");
+      el.textContent = text;
+      el.className = "status " + (kind==="ok"?"ok":kind==="err"?"err":"");
+      el.style.display = "block";
+    }
 
-function showStatus(kind,msg){ const s=document.getElementById("status"); s.className="status "+kind; s.textContent=msg; s.style.display="flex"; }
-function showProgress(on){ document.getElementById("progress").style.display = on ? "block" : "none"; }
+    // ====== HTTP ======
+    async function post(path, body){
+      const r = await fetch(`${API_BASE}?path=${encodeURIComponent(path)}`,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify(body||{})
+      });
+      return await r.json();
+    }
 
-async function api(path, body={}){
-  const url = API_BASE + "?path=" + encodeURIComponent(path) + "&nocache=" + Date.now();
-  const res = await fetch(url,{ method:"POST", headers:{ "Content-Type":"text/plain;charset=utf-8" }, body: JSON.stringify(body) });
-  if (!res.ok) throw new Error("HTTP "+res.status);
-  return res.json();
-}
+    // ====== Guarda: se já tem sessão válida, vai pro app ======
+    (async()=>{
+      try{
+        const sess = JSON.parse(localStorage.getItem("sess")||"null");
+        if(sess && sess.token){
+          const w = await post("/whoami",{ token:sess.token });
+          if(w && w.session && w.session.usuario){
+            location.href = "./app.html";
+            return;
+          }else{
+            localStorage.removeItem("sess");
+          }
+        }
+      }catch(e){/* silencia */}
+    })();
 
-document.getElementById("btnLogin").addEventListener("click", async ()=>{
-  try{
-    showProgress(true); showStatus("",""); document.getElementById("status").style.display="none";
-    const usuario = document.getElementById("usuario").value.trim();
-    const senha   = document.getElementById("senha").value;
-    if(!usuario || !senha){ showStatus("err","Preencha usuário e senha."); showProgress(false); return; }
+    // ====== Login ======
+    async function doLogin(){
+      const usuario = $("usuario").value.trim();
+      const senha   = $("senha").value;
+      if(!usuario || !senha){ showMsg("Informe usuário e senha", "err"); return; }
+      try{
+        showMsg("Conectando…");
+        const rsp = await post("/login", { usuario, senha });
+        if(rsp && rsp.session && rsp.session.token){
+          localStorage.setItem("sess", JSON.stringify(rsp.session));
+          showMsg("Login ok. Redirecionando…", "ok");
+          setTimeout(()=>location.href="./app.html", 400);
+        }else{
+          showMsg(rsp?.error || "Falha no login", "err");
+        }
+      }catch(err){
+        showMsg("Erro de rede: " + (err?.message||err), "err");
+      }
+    }
+    $("btnLogin").onclick = doLogin;
+    $("senha").addEventListener("keydown", (e)=>{ if(e.key==="Enter") doLogin(); });
 
-    const r = await api("/login", {usuario, senha});
-    if (r.error){ showStatus("err", r.error); showProgress(false); return; }
+    // mostrar/ocultar senha
+    $("toggleEye").onclick = ()=>{
+      const i = $("senha");
+      i.type = i.type === "password" ? "text" : "password";
+    };
 
-    localStorage.setItem("session", JSON.stringify(r.session||null));
-    showStatus("ok","Login concluído!");
-    // redireciona bustando cache
-    location.href = "app.html?v=" + Date.now();
-  }catch(err){
-    showStatus("err", "Falha: " + err.message);
-  }finally{
-    showProgress(false);
-  }
-});
-
-// Se já tiver sessão válida e vier pra cá, limpamos tudo para evitar saltar login
-(function forceLogin(){
-  localStorage.removeItem("session");
-  sessionStorage.clear();
-})();
-</script>
+    // ====== Teste de conexão ======
+    $("testPing").onclick = async (e)=>{
+      e.preventDefault();
+      try{
+        const pong = await post("/ping",{});
+        if(pong && pong.pong) showMsg("Conexão ok ("+pong.at+")", "ok");
+        else showMsg("Ping sem sucesso", "err");
+      }catch(err){
+        showMsg("Ping falhou: " + (err?.message||err), "err");
+      }
+    };
+  </script>
 </body>
 </html>
