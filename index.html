@@ -1,153 +1,92 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Romaneio • Login</title>
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
   <style>
-    :root{
-      --bg:#0f172a; --card:#0b1222; --text:#e5e7eb; --muted:#94a3b8;
-      --primary:#3b82f6; --primary-2:#1d4ed8; --border:#1f2a44; --chip:#111a31;
-      --ok:#22c55e; --err:#ef4444;
-    }
-    .light{
-      --bg:#f6f7fb; --card:#ffffff; --text:#0f172a; --muted:#475569;
-      --primary:#2563eb; --primary-2:#1e40af; --border:#e5e7eb; --chip:#edf2ff;
-      --ok:#16a34a; --err:#dc2626;
-    }
-    *{box-sizing:border-box}
-    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,Segoe UI,Inter,Roboto,Arial,sans-serif}
-    .wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
-    .card{width:100%;max-width:420px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px}
-    h1{margin:0 0 8px}
-    .muted{color:var(--muted)}
-    label{font-size:13px;color:var(--muted);display:block;margin:10px 0 6px}
-    input{width:100%;padding:12px;border-radius:10px;border:1px solid var(--border);background:#0b1222;color:var(--text)}
-    .light input{background:#fff;color:#0f172a}
-    .btn{width:100%;padding:12px 16px;border-radius:10px;border:1px solid var(--border);background:var(--primary);color:#fff;font-weight:600;cursor:pointer}
-    .chip{padding:8px 10px;border:1px solid var(--border);border-radius:10px;background:var(--chip);cursor:pointer}
-    .status{margin-top:10px;padding:10px 12px;border-radius:10px;border:1px solid var(--border)}
-    .ok{background:var(--ok);color:#fff;border-color:transparent}
-    .err{background:var(--err);color:#fff;border-color:transparent}
-    .between{display:flex;justify-content:space-between;align-items:center}
-    .eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);opacity:.7;cursor:pointer}
-    .relative{position:relative}
-    .footer{margin-top:14px;display:flex;justify-content:space-between;align-items:center}
-    a{color:inherit}
+    :root{--bg:#0f172a;--card:#0b1220;--fg:#e5e7eb;--muted:#94a3b8;--brand:#2563eb;--danger:#ef4444}
+    body{margin:0;background:#0f172a;color:var(--fg);font:500 16px/1.4 system-ui,Segoe UI,Arial}
+    .center{min-height:100dvh;display:grid;place-items:center}
+    .card{width:min(420px,92vw);background:var(--card);border:1px solid #1f2937;border-radius:16px;padding:28px;box-shadow:0 8px 30px rgba(0,0,0,.25)}
+    h1{margin:0 0 8px;font-weight:700}
+    .muted{color:var(--muted);font-weight:400;margin-bottom:22px}
+    label{display:block;margin:14px 0 6px;color:var(--muted);font-size:.95rem}
+    input{width:100%;padding:12px 14px;border-radius:10px;border:1px solid #1f2937;background:#0a1020;color:var(--fg);outline:none}
+    input:focus{border-color:#334155}
+    .btn{display:inline-grid;place-items:center;height:44px;padding:0 16px;border-radius:10px;border:0;cursor:pointer}
+    .primary{background:var(--brand);color:white;width:100%;margin-top:16px}
+    .link{color:#93c5fd;text-decoration:none}
+    .err{margin-top:12px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.35);color:#fecaca;padding:10px 12px;border-radius:10px;display:none}
+    .row{display:flex;gap:10px;justify-content:flex-end;margin-top:8px}
   </style>
 </head>
 <body>
-  <div class="wrap">
+  <div class="center">
     <div class="card">
-      <div class="between">
-        <h1>🚚 Romaneio</h1>
-        <button id="themeBtn" class="chip">🌙/☀️</button>
-      </div>
+      <h1>🚚 Romaneio</h1>
       <div class="muted">Acesse com seu usuário e senha.</div>
 
       <label>Usuário</label>
-      <input id="usuario" placeholder="ex.: admin" autocomplete="username" />
+      <input id="usu" placeholder="Ex.: admin" autocomplete="username" value="admin"/>
 
       <label>Senha</label>
-      <div class="relative">
-        <input id="senha" type="password" placeholder="••••••" autocomplete="current-password" />
-        <span id="toggleEye" class="eye">👁️</span>
-      </div>
+      <input id="pwd" type="password" placeholder="Ex.: 123456" autocomplete="current-password"/>
 
-      <div style="height:10px"></div>
-      <button id="btnLogin" class="btn">Entrar</button>
-
-      <div id="msg" class="status" style="display:none"></div>
-
-      <div class="footer">
-        <small class="muted">Problema de conexão? Teste abaixo.</small>
-        <a id="testPing" class="chip" href="#">Testar</a>
-      </div>
+      <button class="btn primary" id="btnLogin">Entrar</button>
+      <div class="row"><a class="link" href="#" id="btnTest">Testar conexão</a></div>
+      <div class="err" id="msg"></div>
     </div>
   </div>
 
-  <script>
-    // ========= TROQUE AQUI PELO SEU /exec =========
-    const API_BASE = "https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLj1he6pEbcg2BYwJJotAEvhpzl5YZsnQxW8BfPXrcje0CxInM7VSp-qK7VEdwzDiSSXEIShjP-tonbqbFx7RzgBu_UCmzjeprZ_MYo3xo4efKcUPZdZcyYbYRcrIJGwAgAach_q9_tF5RzbwA3lWkJQXbYsI7V5FbImQHhPd7GVwAKhRPzhs45AfmXK0GuBaNUZrowWYwbVVAwW-XSkqdizQArbCFh-qiW_0qVGzIx4xbDE0iL4NKWi3laib5l7pVqV8OT-wWV9J8EC8tsWvFdgdrGPKg&lib=MgCquoYzRceSzn8l97_yAGg5THVlN2byw";
-    // ==============================================
+<script>
+/** CONFIG – cole sua URL googleusercontent aqui */
+const API_BASE = "https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLgNJA1vrNW6E5KMUUpA_eDS1PyLc1ymDTn6TV-NoUUuKqrUhXYySJ-uk9wpWxlPFUEo5JZwfyyEEoeqZetFzVzlnPMvajAz_4AMr6DxnWXS0NwHJeYL9kqXBQLiYX-4Ew8kc4sRjF7kzl3OfVVey1bKUUpHGBpg1oTQWk5ULOh_wth0fq_ljZYJl_clpNupHt8FpBBYkPAt64XWqO_Qcu9GZcdfNpWeSI4r8IyI2Yh8DvYGNVhYK9fYhUMlMRkeFSqmJGB65C0oDdAD2bT5fGAkDr4jAA&lib=MgCquoYzRceSzn8l97_yAGg5THVlN2byw";
 
-    // tema
-    const root = document.documentElement;
-    const applyTheme = ()=> (localStorage.getItem("theme")==="light" ? root.classList.add("light") : root.classList.remove("light"));
-    applyTheme();
-    document.getElementById("themeBtn").onclick = ()=>{
-      const cur = localStorage.getItem("theme")||"dark";
-      localStorage.setItem("theme", cur==="dark"?"light":"dark");
-      applyTheme();
-    };
+/** util */
+function setMsg(t){ const el = document.getElementById('msg'); if(t){el.style.display='block'; el.textContent=t;} else el.style.display='none'; }
 
-    // helpers
-    const $ = (id)=>document.getElementById(id);
-    function showMsg(t,k=""){ const el=$("msg"); el.textContent=t; el.className="status "+(k==="ok"?"ok":k==="err"?"err":""); el.style.display="block"; }
+/** chamada API padrão */
+async function api(path, data={}){
+  const r = await fetch(API_BASE+"?path="+encodeURIComponent(path),{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify(data)
+  });
+  if(!r.ok) throw new Error("HTTP "+r.status);
+  return r.json();
+}
 
-    async function post(path, body){
-      const r = await fetch(`${API_BASE}?path=${encodeURIComponent(path)}`, {
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body: JSON.stringify(body||{})
-      });
-      return r.json();
-    }
+document.getElementById('btnTest').addEventListener('click', async (e)=>{
+  e.preventDefault();
+  setMsg('');
+  try{
+    const j = await api("/ping",{});
+    alert("OK: "+JSON.stringify(j));
+  }catch(err){
+    setMsg("Erro de rede: "+err.message);
+  }
+});
 
-    // guarda: já logado?
-    (async ()=>{
-      try{
-        const sess = JSON.parse(localStorage.getItem("sess") || localStorage.getItem("session") || "null");
-        if(sess && sess.token){
-          const w = await post("/whoami",{ token: sess.token });
-          if(w && w.session && w.session.usuario){
-            location.replace(`./app.html?v=${Date.now()}`);
-            return;
-          }else{
-            localStorage.removeItem("sess");
-            localStorage.removeItem("session");
-          }
-        }
-      }catch(_){}
-    })();
-
-    async function doLogin(){
-      const usuario = $("usuario").value.trim();
-      const senha   = $("senha").value;
-      if(!usuario || !senha){ showMsg("Informe usuário e senha","err"); return; }
-      try{
-        showMsg("Conectando…");
-        const rsp = await post("/login",{usuario,senha});
-        if(rsp && rsp.session && rsp.session.token){
-          // grava nas DUAS chaves para compatibilidade
-          localStorage.setItem("sess", JSON.stringify(rsp.session));
-          localStorage.setItem("session", JSON.stringify(rsp.session));
-          showMsg("Login concluído. Redirecionando…","ok");
-          // força navegação sem voltar
-          setTimeout(()=>location.replace(`./app.html?v=${Date.now()}`), 250);
-        }else{
-          showMsg(rsp?.error || "Falha no login","err");
-        }
-      }catch(e){
-        showMsg("Erro de rede: "+(e?.message||e),"err");
-      }
-    }
-    $("btnLogin").onclick = doLogin;
-    $("senha").addEventListener("keydown",(e)=>{ if(e.key==="Enter") doLogin(); });
-    $("toggleEye").onclick = ()=>{ const i=$("senha"); i.type = i.type==="password"?"text":"password"; };
-
-    // teste de ping
-    $("testPing").onclick = async (ev)=>{
-      ev.preventDefault();
-      try{
-        const pong = await post("/ping",{});
-        if(pong && pong.pong) showMsg("Conexão OK ("+pong.at+")","ok");
-        else showMsg("Ping sem sucesso","err");
-      }catch(e){ showMsg("Ping falhou: "+(e?.message||e),"err"); }
-    };
-  </script>
+document.getElementById('btnLogin').addEventListener('click', async ()=>{
+  setMsg('');
+  const usuario = document.getElementById('usu').value.trim();
+  const senha   = document.getElementById('pwd').value;
+  if(!usuario || !senha){ setMsg("Preencha usuário e senha"); return; }
+  try{
+    const j = await api("/login",{usuario, senha});
+    if(j.error){ setMsg(j.error); return; }
+    const ses = j.session || {};
+    // guarda sessão e API_BASE para o app
+    localStorage.setItem("rom_api", API_BASE);
+    localStorage.setItem("rom_token", ses.token);
+    localStorage.setItem("rom_user", JSON.stringify(ses));
+    // cache-busting
+    location.href = "app.html?v="+Date.now()+"#rom";
+  }catch(err){
+    setMsg("Erro de rede: "+err.message);
+  }
+});
+</script>
 </body>
 </html>
