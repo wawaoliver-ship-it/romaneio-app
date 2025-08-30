@@ -1,10 +1,9 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Romaneio • Login</title>
-  <!-- anti-cache -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
@@ -20,29 +19,21 @@
       --ok:#16a34a; --err:#dc2626;
     }
     *{box-sizing:border-box}
-    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,Segoe UI,Inter,Roboto,Arial,sans-serif}
     .wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
     .card{width:100%;max-width:420px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px}
     h1{margin:0 0 8px}
     .muted{color:var(--muted)}
     label{font-size:13px;color:var(--muted);display:block;margin:10px 0 6px}
-    input{
-      width:100%;padding:12px;border-radius:10px;border:1px solid var(--border);
-      background:#0b1222;color:var(--text)
-    }
-    .light input{background:#fff}
-    .row{display:flex;gap:10px;align-items:center}
-    .between{display:flex;justify-content:space-between;align-items:center}
-    .btn{
-      width:100%;padding:12px 16px;border-radius:10px;border:1px solid var(--border);
-      background:var(--primary);color:#fff;cursor:pointer;font-weight:600
-    }
-    .ghost{background:transparent;color:var(--text)}
+    input{width:100%;padding:12px;border-radius:10px;border:1px solid var(--border);background:#0b1222;color:var(--text)}
+    .light input{background:#fff;color:#0f172a}
+    .btn{width:100%;padding:12px 16px;border-radius:10px;border:1px solid var(--border);background:var(--primary);color:#fff;font-weight:600;cursor:pointer}
     .chip{padding:8px 10px;border:1px solid var(--border);border-radius:10px;background:var(--chip);cursor:pointer}
     .status{margin-top:10px;padding:10px 12px;border-radius:10px;border:1px solid var(--border)}
     .ok{background:var(--ok);color:#fff;border-color:transparent}
     .err{background:var(--err);color:#fff;border-color:transparent}
-    .eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;opacity:.7}
+    .between{display:flex;justify-content:space-between;align-items:center}
+    .eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);opacity:.7;cursor:pointer}
     .relative{position:relative}
     .footer{margin-top:14px;display:flex;justify-content:space-between;align-items:center}
     a{color:inherit}
@@ -72,22 +63,20 @@
       <div id="msg" class="status" style="display:none"></div>
 
       <div class="footer">
-        <small class="muted">Precisa de ajuda? Fale com o suporte.</small>
-        <a id="testPing" class="chip ghost" href="#">Testar conexão</a>
+        <small class="muted">Problema de conexão? Teste abaixo.</small>
+        <a id="testPing" class="chip" href="#">Testar</a>
       </div>
     </div>
   </div>
 
   <script>
-    // ====== CONFIG: USE O MESMO /exec DO APP ======
+    // ========= TROQUE AQUI PELO SEU /exec =========
     const API_BASE = "https://script.google.com/macros/s/AKfycbzahPVwksRN4y6WnYZ6sXfCWftB_YDiL2nfyTw0QPMelz_A_3GKmrtMV-4QysIhTu8R/exec";
+    // ==============================================
 
-    // ====== TEMA ======
+    // tema
     const root = document.documentElement;
-    function applyTheme(){
-      const t = localStorage.getItem("theme") || "dark";
-      if(t==="light") root.classList.add("light"); else root.classList.remove("light");
-    }
+    const applyTheme = ()=> (localStorage.getItem("theme")==="light" ? root.classList.add("light") : root.classList.remove("light"));
     applyTheme();
     document.getElementById("themeBtn").onclick = ()=>{
       const cur = localStorage.getItem("theme")||"dark";
@@ -95,79 +84,69 @@
       applyTheme();
     };
 
-    // ====== UI helpers ======
+    // helpers
     const $ = (id)=>document.getElementById(id);
-    function showMsg(text, kind=""){
-      const el = $("msg");
-      el.textContent = text;
-      el.className = "status " + (kind==="ok"?"ok":kind==="err"?"err":"");
-      el.style.display = "block";
-    }
+    function showMsg(t,k=""){ const el=$("msg"); el.textContent=t; el.className="status "+(k==="ok"?"ok":k==="err"?"err":""); el.style.display="block"; }
 
-    // ====== HTTP ======
     async function post(path, body){
-      const r = await fetch(`${API_BASE}?path=${encodeURIComponent(path)}`,{
+      const r = await fetch(`${API_BASE}?path=${encodeURIComponent(path)}`, {
         method:"POST",
         headers:{"Content-Type":"application/json"},
         body: JSON.stringify(body||{})
       });
-      return await r.json();
+      return r.json();
     }
 
-    // ====== Guarda: se já tem sessão válida, vai pro app ======
-    (async()=>{
+    // guarda: já logado?
+    (async ()=>{
       try{
-        const sess = JSON.parse(localStorage.getItem("sess")||"null");
+        const sess = JSON.parse(localStorage.getItem("sess") || localStorage.getItem("session") || "null");
         if(sess && sess.token){
-          const w = await post("/whoami",{ token:sess.token });
+          const w = await post("/whoami",{ token: sess.token });
           if(w && w.session && w.session.usuario){
-            location.href = "./app.html";
+            location.replace(`./app.html?v=${Date.now()}`);
             return;
           }else{
             localStorage.removeItem("sess");
+            localStorage.removeItem("session");
           }
         }
-      }catch(e){/* silencia */}
+      }catch(_){}
     })();
 
-    // ====== Login ======
     async function doLogin(){
       const usuario = $("usuario").value.trim();
       const senha   = $("senha").value;
-      if(!usuario || !senha){ showMsg("Informe usuário e senha", "err"); return; }
+      if(!usuario || !senha){ showMsg("Informe usuário e senha","err"); return; }
       try{
         showMsg("Conectando…");
-        const rsp = await post("/login", { usuario, senha });
+        const rsp = await post("/login",{usuario,senha});
         if(rsp && rsp.session && rsp.session.token){
+          // grava nas DUAS chaves para compatibilidade
           localStorage.setItem("sess", JSON.stringify(rsp.session));
-          showMsg("Login ok. Redirecionando…", "ok");
-          setTimeout(()=>location.href="./app.html", 400);
+          localStorage.setItem("session", JSON.stringify(rsp.session));
+          showMsg("Login concluído. Redirecionando…","ok");
+          // força navegação sem voltar
+          setTimeout(()=>location.replace(`./app.html?v=${Date.now()}`), 250);
         }else{
-          showMsg(rsp?.error || "Falha no login", "err");
+          showMsg(rsp?.error || "Falha no login","err");
         }
-      }catch(err){
-        showMsg("Erro de rede: " + (err?.message||err), "err");
+      }catch(e){
+        showMsg("Erro de rede: "+(e?.message||e),"err");
       }
     }
     $("btnLogin").onclick = doLogin;
-    $("senha").addEventListener("keydown", (e)=>{ if(e.key==="Enter") doLogin(); });
+    $("senha").addEventListener("keydown",(e)=>{ if(e.key==="Enter") doLogin(); });
+    $("toggleEye").onclick = ()=>{ const i=$("senha"); i.type = i.type==="password"?"text":"password"; };
 
-    // mostrar/ocultar senha
-    $("toggleEye").onclick = ()=>{
-      const i = $("senha");
-      i.type = i.type === "password" ? "text" : "password";
-    };
-
-    // ====== Teste de conexão ======
-    $("testPing").onclick = async (e)=>{
-      e.preventDefault();
+    // teste de ping
+    $("testPing").onclick = async (ev)=>{
+      ev.preventDefault();
       try{
         const pong = await post("/ping",{});
-        if(pong && pong.pong) showMsg("Conexão ok ("+pong.at+")", "ok");
-        else showMsg("Ping sem sucesso", "err");
-      }catch(err){
-        showMsg("Ping falhou: " + (err?.message||err), "err");
-      }
+        if(pong && pong.pong) showMsg("Conexão OK ("+pong.at+")","ok");
+        else showMsg("Ping sem sucesso","err");
+      }catch(e){ showMsg("Ping falhou: "+(e?.message||e),"err"); }
     };
   </script>
 </body>
